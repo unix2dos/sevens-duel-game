@@ -1,9 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Application } from "pixi.js";
 
 export function usePixiHost() {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
+  const [readyToken, setReadyToken] = useState(0);
 
   useEffect(() => {
     if (import.meta.env.MODE === "test") {
@@ -32,6 +33,7 @@ export function usePixiHost() {
 
       appRef.current = app;
       hostRef.current.replaceChildren(app.canvas);
+      setReadyToken((token) => token + 1);
     }
 
     void mount();
@@ -43,5 +45,5 @@ export function usePixiHost() {
     };
   }, []);
 
-  return { appRef, hostRef };
+  return { appRef, hostRef, readyToken };
 }

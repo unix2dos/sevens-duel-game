@@ -19,12 +19,12 @@ export function HomeScreen({
   onToggleSound,
 }: HomeScreenProps) {
   return (
-    <main className="app-shell">
+    <main className="app-shell app-shell--home">
       <section className="hero-panel">
-        <p className="eyebrow">CYBER SEVENS DUEL</p>
+        <p className="eyebrow">SEVENS SALON</p>
         <h1>双人改良版排七</h1>
         <p className="hero-copy">
-          免登录即玩，单人挑战 AI。围绕四个 7 展开接龙，在借牌与卡位之间抢先清空手牌。
+          一张深色绒面牌桌，一副真实扑克牌。围绕四个 7 接龙，在借牌与卡位之间，先把自己的手牌清空。
         </p>
 
         <DifficultyPicker
@@ -45,19 +45,25 @@ export function HomeScreen({
         </div>
       </section>
 
-      <section aria-label="核心特性" className="status-grid">
-        <article>
-          <span>模式</span>
-          <strong>单机 AI</strong>
+      <section aria-hidden="true" className="home-tableau">
+        <div className="home-tableau-board" />
+        <article className="home-card home-card--dark">
+          <span>7♠</span>
+          <small>黑桃 7</small>
         </article>
-        <article>
-          <span>难度</span>
-          <strong>儿童 / 标准 / 挑战</strong>
+        <article className="home-card home-card--warm">
+          <span>7♥</span>
+          <small>红桃 7</small>
         </article>
-        <article>
-          <span>平台</span>
-          <strong>手机 + 桌面</strong>
+        <article className="home-card home-card--warm home-card--rear">
+          <span>8♦</span>
+          <small>方块 8</small>
         </article>
+        <div className="home-notes">
+          <p>单机 AI</p>
+          <p>手机 + 桌面</p>
+          <p>电影感牌桌反馈</p>
+        </div>
       </section>
     </main>
   );

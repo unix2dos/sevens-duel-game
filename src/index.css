@@ -1,36 +1,19 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
 
 :root {
   color-scheme: dark;
   font-family: "IBM Plex Sans", "PingFang SC", "Noto Sans SC", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #eff8ff;
+  color: #f3efe6;
   background:
-    radial-gradient(circle at top, rgba(72, 146, 255, 0.18), transparent 28%),
-    radial-gradient(circle at 20% 20%, rgba(255, 126, 88, 0.12), transparent 22%),
-    linear-gradient(180deg, #03060c, #091321 38%, #04070d 100%);
+    radial-gradient(circle at 20% 12%, rgba(116, 58, 30, 0.18), transparent 22%),
+    radial-gradient(circle at 80% 24%, rgba(15, 61, 69, 0.22), transparent 20%),
+    linear-gradient(180deg, #060b11, #08131d 40%, #05080d 100%);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  --bg-panel: rgba(8, 15, 24, 0.82);
-  --bg-panel-strong: rgba(10, 18, 28, 0.94);
-  --bg-panel-soft: rgba(16, 28, 44, 0.72);
-  --bg-chip: rgba(17, 33, 52, 0.9);
-  --line-soft: rgba(111, 224, 255, 0.18);
-  --line-strong: rgba(113, 223, 255, 0.45);
-  --text-main: #eff8ff;
-  --text-muted: rgba(196, 220, 238, 0.76);
-  --text-soft: rgba(159, 190, 208, 0.62);
-  --cyan: #67f3ff;
-  --warm: #ff8e5e;
-  --warm-soft: rgba(255, 142, 94, 0.2);
-  --cyan-soft: rgba(103, 243, 255, 0.2);
-  --shadow-heavy: 0 28px 80px rgba(0, 0, 0, 0.48);
-  --shadow-soft: 0 18px 44px rgba(0, 0, 0, 0.28);
-  --safe-pad: clamp(1rem, 2vw, 2rem);
 }
 
 * {
@@ -63,25 +46,25 @@ h1,
 h2,
 h3,
 strong {
-  font-family: "Sora", "IBM Plex Sans", sans-serif;
+  font-family: "Cormorant Garamond", serif;
 }
 
 h1 {
   margin: 0 0 1rem;
-  font-size: clamp(3rem, 7vw, 5.6rem);
-  line-height: 0.92;
-  letter-spacing: -0.08em;
+  font-size: clamp(3.4rem, 8vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
 }
 
 h2 {
-  margin: 0 0 1rem;
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  line-height: 1;
-  letter-spacing: -0.04em;
+  margin: 0 0 0.8rem;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
 }
 
 button:focus-visible,
 input:focus-visible {
-  outline: 2px solid var(--cyan);
+  outline: 2px solid rgba(212, 178, 104, 0.92);
   outline-offset: 3px;
 }

@@ -52,10 +52,11 @@ it("shows persistent guidance for legal cards in child difficulty", () => {
     />,
   );
 
-  expect(screen.getByTestId("guidance-layer")).toBeInTheDocument();
+  expect(screen.getByRole("region", { name: /对局牌桌，儿童/i })).toBeInTheDocument();
+  expect(screen.getByTestId("table-stage")).toBeInTheDocument();
 });
 
-it("only exposes legal cards as playable actions", () => {
+it("removes the old dom-based action rack from the gameplay screen", () => {
   const match = createMatch({
     seed: 7,
     difficulty: "normal",
@@ -77,6 +78,7 @@ it("only exposes legal cards as playable actions", () => {
     />,
   );
 
-  expect(screen.getByRole("button", { name: /打出 梅花 7/i })).toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: /打出 黑桃 K/i })).not.toBeInTheDocument();
+  expect(screen.getByTestId("table-stage")).toBeInTheDocument();
+  expect(screen.queryByText(/当前可打/i)).not.toBeInTheDocument();
+  expect(screen.queryByRole("region", { name: /玩家控制台/i })).not.toBeInTheDocument();
 });
