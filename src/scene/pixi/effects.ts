@@ -1,15 +1,21 @@
 export const cyberColors = {
-  panel: 0x071321,
-  neon: 0x4afff2,
-  secondary: 0x6d6eff,
-  accent: 0x13f1fc,
-  text: 0xe9fdff,
-  muted: 0x85dce2,
-  card: 0xf4fbff,
-  cardInk: 0x08131f,
-  cardBack: 0x0d2239,
+  panel: 0x08111d,
+  panelRaised: 0x102033,
+  track: 0x15304d,
+  halo: 0x162d49,
+  border: 0x2ef0ff,
+  neon: 0x67f3ff,
+  secondary: 0x6877ff,
+  accent: 0xff8e5e,
+  spark: 0xff7b72,
+  text: 0xf2fbff,
+  muted: 0x93b7c6,
+  card: 0xf5f1ea,
+  cardEdge: 0xe5d3ba,
+  cardInk: 0x122031,
+  cardBack: 0x162742,
 };
 
 export function getGlowAlpha(active: boolean) {
-  return active ? 0.9 : 0.24;
+  return active ? 0.82 : 0.14;
 }

@@ -54,3 +54,29 @@ it("shows persistent guidance for legal cards in child difficulty", () => {
 
   expect(screen.getByTestId("guidance-layer")).toBeInTheDocument();
 });
+
+it("only exposes legal cards as playable actions", () => {
+  const match = createMatch({
+    seed: 7,
+    difficulty: "normal",
+    initialHands: {
+      player: ["hearts-3", "spades-K", "clubs-7"],
+      opponent: ["diamonds-7", "clubs-9"],
+    },
+  });
+
+  render(
+    <GameScreen
+      difficultyLabel="标准"
+      matchSnapshot={match.snapshot}
+      onBorrow={() => {}}
+      onPlayCard={() => {}}
+      onRestart={() => {}}
+      qualityLabel="高"
+      showChildGuidance={false}
+    />,
+  );
+
+  expect(screen.getByRole("button", { name: /打出 梅花 7/i })).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: /打出 黑桃 K/i })).not.toBeInTheDocument();
+});

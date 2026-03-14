@@ -6,10 +6,9 @@ import type { MatchSnapshot } from "../../game/match/engine";
 
 interface GameSceneProps {
   matchSnapshot: MatchSnapshot;
-  onPlayCard: (cardId: string) => void;
 }
 
-export function GameScene({ matchSnapshot, onPlayCard }: GameSceneProps) {
+export function GameScene({ matchSnapshot }: GameSceneProps) {
   const { appRef, hostRef } = usePixiHost();
 
   useEffect(() => {
@@ -23,12 +22,11 @@ export function GameScene({ matchSnapshot, onPlayCard }: GameSceneProps) {
     app.stage.addChild(
       createTableView({
         height: app.screen.height,
-        onPlayCard,
         snapshot: matchSnapshot,
         width: app.screen.width,
       }),
     );
-  }, [appRef, matchSnapshot, onPlayCard]);
+  }, [appRef, matchSnapshot]);
 
   return <div className="table-stage table-canvas" data-testid="table-stage" ref={hostRef} />;
 }

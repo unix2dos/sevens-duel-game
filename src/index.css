@@ -1,25 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700;800&display=swap");
+
 :root {
-  font-family: "Space Grotesk", "IBM Plex Sans", sans-serif;
+  color-scheme: dark;
+  font-family: "IBM Plex Sans", "PingFang SC", "Noto Sans SC", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #effeff;
+  color: #eff8ff;
   background:
-    radial-gradient(circle at top, rgba(33, 112, 212, 0.35), transparent 30%),
-    linear-gradient(180deg, #040915, #02050c 65%);
+    radial-gradient(circle at top, rgba(72, 146, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 20% 20%, rgba(255, 126, 88, 0.12), transparent 22%),
+    linear-gradient(180deg, #03060c, #091321 38%, #04070d 100%);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --bg-panel: rgba(8, 15, 24, 0.82);
+  --bg-panel-strong: rgba(10, 18, 28, 0.94);
+  --bg-panel-soft: rgba(16, 28, 44, 0.72);
+  --bg-chip: rgba(17, 33, 52, 0.9);
+  --line-soft: rgba(111, 224, 255, 0.18);
+  --line-strong: rgba(113, 223, 255, 0.45);
+  --text-main: #eff8ff;
+  --text-muted: rgba(196, 220, 238, 0.76);
+  --text-soft: rgba(159, 190, 208, 0.62);
+  --cyan: #67f3ff;
+  --warm: #ff8e5e;
+  --warm-soft: rgba(255, 142, 94, 0.2);
+  --cyan-soft: rgba(103, 243, 255, 0.2);
+  --shadow-heavy: 0 28px 80px rgba(0, 0, 0, 0.48);
+  --shadow-soft: 0 18px 44px rgba(0, 0, 0, 0.28);
+  --safe-pad: clamp(1rem, 2vw, 2rem);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
   min-width: 320px;
-  min-height: 100vh;
 }
 
 button,
@@ -29,13 +55,33 @@ textarea {
   font: inherit;
 }
 
-#root {
-  min-height: 100vh;
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3,
+strong {
+  font-family: "Sora", "IBM Plex Sans", sans-serif;
 }
 
 h1 {
   margin: 0 0 1rem;
-  font-size: clamp(2.4rem, 6vw, 4.8rem);
-  line-height: 0.96;
-  letter-spacing: -0.06em;
+  font-size: clamp(3rem, 7vw, 5.6rem);
+  line-height: 0.92;
+  letter-spacing: -0.08em;
+}
+
+h2 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
 }

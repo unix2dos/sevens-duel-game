@@ -1,7 +1,9 @@
 import type { MatchSnapshot } from "../../game/match/engine";
+import { selectPhaseLabel } from "../../game/match/selectors";
 import { GameScene } from "../../scene/pixi/GameScene";
 import { EventFeed } from "../components/EventFeed";
 import { Hud } from "../components/Hud";
+import { PlayerConsole } from "../components/PlayerConsole";
 
 interface GameScreenProps {
   difficultyLabel: string;
@@ -22,13 +24,24 @@ export function GameScreen({
   qualityLabel,
   showChildGuidance,
 }: GameScreenProps) {
+  const phaseLabel = selectPhaseLabel(matchSnapshot);
+  const turnLabel =
+    matchSnapshot.status === "finished"
+      ? "本局已结束"
+      : matchSnapshot.turn === "player"
+        ? "轮到你"
+        : "AI 回合";
+
   return (
     <main className="game-layout">
       <Hud
         difficultyLabel={difficultyLabel}
-        onBorrow={onBorrow}
         onRestart={onRestart}
+        opponentCards={matchSnapshot.hands.opponent.length}
+        phaseLabel={phaseLabel}
+        playerCards={matchSnapshot.hands.player.length}
         qualityLabel={qualityLabel}
+        turnLabel={turnLabel}
       />
 
       <div className="game-main">
@@ -41,17 +54,23 @@ export function GameScreen({
           </div>
           {showChildGuidance ? (
             <div className="guidance-layer" data-testid="guidance-layer">
-              发光的牌可以直接点，没牌时系统会帮你借牌。
+              发光的行动牌会单独列出来，没牌时系统会帮你借牌。
             </div>
           ) : null}
-          <GameScene
-            matchSnapshot={matchSnapshot}
-            onPlayCard={onPlayCard}
-          />
+          <GameScene matchSnapshot={matchSnapshot} />
         </section>
 
-        <EventFeed snapshot={matchSnapshot} />
+        <aside className="side-panel">
+          <EventFeed snapshot={matchSnapshot} />
+        </aside>
       </div>
+
+      <PlayerConsole
+        matchSnapshot={matchSnapshot}
+        onBorrow={onBorrow}
+        onPlayCard={onPlayCard}
+        showChildGuidance={showChildGuidance}
+      />
     </main>
   );
 }

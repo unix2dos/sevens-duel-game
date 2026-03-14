@@ -3,7 +3,7 @@ import { chooseChildMove } from "../ai/child";
 import { chooseNormalMove } from "../ai/normal";
 import type { Observation } from "../ai/types";
 import { buildDeck, dealHands } from "../core/deck";
-import { applyBorrowWhenStuck, applyPlayCard, createInitialGameState } from "../core/reducer";
+import { applyBorrowWhenStuck, applyPlayCard, createInitialGameState, getCurrentHand } from "../core/reducer";
 import { getLegalCards } from "../core/rules";
 import type { GameEvent } from "../core/events";
 import type { Actor, GameState } from "../core/state";
@@ -160,6 +160,14 @@ export function createMatch(options: CreateMatchOptions): Match {
 }
 
 export function dispatchHumanAction(match: Match, action: HumanAction): Match {
+  if (action.type === "play") {
+    const legalCardIds = new Set(getLegalCards(match.snapshot.layout, getCurrentHand(match.snapshot)).map((card) => card.id));
+
+    if (!legalCardIds.has(action.cardId)) {
+      return match;
+    }
+  }
+
   const nextState =
     action.type === "borrow"
       ? applyBorrowWhenStuck(match.snapshot)

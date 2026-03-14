@@ -25,3 +25,18 @@ it("lets the acting player play a legal card through the match engine", () => {
   expect(next.snapshot.turn).toBe("opponent");
   expect(next.snapshot.phase).toBe("playing");
 });
+
+it("ignores illegal player clicks instead of crashing the match", () => {
+  const match = createMatch({
+    seed: 7,
+    difficulty: "normal",
+    initialHands: {
+      player: ["hearts-3", "spades-K", "clubs-7"],
+      opponent: ["diamonds-7", "clubs-9"],
+    },
+  });
+
+  const next = dispatchHumanAction(match, { type: "play", cardId: "spades-K" });
+
+  expect(next.snapshot).toEqual(match.snapshot);
+});
