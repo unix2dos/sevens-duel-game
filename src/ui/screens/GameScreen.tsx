@@ -1,9 +1,21 @@
+import type { MatchSnapshot } from "../../game/match/engine";
+import { GameScene } from "../../scene/pixi/GameScene";
+
 interface GameScreenProps {
   difficultyLabel: string;
+  matchSnapshot: MatchSnapshot;
+  onBorrow: () => void;
+  onPlayCard: (cardId: string) => void;
   onRestart: () => void;
 }
 
-export function GameScreen({ difficultyLabel, onRestart }: GameScreenProps) {
+export function GameScreen({
+  difficultyLabel,
+  matchSnapshot,
+  onBorrow,
+  onPlayCard,
+  onRestart,
+}: GameScreenProps) {
   return (
     <main className="game-layout">
       <header className="hud">
@@ -11,9 +23,14 @@ export function GameScreen({ difficultyLabel, onRestart }: GameScreenProps) {
           <span className="hud-label">当前难度</span>
           <strong>当前难度：{difficultyLabel}</strong>
         </div>
-        <button className="secondary-action" onClick={onRestart} type="button">
-          返回首页
-        </button>
+        <div className="hud-actions">
+          <button className="secondary-action" onClick={onBorrow} type="button">
+            随机借牌
+          </button>
+          <button className="secondary-action" onClick={onRestart} type="button">
+            返回首页
+          </button>
+        </div>
       </header>
 
       <section className="table-shell">
@@ -23,9 +40,10 @@ export function GameScreen({ difficultyLabel, onRestart }: GameScreenProps) {
           <span>梅花</span>
           <span>方块</span>
         </div>
-        <div className="table-stage" data-testid="table-stage">
-          牌桌渲染即将接入
-        </div>
+        <GameScene
+          matchSnapshot={matchSnapshot}
+          onPlayCard={onPlayCard}
+        />
       </section>
     </main>
   );

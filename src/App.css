@@ -194,6 +194,12 @@
   margin-bottom: 0.25rem;
 }
 
+.hud-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 .table-shell {
   border: 1px solid rgba(74, 255, 242, 0.18);
   border-radius: 1.5rem;
@@ -221,6 +227,17 @@
   border: 1px dashed rgba(74, 255, 242, 0.24);
   color: rgba(216, 251, 255, 0.78);
   background: rgba(3, 10, 19, 0.55);
+}
+
+.table-canvas {
+  overflow: hidden;
+  padding: 0;
+}
+
+.table-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .overlay {
