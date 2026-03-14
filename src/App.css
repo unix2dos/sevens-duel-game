@@ -56,6 +56,7 @@
 }
 
 .difficulty-chip,
+.difficulty-option,
 .primary-action,
 .secondary-action {
   border-radius: 999px;
@@ -73,6 +74,46 @@
   color: #cafcff;
   background: rgba(10, 31, 53, 0.72);
   border-color: rgba(74, 255, 242, 0.22);
+}
+
+.difficulty-picker {
+  margin: 1.75rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.difficulty-picker legend {
+  margin-bottom: 0.85rem;
+  color: rgba(140, 225, 230, 0.76);
+}
+
+.difficulty-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.difficulty-option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  color: #cafcff;
+  background: rgba(10, 31, 53, 0.72);
+  border-color: rgba(74, 255, 242, 0.22);
+}
+
+.difficulty-option input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.difficulty-option[data-selected="true"] {
+  background: linear-gradient(90deg, rgba(19, 241, 252, 0.18), rgba(109, 110, 255, 0.24));
+  border-color: rgba(111, 226, 255, 0.54);
+  color: #f4feff;
 }
 
 .hero-actions {
@@ -128,6 +169,88 @@
   font-weight: 600;
 }
 
+.game-layout {
+  min-height: 100svh;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(74, 255, 242, 0.18);
+  border-radius: 1.25rem;
+  background: rgba(4, 12, 24, 0.84);
+}
+
+.hud-label {
+  display: block;
+  color: rgba(140, 225, 230, 0.7);
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+}
+
+.table-shell {
+  border: 1px solid rgba(74, 255, 242, 0.18);
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(circle at top, rgba(29, 191, 255, 0.12), transparent 35%),
+    linear-gradient(180deg, rgba(4, 12, 24, 0.96), rgba(3, 8, 18, 0.98));
+  padding: 1.25rem;
+}
+
+.table-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  color: rgba(140, 225, 230, 0.78);
+  text-align: center;
+  font-size: 0.88rem;
+}
+
+.table-stage {
+  min-height: 55svh;
+  display: grid;
+  place-items: center;
+  margin-top: 1rem;
+  border-radius: 1.25rem;
+  border: 1px dashed rgba(74, 255, 242, 0.24);
+  color: rgba(216, 251, 255, 0.78);
+  background: rgba(3, 10, 19, 0.55);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(2, 6, 14, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.overlay-card {
+  width: min(100%, 32rem);
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(74, 255, 242, 0.18);
+  background: linear-gradient(180deg, rgba(9, 20, 35, 0.98), rgba(5, 12, 22, 0.98));
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+}
+
+.rules-list {
+  padding-left: 1.2rem;
+  color: rgba(225, 246, 255, 0.78);
+}
+
+.result-card {
+  margin: auto;
+}
+
 @media (min-width: 900px) {
   .app-shell {
     grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 0.8fr);
@@ -141,5 +264,9 @@
 
   .status-grid {
     grid-template-rows: repeat(3, 1fr);
+  }
+
+  .game-layout {
+    padding: 2rem;
   }
 }
