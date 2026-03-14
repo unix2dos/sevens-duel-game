@@ -176,6 +176,11 @@
   gap: 1rem;
 }
 
+.game-main {
+  display: grid;
+  gap: 1rem;
+}
+
 .hud {
   display: flex;
   justify-content: space-between;
@@ -284,6 +289,29 @@
   margin: auto;
 }
 
+.event-feed {
+  border: 1px solid rgba(74, 255, 242, 0.18);
+  border-radius: 1.25rem;
+  background: rgba(4, 12, 24, 0.84);
+  padding: 1rem 1.2rem;
+}
+
+.event-feed h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.event-feed ul {
+  margin: 0;
+  padding-left: 1rem;
+  color: rgba(225, 246, 255, 0.78);
+}
+
+.result-stats {
+  margin: 1rem 0 1.25rem;
+  color: rgba(225, 246, 255, 0.78);
+}
+
 @media (min-width: 900px) {
   .app-shell {
     grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 0.8fr);
@@ -301,5 +329,10 @@
 
   .game-layout {
     padding: 2rem;
+  }
+
+  .game-main {
+    grid-template-columns: minmax(0, 1.4fr) minmax(16rem, 0.55fr);
+    align-items: start;
   }
 }

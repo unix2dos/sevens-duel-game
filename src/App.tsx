@@ -137,6 +137,7 @@ function App() {
             setMatch(createMatch({ difficulty: selectedDifficulty, seed: buildSeed() }));
             startTransition(() => setScreen("game"));
           }}
+          snapshot={match?.snapshot ?? null}
           title={resultTitle}
         />
       ) : null}
