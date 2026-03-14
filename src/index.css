@@ -1,15 +1,15 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap');
 
 :root {
   color-scheme: dark;
-  font-family: "IBM Plex Sans", "PingFang SC", "Noto Sans SC", sans-serif;
+  font-family: "Jost", "PingFang SC", "Noto Sans SC", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #f3efe6;
+  color: #fff8dc;
   background:
-    radial-gradient(circle at 20% 12%, rgba(116, 58, 30, 0.18), transparent 22%),
-    radial-gradient(circle at 80% 24%, rgba(15, 61, 69, 0.22), transparent 20%),
-    linear-gradient(180deg, #060b11, #08131d 40%, #05080d 100%);
+    radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.15), transparent 40%),
+    radial-gradient(circle at 50% 10%, rgba(0, 0, 0, 0.4), transparent 80%),
+    linear-gradient(135deg, #0f3f1f 0%, #0a2e16 100%);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -23,11 +23,15 @@
 html,
 body,
 #root {
-  min-height: 100%;
+  height: 100dvh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrolling for immersive full-screen feel */
+  touch-action: none; /* Prevent iOS bounce/rubbing effect */
 }
 
 body {
-  margin: 0;
   min-width: 320px;
 }
 
@@ -46,7 +50,7 @@ h1,
 h2,
 h3,
 strong {
-  font-family: "Cormorant Garamond", serif;
+  font-family: "Bodoni Moda", serif;
 }
 
 h1 {

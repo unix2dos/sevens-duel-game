@@ -1,19 +1,20 @@
 export const cyberColors = {
-  panel: 0x08111d,
-  panelRaised: 0x102033,
-  track: 0x15304d,
-  halo: 0x162d49,
-  border: 0x2ef0ff,
-  neon: 0x67f3ff,
-  secondary: 0x6877ff,
-  accent: 0xff8e5e,
-  spark: 0xff7b72,
-  text: 0xf2fbff,
-  muted: 0x93b7c6,
-  card: 0xf5f1ea,
-  cardEdge: 0xe5d3ba,
-  cardInk: 0x122031,
-  cardBack: 0x162742,
+  // We keep the name cyberColors to avoid breaking imports, but update the values to Casino Luxury
+  panel: 0x051a0d,      // Deep shadow green
+  panelRaised: 0x0a2e16, // Darker Green
+  track: 0x0f3f1f,      // Casino Green
+  halo: 0xd4af37,       // Gold
+  border: 0xd4af37,     // Gold 
+  neon: 0xffd700,       // Bright Gold
+  secondary: 0xc5a059,  // Muted Gold
+  accent: 0x8b0000,     // Deep Red
+  spark: 0xffd700,      // Gold spark
+  text: 0xfff8dc,       // Cornsilk
+  muted: 0xbdb76b,      // Dark Khaki
+  card: 0xfdfcfb,       // Ivory
+  cardEdge: 0xd4af37,   // Gold edge
+  cardInk: 0x1a1a1a,    // Near black
+  cardBack: 0x0f3f1f,   // Casino Green
 };
 
 export function getGlowAlpha(active: boolean) {

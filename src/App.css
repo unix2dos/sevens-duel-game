@@ -1,9 +1,9 @@
 .app-shell,
 .game-layout {
-  width: min(100%, 1480px);
-  min-height: 100svh;
-  margin: 0 auto;
-  padding: clamp(1rem, 2vw, 1.6rem);
+  width: 100vw;
+  height: 100dvh;
+  margin: 0;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); /* Safe areas */
   box-sizing: border-box;
 }
 
@@ -19,9 +19,9 @@
   position: relative;
   overflow: hidden;
   border-radius: 2rem;
-  border: 1px solid rgba(212, 178, 104, 0.18);
+  border: 1px solid rgba(212, 175, 55, 0.4); /* Gold border */
   background:
-    radial-gradient(circle at 10% 10%, rgba(212, 178, 104, 0.08), transparent 26%),
+    radial-gradient(circle at 10% 10%, rgba(212, 175, 55, 0.15), transparent 26%),
     linear-gradient(145deg, rgba(8, 15, 23, 0.96), rgba(11, 19, 29, 0.94));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.03),
@@ -45,10 +45,10 @@
 
 .eyebrow {
   margin: 0 0 0.85rem;
-  color: rgba(223, 195, 129, 0.9);
-  font-size: 0.82rem;
+  color: rgba(212, 175, 55, 0.9); /* Metallic Gold */
+  font-size: 0.85rem;
   font-weight: 700;
-  letter-spacing: 0.32em;
+  letter-spacing: 0.35em;
   text-transform: uppercase;
 }
 
@@ -106,7 +106,7 @@
 }
 
 .difficulty-option span {
-  font-family: "Cormorant Garamond", serif;
+  font-family: "Bodoni Moda", serif;
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -155,16 +155,19 @@
 
 .primary-action {
   background:
-    linear-gradient(135deg, #f0d6a2, #d7b06a);
+    linear-gradient(135deg, #f0d6a2, #d4af37); /* True gold gradient */
   color: #151109;
-  box-shadow: 0 12px 28px rgba(215, 176, 106, 0.2);
+  box-shadow: 0 12px 28px rgba(212, 175, 55, 0.3);
+  font-family: "Bodoni Moda", serif;
+  letter-spacing: 0.05em;
 }
 
 .secondary-action,
 .table-return-button {
   background:
     linear-gradient(180deg, rgba(13, 22, 33, 0.96), rgba(7, 12, 19, 0.98));
-  color: rgba(242, 245, 248, 0.92);
+  color: rgba(212, 175, 55, 0.92); /* Gold text on dark */
+  border-color: rgba(212, 175, 55, 0.4);
 }
 
 .home-tableau {
@@ -255,23 +258,26 @@
 
 .table-shell--full {
   position: relative;
-  min-height: calc(100svh - clamp(2rem, 4vw, 3.2rem));
+  height: 100dvh; /* Enforce full height */
+  width: 100vw;
   padding: 0;
-  border-radius: 2rem;
+  margin: 0;
   overflow: hidden;
   background:
-    radial-gradient(circle at center, rgba(13, 44, 60, 0.36), transparent 42%),
-    linear-gradient(180deg, rgba(6, 15, 22, 0.98), rgba(8, 15, 23, 0.98));
-  border: 1px solid rgba(212, 178, 104, 0.14);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
+    radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.08), transparent 60%),
+    linear-gradient(180deg, rgba(15, 63, 31, 1), rgba(10, 46, 22, 1));
+  border: none;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
 }
 
 .table-stage {
-  min-height: calc(100svh - clamp(2rem, 4vw, 3.2rem));
-  border-radius: 2rem;
+  height: 100dvh;
+  width: 100vw;
 }
 
 .table-canvas {
+  height: 100%;
+  width: 100%;
   overflow: hidden;
 }
 

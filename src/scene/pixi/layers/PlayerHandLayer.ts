@@ -34,15 +34,15 @@ function createBorrowChip(
   });
 
   shell
-    .roundRect(x, y, width, compact ? 36 : 40, 999)
+    .roundRect(x, y, width, compact ? 44 : 48, 999)
     .fill({ color: 0x2a1d1a, alpha: 0.92 })
     .stroke({ color: cardTheme.backAccent, alpha: 0.58, width: 1 });
   title.anchor.set(0.5);
-  title.position.set(x + width / 2, y + (compact ? 18 : 20));
+  title.position.set(x + width / 2, y + (compact ? 22 : 24));
   root.addChild(shell, title);
   root.eventMode = "static";
   root.cursor = "pointer";
-  root.hitArea = new Rectangle(x, y, width, compact ? 36 : 40);
+  root.hitArea = new Rectangle(x, y, width, compact ? 44 : 48);
   root.on("pointertap", onBorrow);
 
   return root;
