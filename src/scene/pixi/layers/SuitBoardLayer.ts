@@ -57,9 +57,18 @@ export function createSuitBoardLayer({ layout, snapshot }: SuitBoardLayerOptions
       },
       text: lane.label,
     });
-    const cardWidth = layout.compact ? 42 : 48;
-    const cardHeight = layout.compact ? 60 : 70;
-    const cardStep = layout.compact ? 19 : 24;
+    // Dynamically calculate maximum card width based on the lane container
+    const availableLaneHeight = layout.board.height - 40; // padding top/bottom
+    const maxStackedCards = 7; // up to 7 cards on each side of the center 7
+    // Determine card step (spacing between cards) dynamically based on available height
+    const cardStep = Math.max(layout.compact ? 18 : 24, availableLaneHeight / (maxStackedCards * 2 + 1) * 0.4);
+    
+    // Maximize cardHeight while fitting inside the available lane height taking the step overlaps into account.
+    // Total column height = cardHeight + (maxCards - 1) * step
+    // So: cardHeight = available height / 2 - (maxStackedCards - 1) * step
+    const computedCardHeight = Math.min((availableLaneHeight / 2) + cardStep * 3, lane.rect.width * 1.5 - 20);
+    const cardHeight = Math.max(layout.compact ? 60 : 80, computedCardHeight);
+    const cardWidth = cardHeight * 0.7; // maintain poker card ratio (2.5/3.5)
     const centerCard = createCardView({
       card: { id: `${lane.key}-7`, rank: 7, suit: lane.key },
       height: cardHeight,

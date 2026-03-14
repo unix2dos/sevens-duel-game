@@ -80,8 +80,12 @@ export function createPlayerHandLayer({
   const canAct = snapshot.turn === "player" && snapshot.status === "playing";
   const showBorrowChip = canAct && legalIds.size === 0;
   const availableWidth = layout.handRail.width - 32;
-  const cardWidth = layout.compact ? 52 : 74;
-  const cardHeight = layout.compact ? 78 : 108;
+  const availableHeight = layout.handRail.height - 36; // Padding top/bottom
+
+  // Maximize the card height to fill the hand rail using the true poker ratio (2.5/3.5 = 1/1.4)
+  const computedCardHeight = Math.min(availableHeight, availableWidth * 1.4);
+  const cardHeight = Math.max(layout.compact ? 78 : 96, computedCardHeight);
+  const cardWidth = cardHeight * 0.714; // Slightly wider than 0.7 for poker cards
   const groupGap = layout.compact ? 6 : 10;
   const suitGapTotal = sortedHand.reduce((sum, card, index) => {
     if (index === 0 || sortedHand[index - 1]?.suit === card.suit) {

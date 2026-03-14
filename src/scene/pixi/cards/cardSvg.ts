@@ -91,12 +91,13 @@ export function buildCardFaceSvg(card: Card) {
     <svg xmlns="http://www.w3.org/2000/svg" width="${ART_WIDTH}" height="${ART_HEIGHT}" viewBox="0 0 ${ART_WIDTH} ${ART_HEIGHT}">
       <defs>
         <linearGradient id="paper" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#fdfcfb"/>
-          <stop offset="100%" stop-color="#f5f3ee"/>
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="60%" stop-color="#fdfcfb"/>
+          <stop offset="100%" stop-color="#eae6df"/>
         </linearGradient>
         <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
-          <stop offset="45%" stop-color="#ffffff" stop-opacity="0.15"/>
+          <stop offset="45%" stop-color="#ffffff" stop-opacity="0.25"/>
           <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
         </linearGradient>
         <linearGradient id="medallion" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -104,9 +105,9 @@ export function buildCardFaceSvg(card: Card) {
           <stop offset="100%" stop-color="#f5f3ee"/>
         </linearGradient>
         <pattern id="paperNoise" width="24" height="24" patternUnits="userSpaceOnUse">
-          <circle cx="5" cy="6" r="1" fill="#d4af37" opacity="0.1"/>
-          <circle cx="18" cy="11" r="1" fill="#d4af37" opacity="0.08"/>
-          <circle cx="12" cy="19" r="1" fill="#d4af37" opacity="0.1"/>
+          <circle cx="5" cy="6" r="1" fill="#d4af37" opacity="0.15"/>
+          <circle cx="18" cy="11" r="1" fill="#d4af37" opacity="0.12"/>
+          <circle cx="12" cy="19" r="1" fill="#d4af37" opacity="0.15"/>
         </pattern>
       </defs>
       <rect x="6" y="10" width="${ART_WIDTH - 12}" height="${ART_HEIGHT - 12}" rx="28" fill="#051a0d" fill-opacity="0.15"/>

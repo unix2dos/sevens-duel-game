@@ -27,8 +27,8 @@ export function createPokerCardSprite({
   const shadow = new Graphics();
   const sprite = new Sprite(getCardFaceTexture(card));
 
-  glow.roundRect(0, 0, width, height, cardMetrics.radius + 4).fill({
-    alpha: isLegal ? 0.22 : 0.08,
+  glow.roundRect(0, 0, width, height, cardMetrics.radius + 6).fill({
+    alpha: isLegal ? 0.35 : 0.12,
     color: suitInk(card) === "warm" ? cardTheme.glowWarm : cardTheme.glowLegal,
   });
   shadow.roundRect(0, 0, width, height, cardMetrics.radius).fill({
@@ -83,26 +83,26 @@ export function createPokerCardSprite({
     
     root.on("pointerover", () => {
       hovered = true;
-      targetY = -12; // Elevate card
-      glow.alpha = isLegal ? 0.35 : 0.15;
+      targetY = -18; // Elevate card higher 
+      glow.alpha = isLegal ? 0.6 : 0.25; // Much brighter hover glow
     });
 
     root.on("pointerout", () => {
       hovered = false;
       targetY = 0;
-      glow.alpha = isLegal ? 0.22 : 0.08;
+      glow.alpha = isLegal ? 0.35 : 0.12;
     });
 
     const updateHover = () => {
       if (Math.abs(sprite.y - targetY) > 0.1) {
-        sprite.y += (targetY - sprite.y) * 0.2;
-        glow.y += (targetY - glow.y) * 0.2;
+        sprite.y += (targetY - sprite.y) * 0.25; // Faster spring
+        glow.y += (targetY - glow.y) * 0.25;
         
-        const targetShadowY = cardMetrics.shadowOffsetY + (targetY * -0.3);
-        shadow.y += (targetShadowY - shadow.y) * 0.2;
+        const targetShadowY = cardMetrics.shadowOffsetY + (targetY * -0.4);
+        shadow.y += (targetShadowY - shadow.y) * 0.25;
 
-        const targetShadowAlpha = cardMetrics.shadowAlpha + (hovered ? -0.1 : 0);
-        shadow.alpha += (targetShadowAlpha - shadow.alpha) * 0.2;
+        const targetShadowAlpha = cardMetrics.shadowAlpha + (hovered ? -0.15 : 0);
+        shadow.alpha += (targetShadowAlpha - shadow.alpha) * 0.25;
       }
     };
 
