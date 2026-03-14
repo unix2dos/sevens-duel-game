@@ -201,6 +201,7 @@
 }
 
 .table-shell {
+  position: relative;
   border: 1px solid rgba(74, 255, 242, 0.18);
   border-radius: 1.5rem;
   background:
@@ -248,6 +249,21 @@
   padding: 1.5rem;
   background: rgba(2, 6, 14, 0.72);
   backdrop-filter: blur(10px);
+}
+
+.guidance-layer {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  max-width: 15rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(74, 255, 242, 0.24);
+  background: rgba(8, 22, 38, 0.82);
+  color: #e7feff;
+  font-size: 0.92rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .overlay-card {

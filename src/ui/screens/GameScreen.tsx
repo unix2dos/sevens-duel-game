@@ -7,6 +7,8 @@ interface GameScreenProps {
   onBorrow: () => void;
   onPlayCard: (cardId: string) => void;
   onRestart: () => void;
+  qualityLabel: string;
+  showChildGuidance: boolean;
 }
 
 export function GameScreen({
@@ -15,6 +17,8 @@ export function GameScreen({
   onBorrow,
   onPlayCard,
   onRestart,
+  qualityLabel,
+  showChildGuidance,
 }: GameScreenProps) {
   return (
     <main className="game-layout">
@@ -22,6 +26,10 @@ export function GameScreen({
         <div>
           <span className="hud-label">当前难度</span>
           <strong>当前难度：{difficultyLabel}</strong>
+        </div>
+        <div>
+          <span className="hud-label">特效档位</span>
+          <strong>特效：{qualityLabel}</strong>
         </div>
         <div className="hud-actions">
           <button className="secondary-action" onClick={onBorrow} type="button">
@@ -40,6 +48,11 @@ export function GameScreen({
           <span>梅花</span>
           <span>方块</span>
         </div>
+        {showChildGuidance ? (
+          <div className="guidance-layer" data-testid="guidance-layer">
+            发光的牌可以直接点，没牌时系统会帮你借牌。
+          </div>
+        ) : null}
         <GameScene
           matchSnapshot={matchSnapshot}
           onPlayCard={onPlayCard}
