@@ -1,3 +1,7 @@
+import { chooseChallengeMove } from "../ai/challenge";
+import { chooseChildMove } from "../ai/child";
+import { chooseNormalMove } from "../ai/normal";
+import type { Observation } from "../ai/types";
 import { buildDeck, dealHands } from "../core/deck";
 import { applyBorrowWhenStuck, applyPlayCard, createInitialGameState } from "../core/reducer";
 import { getLegalCards } from "../core/rules";
@@ -28,17 +32,19 @@ interface CreateMatchOptions {
   };
 }
 
-interface Observation {
-  actor: Actor;
-  hand: Card[];
-  layout: Card[];
-  legalCards: Card[];
-  opponentHandCount: number;
-  phase: MatchSnapshot["phase"];
-}
-
 function toCardIds(cards: Card[]) {
   return cards.map((card) => card.id);
+}
+
+function chooseMove(snapshot: MatchSnapshot, observation: Observation) {
+  switch (snapshot.difficulty) {
+    case "child":
+      return chooseChildMove(observation, snapshot.rngState);
+    case "normal":
+      return chooseNormalMove(observation, snapshot.rngState);
+    case "challenge":
+      return chooseChallengeMove(observation, snapshot.rngState);
+  }
 }
 
 function createSnapshot(options: CreateMatchOptions): MatchSnapshot {
@@ -173,7 +179,13 @@ export function dispatchAiTurn(match: Match): Match {
     return withSnapshot(match, applyBorrowWhenStuck(match.snapshot));
   }
 
-  return withSnapshot(match, applyPlayCard(match.snapshot, observation.legalCards[0].id));
+  const move = chooseMove(match.snapshot, observation);
+
+  if (!move) {
+    return match;
+  }
+
+  return withSnapshot(match, applyPlayCard(match.snapshot, move.id));
 }
 
 export function getObservation(snapshot: MatchSnapshot, actor: Actor = snapshot.turn): Observation {
