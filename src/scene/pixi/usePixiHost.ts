@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Application } from "pixi.js";
 
+import { createPixiInitOptions } from "./pixiOptions";
+
 export function usePixiHost() {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
@@ -19,12 +21,7 @@ export function usePixiHost() {
         return;
       }
 
-      await app.init({
-        antialias: true,
-        backgroundAlpha: 0,
-        preference: "webgl",
-        resizeTo: hostRef.current,
-      });
+      await app.init(createPixiInitOptions(hostRef.current));
 
       if (!active || !hostRef.current) {
         app.destroy(true, { children: true });
