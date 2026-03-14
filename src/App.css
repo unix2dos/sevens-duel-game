@@ -1,0 +1,145 @@
+.app-shell {
+  min-height: 100svh;
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.hero-panel,
+.status-grid article {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(74, 255, 242, 0.18);
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(circle at top, rgba(29, 191, 255, 0.22), transparent 42%),
+    linear-gradient(160deg, rgba(7, 18, 33, 0.92), rgba(4, 8, 18, 0.95));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 24px 60px rgba(0, 0, 0, 0.4);
+}
+
+.hero-panel {
+  padding: 2rem;
+}
+
+.hero-panel::after,
+.status-grid article::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(130deg, transparent 0%, rgba(74, 255, 242, 0.1) 45%, transparent 75%);
+  pointer-events: none;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: #7af7ff;
+  font-size: 0.84rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.hero-copy {
+  max-width: 34rem;
+  margin: 0;
+  color: rgba(225, 246, 255, 0.76);
+}
+
+.difficulty-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.difficulty-chip,
+.primary-action,
+.secondary-action {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.difficulty-chip {
+  padding: 0.6rem 1rem;
+  color: #cafcff;
+  background: rgba(10, 31, 53, 0.72);
+  border-color: rgba(74, 255, 242, 0.22);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.primary-action,
+.secondary-action {
+  padding: 0.9rem 1.4rem;
+  min-width: 8.5rem;
+}
+
+.primary-action {
+  background: linear-gradient(90deg, #13f1fc, #6d6eff);
+  color: #05111d;
+  font-weight: 700;
+}
+
+.secondary-action {
+  background: rgba(8, 21, 38, 0.74);
+  color: #d8fbff;
+  border-color: rgba(74, 255, 242, 0.22);
+}
+
+.difficulty-chip:hover,
+.primary-action:hover,
+.secondary-action:hover {
+  transform: translateY(-1px);
+}
+
+.status-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.status-grid article {
+  padding: 1.25rem 1.5rem;
+}
+
+.status-grid span {
+  display: block;
+  color: rgba(140, 225, 230, 0.7);
+  font-size: 0.88rem;
+  margin-bottom: 0.35rem;
+}
+
+.status-grid strong {
+  color: #f0feff;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+@media (min-width: 900px) {
+  .app-shell {
+    grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 0.8fr);
+    align-items: stretch;
+    padding: 2rem;
+  }
+
+  .hero-panel {
+    padding: 2.5rem;
+  }
+
+  .status-grid {
+    grid-template-rows: repeat(3, 1fr);
+  }
+}
