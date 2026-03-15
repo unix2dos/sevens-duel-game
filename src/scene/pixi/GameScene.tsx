@@ -11,6 +11,7 @@ interface GameSceneProps {
   matchSnapshot: MatchSnapshot;
   onBorrow: () => void;
   onPlayCard: (cardId: string) => void;
+  selectedGiveCardId: string | null;
   showChildGuidance: boolean;
 }
 
@@ -19,6 +20,7 @@ export function GameScene({
   matchSnapshot,
   onBorrow,
   onPlayCard,
+  selectedGiveCardId,
   showChildGuidance,
 }: GameSceneProps) {
   const { appRef, hostRef, readyToken } = usePixiHost();
@@ -52,6 +54,7 @@ export function GameScene({
           height: app.screen.height,
           onBorrow,
           onPlayCard,
+          selectedGiveCardId,
           showChildGuidance,
           snapshot: matchSnapshot,
           seenCards: seenCardsRef.current,
@@ -65,7 +68,7 @@ export function GameScene({
     return () => {
       active = false;
     };
-  }, [appRef, difficultyLabel, matchSnapshot, onBorrow, onPlayCard, readyToken, showChildGuidance]);
+  }, [appRef, difficultyLabel, matchSnapshot, onBorrow, onPlayCard, readyToken, selectedGiveCardId, showChildGuidance]);
 
   return <div className="table-stage table-canvas" data-testid="table-stage" ref={hostRef} />;
 }

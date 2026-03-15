@@ -3,7 +3,7 @@ import { chooseChildMove } from "../ai/child";
 import { chooseNormalMove } from "../ai/normal";
 import type { Observation } from "../ai/types";
 import { buildDeck, dealHands } from "../core/deck";
-import { applyBorrowWhenStuck, applyPlayCard, createInitialGameState, getCurrentHand } from "../core/reducer";
+import { applyBorrowWhenStuck, applyPlayCard, applyGiveCard, createInitialGameState, getCurrentHand } from "../core/reducer";
 import { getLegalCards } from "../core/rules";
 import type { GameEvent } from "../core/events";
 import type { Actor, GameState } from "../core/state";
@@ -21,7 +21,8 @@ export interface Match {
 
 export type HumanAction =
   | { type: "play"; cardId: string }
-  | { type: "borrow" };
+  | { type: "borrow" }
+  | { type: "give_card"; cardId: string };
 
 interface CreateMatchOptions {
   seed: number;
@@ -160,6 +161,10 @@ export function createMatch(options: CreateMatchOptions): Match {
 }
 
 export function dispatchHumanAction(match: Match, action: HumanAction): Match {
+  if (action.type === "give_card") {
+    return withSnapshot(match, applyGiveCard(match.snapshot, action.cardId));
+  }
+
   if (action.type === "play") {
     const legalCardIds = new Set(getLegalCards(match.snapshot.layout, getCurrentHand(match.snapshot)).map((card) => card.id));
 

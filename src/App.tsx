@@ -121,6 +121,12 @@ function App() {
               current ? dispatchHumanAction(current, { cardId, type: "play" }) : current,
             );
           }}
+          onGiveCard={(cardId) => {
+            playSound("play");
+            setMatch((current) =>
+              current ? dispatchHumanAction(current, { cardId, type: "give_card" }) : current,
+            );
+          }}
           onRestart={() => {
             setMatch(null);
             startTransition(() => setScreen("home"));

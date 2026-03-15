@@ -3,6 +3,7 @@ import { Container, Graphics, Sprite, Ticker } from "pixi.js";
 import { cardMetrics, cardTheme } from "./cardTheme";
 import { suitInk } from "./cardGlyphs";
 import { getCardFaceTexture } from "./cardSvg";
+import type { Actor } from "../../../game/core/state";
 import type { Card } from "../../../game/core/types";
 
 interface PokerCardSpriteOptions {
@@ -12,6 +13,7 @@ interface PokerCardSpriteOptions {
   isLegal: boolean;
   onPress?: (cardId: string) => void;
   animateEntrance?: boolean;
+  owner?: Actor;
   width: number;
 }
 
@@ -22,6 +24,7 @@ export function createPokerCardSprite({
   isLegal,
   onPress,
   animateEntrance = true,
+  owner,
   width,
 }: PokerCardSpriteOptions) {
   const root = new Container();
@@ -41,6 +44,18 @@ export function createPokerCardSprite({
   sprite.width = width;
   sprite.height = height;
   root.addChild(glow, shadow, sprite);
+
+  if (owner) {
+    const badge = new Graphics();
+    const badgeColor = owner === "player" ? 0x3b82f6 : 0xef4444;
+    
+    badge
+      .circle(width - 14, 14, 4.5)
+      .fill({ color: badgeColor, alpha: 0.95 })
+      .stroke({ color: 0xffffff, alpha: 0.9, width: 1.5 });
+      
+    root.addChild(badge);
+  }
 
   if (!isLegal) {
     root.alpha = 0.94;
