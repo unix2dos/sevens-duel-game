@@ -24,7 +24,7 @@ describe("createPokerCardSprite", () => {
     expect(addSpy).toHaveBeenCalled();
   });
 
-  it("renders a completed replay face-up after the celebration window has elapsed", () => {
+  it("renders a completed replay face-down after the celebration window has elapsed", () => {
     vi.spyOn(Date, "now").mockReturnValue(5_000);
 
     const root = createPokerCardSprite({
@@ -42,11 +42,11 @@ describe("createPokerCardSprite", () => {
     const cardSurface = root.children[2] as Container;
     const [backSprite, faceSprite] = cardSurface.children as [Sprite, Sprite];
 
-    expect(faceSprite.visible).toBe(true);
-    expect(backSprite.visible).toBe(false);
+    expect(faceSprite.visible).toBe(false);
+    expect(backSprite.visible).toBe(true);
   });
 
-  it("returns to the face side when a replay flip finishes", () => {
+  it("stays on the back side when a replay flip finishes", () => {
     let animateFlip: (() => void) | undefined;
 
     vi.spyOn(Date, "now").mockReturnValue(1_000);
@@ -74,7 +74,7 @@ describe("createPokerCardSprite", () => {
     animateFlip?.();
 
     expect(cardSurface.scale.x).toBe(1);
-    expect(faceSprite.visible).toBe(true);
-    expect(backSprite.visible).toBe(false);
+    expect(faceSprite.visible).toBe(false);
+    expect(backSprite.visible).toBe(true);
   });
 });

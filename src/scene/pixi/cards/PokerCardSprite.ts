@@ -12,6 +12,7 @@ interface PokerCardSpriteOptions {
   card: Card;
   height: number;
   isInteractive: boolean;
+  isSelected?: boolean;
   isLegal: boolean;
   onPress?: (cardId: string) => void;
   animateEntrance?: boolean;
@@ -27,6 +28,7 @@ export function createPokerCardSprite({
   card,
   height,
   isInteractive,
+  isSelected = false,
   isLegal,
   onPress,
   animateEntrance = true,
@@ -74,8 +76,8 @@ export function createPokerCardSprite({
 
   if (isFlipResolved) {
     cardSurface.scale.x = 1;
-    faceSprite.visible = true;
-    backSprite.visible = false;
+    faceSprite.visible = false;
+    backSprite.visible = true;
   }
 
   cardSurface.addChild(backSprite, faceSprite);
@@ -134,7 +136,7 @@ export function createPokerCardSprite({
   if (replayFlip && !isFlipResolved) {
     const minScale = 0.08;
     const targetTime = flipStartTime + flipDelay;
-    const phaseDuration = CARD_FLIP_DURATION_MS / 4;
+    const phaseDuration = CARD_FLIP_DURATION_MS / 2;
 
     const animateFlip = () => {
       const now = Date.now();
@@ -150,8 +152,8 @@ export function createPokerCardSprite({
 
       if (elapsedSinceStart >= CARD_FLIP_DURATION_MS) {
         cardSurface.scale.x = 1;
-        faceSprite.visible = true;
-        backSprite.visible = false;
+        faceSprite.visible = false;
+        backSprite.visible = true;
         Ticker.shared.remove(animateFlip);
         return;
       }
@@ -164,25 +166,9 @@ export function createPokerCardSprite({
         return;
       }
 
-      if (elapsedSinceStart < phaseDuration * 2) {
-        const progress = (elapsedSinceStart - phaseDuration) / phaseDuration;
-        faceSprite.visible = false;
-        backSprite.visible = true;
-        cardSurface.scale.x = Math.max(minScale, progress);
-        return;
-      }
-
-      if (elapsedSinceStart < phaseDuration * 3) {
-        const progress = (elapsedSinceStart - phaseDuration * 2) / phaseDuration;
-        faceSprite.visible = false;
-        backSprite.visible = true;
-        cardSurface.scale.x = Math.max(minScale, 1 - progress);
-        return;
-      }
-
-      const progress = (elapsedSinceStart - phaseDuration * 3) / phaseDuration;
-      faceSprite.visible = true;
-      backSprite.visible = false;
+      const progress = (elapsedSinceStart - phaseDuration) / phaseDuration;
+      faceSprite.visible = false;
+      backSprite.visible = true;
       cardSurface.scale.x = Math.max(minScale, progress);
     };
 
@@ -191,40 +177,133 @@ export function createPokerCardSprite({
   }
 
   if (isInteractive) {
-    let hovered = false;
-    let targetY = baseSurfaceY;
-
     root.eventMode = "static";
     root.cursor = "pointer";
     root.on("pointertap", () => onPress?.(card.id));
-    
-    root.on("pointerover", () => {
-      hovered = true;
-      targetY = baseSurfaceY - 18; // Elevate card higher 
-      glow.alpha = isLegal ? 0.6 : 0.25; // Much brighter hover glow
-    });
+  }
 
-    root.on("pointerout", () => {
-      hovered = false;
-      targetY = baseSurfaceY;
-      glow.alpha = isLegal ? 0.35 : 0.12;
-    });
+  // Dark Night Flowing Gold selected effect
+  if (isSelected) {
+    // --- Particle System ---
+    const particlesContainer = new Container();
+    // Insert particles behind card surface but above glow
+    root.addChildAt(particlesContainer, root.getChildIndex(cardSurface));
 
-    const updateHover = () => {
-      if (Math.abs(cardSurface.y - targetY) > 0.1) {
-        cardSurface.y += (targetY - cardSurface.y) * 0.25; // Faster spring
-        glow.y += (targetY - glow.y) * 0.25;
+    const NUM_PARTICLES = 250;
+    const particles: { g: Graphics, x: number, y: number, vx: number, vy: number, life: number, maxLife: number, baseScale: number }[] = [];
+
+    for (let i = 0; i < NUM_PARTICLES; i++) {
+        const p = new Graphics();
+        // Determine color: mostly gold/orange, some red, few white for extreme heat
+        const rand = Math.random();
+        let color = 0xffd700; // Gold
+        if (rand < 0.15) color = 0xffffff; // White core (hottest)
+        else if (rand < 0.5) color = 0xffa500; // Bright orange
+        else if (rand < 0.8) color = 0xff4500; // Deep orange-red
         
-        const targetShadowY = cardMetrics.shadowOffsetY + ((targetY - baseSurfaceY) * -0.4);
-        shadow.y += (targetShadowY - shadow.y) * 0.25;
+        // Larger, more diffuse glow for fire
+        p.circle(0, 0, 12).fill({ color, alpha: 0.18 });
+        p.circle(0, 0, 4).fill({ color: 0xffffff, alpha: 0.85 });
+        p.blendMode = "add";
+        p.visible = false;
+        particlesContainer.addChild(p);
+        particles.push({ g: p, x: 0, y: 0, vx: 0, vy: 0, life: 0, maxLife: 0, baseScale: 1 });
+    }
 
-        const targetShadowAlpha = cardMetrics.shadowAlpha + (hovered ? -0.15 : 0);
-        shadow.alpha += (targetShadowAlpha - shadow.alpha) * 0.25;
+    const emitParticle = (isBurst = false) => {
+        // Find a dead particle
+        const p = particles.find(p => p.life <= 0);
+        if (p) {
+            if (isBurst) {
+                // Dramatic burst outward
+                p.x = width / 2;
+                p.y = height / 2;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 5 + Math.random() * 12; // Extremely fast burst
+                p.vx = Math.cos(angle) * speed;
+                p.vy = Math.sin(angle) * speed - 3; 
+            } else {
+                // Fire usually spawns densely around the bottom and sides
+                const side = Math.random();
+                if (side < 0.7) {
+                    // Base of the flame (bottom edge)
+                    p.x = -15 + Math.random() * (width + 30);
+                    p.y = height - 10 + Math.random() * 25;
+                } else {
+                    // Sizzling up the sides
+                    p.x = Math.random() < 0.5 ? -20 : width + 20;
+                    p.y = height * 0.1 + Math.random() * height * 0.9;
+                }
+                
+                p.vx = (Math.random() - 0.5) * 4.0; // wide chaotic spread
+                p.vy = -4 - Math.random() * 8.0; // Fast violently upwards flow
+            }
+            
+            p.maxLife = 20 + Math.random() * 35; // Shorter lived but faster
+            p.life = p.maxLife;
+            p.baseScale = 0.6 + Math.random() * 1.8; // Massive particles
+            p.g.scale.set(p.baseScale);
+            p.g.position.set(p.x, p.y);
+            p.g.visible = true;
+            p.g.alpha = 1;
+        }
+    };
+
+    // Huge initial explosion on selection
+    for(let i = 0; i < 80; i++) emitParticle(true);
+
+    let time = 0;
+    const updateSelectedEffect = (ticker: Ticker) => {
+      time += ticker.deltaTime * 0.08;
+      const breathe = (Math.sin(time) + 1) / 2; 
+      
+      // Intense golden glow breathing
+      glow.alpha = 0.6 + breathe * 0.4; // Brighter floor
+      glow.tint = 0xffd700; 
+      
+      // Levitation breathing
+      const scaleAdd = breathe * 0.03;
+      cardSurface.scale.set(1.02 + scaleAdd);
+      glow.scale.set(1.01 + scaleAdd);
+      
+      shadow.scale.set(1.0 + scaleAdd * 0.5);
+      shadow.alpha = cardMetrics.shadowAlpha - 0.2; 
+      shadow.y = cardMetrics.shadowOffsetY + 12; 
+
+      // Update particles
+      // Continuous violent emission
+      for (let i = 0; i < 4; i++) {
+          if (Math.random() < 0.9) emitParticle(false);
+      }
+
+      for (const p of particles) {
+          if (p.life > 0) {
+              p.life -= ticker.deltaTime;
+              if (p.life <= 0) {
+                  p.g.visible = false;
+              } else {
+                  p.x += p.vx * ticker.deltaTime;
+                  p.y += p.vy * ticker.deltaTime;
+                  // Fire flutter and heat distortion
+                  p.x += Math.sin(time * 5 + p.life) * 1.5 * ticker.deltaTime;
+                  
+                  p.g.position.set(p.x, p.y);
+                  
+                  const lifeRatio = Math.max(0, p.life / p.maxLife);
+                  // Ease out alpha sharply for fire tip fade
+                  p.g.alpha = Math.pow(lifeRatio, 1.5); 
+                  // Shrink aggressively as it burns out
+                  p.g.scale.set(p.baseScale * (0.1 + 0.9 * lifeRatio)); 
+              }
+          }
       }
     };
 
-    Ticker.shared.add(updateHover);
-    root.on("destroyed", () => Ticker.shared.remove(updateHover));
+    Ticker.shared.add(updateSelectedEffect);
+    root.on("destroyed", () => Ticker.shared.remove(updateSelectedEffect));
+  } else {
+    // Reset to base legal/illegal states cleanly
+    glow.tint = 0xffffff; // Remove tint
   }
 
   return root;

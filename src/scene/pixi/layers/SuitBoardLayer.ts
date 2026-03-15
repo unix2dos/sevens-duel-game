@@ -39,8 +39,10 @@ export function createSuitBoardLayer({
 
   layout.suitLanes.forEach((lane) => {
     const cards = suitCards(snapshot.layout, lane.key);
+    const isCompletedSuit = cards.length === 13;
     const flipStartTime = celebrationStartTimes.get(lane.key) ?? 0;
     const replayFlip = flipStartTime > 0;
+    const isFaceUp = replayFlip || !isCompletedSuit;
     const laneShell = new Graphics();
     const axis = new Graphics();
     const slotGlow = new Graphics();
@@ -79,7 +81,7 @@ export function createSuitBoardLayer({
       card: centerCardData,
       height: cardHeight,
       isInteractive: false,
-      isFaceUp: true,
+      isFaceUp,
       isLegal: false,
       animateEntrance: !replayFlip && !seenCards.has(centerCardData.id),
       faceVariant: centerIsPlaceholder ? "suit-emblem" : undefined,
@@ -112,7 +114,7 @@ export function createSuitBoardLayer({
         card,
         height: cardHeight,
         isInteractive: false,
-        isFaceUp: true,
+        isFaceUp,
         isLegal: false,
         animateEntrance: !replayFlip && !seenCards.has(card.id),
         owner: snapshot.cardOwners[card.id],
@@ -134,7 +136,7 @@ export function createSuitBoardLayer({
         card,
         height: cardHeight,
         isInteractive: false,
-        isFaceUp: true,
+        isFaceUp,
         isLegal: false,
         animateEntrance: !replayFlip && !seenCards.has(card.id),
         owner: snapshot.cardOwners[card.id],

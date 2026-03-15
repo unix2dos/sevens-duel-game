@@ -1,4 +1,4 @@
-import { Container, Graphics, Rectangle, Text } from "pixi.js";
+import { Container, Graphics, Rectangle, Text, Ticker } from "pixi.js";
 
 import { createCardView } from "../CardView";
 import { cardTheme } from "../cards/cardTheme";
@@ -14,42 +14,91 @@ interface PlayerHandLayerOptions {
   snapshot: MatchSnapshot;
   seenCards: Set<string>;
   selectedGiveCardId: string | null;
+  selectedPlayCardId: string | null;
 }
 
 function createBorrowChip(
-  x: number,
-  y: number,
-  width: number,
+  centerX: number,
+  centerY: number,
   onBorrow: () => void,
   compact: boolean,
 ) {
   const root = new Container();
-  const shell = new Graphics();
+  const radius = compact ? 56 : 68; // Large circular token
+  
+  // Outer blurred glow for the token
+  const glow = new Graphics();
+  glow.circle(0, 0, radius + 14)
+      .fill({ color: 0xd4af37, alpha: 1 });
+
+  const outer = new Graphics();
+  const inner = new Graphics();
+  
+  // Luxury dark center with a thick gold rim
+  outer
+    .circle(0, 0, radius)
+    .fill({ color: 0x08120b, alpha: 0.95 }) 
+    .stroke({ color: 0xd4af37, alpha: 0.85, width: 2.5 });
+
+  // Inner inset gold ring
+  inner
+    .circle(0, 0, radius - 6)
+    .stroke({ color: 0xd4af37, alpha: 0.35, width: 1 });
+    
+  const subtitle = new Text({
+    style: {
+      fill: "#d4af37",
+      fontFamily: "'Cormorant Garamond', serif",
+      fontSize: compact ? 13 : 15,
+      fontWeight: "600",
+      letterSpacing: 2,
+    },
+    text: "无牌可出",
+  });
+  subtitle.anchor.set(0.5);
+  subtitle.position.set(0, -14);
+  
   const title = new Text({
     style: {
-      fill: "#612c00",
-      fontFamily: "Sora, IBM Plex Sans, sans-serif",
-      fontSize: compact ? 14 : 15,
-      fontWeight: "800",
+      fill: "#fff8dc",
+      fontFamily: "'Bodoni Moda', serif",
+      fontSize: compact ? 18 : 22,
+      fontWeight: "700",
+      letterSpacing: 1,
+      dropShadow: { color: 0x000000, alpha: 0.8, blur: 4, distance: 2 }
     },
-    text: "无牌可出 · 点击借牌",
+    text: "点击借牌",
   });
-
-  shell
-    .roundRect(x, y, width, compact ? 44 : 48, 999)
-    .fill({ color: 0xf59e0b, alpha: 1 })
-    .stroke({ color: 0xb45309, alpha: 0.6, width: 2 });
   title.anchor.set(0.5);
-  title.position.set(x + width / 2, y + (compact ? 22 : 24));
-  root.addChild(shell, title);
+  title.position.set(0, 14);
+
+  root.addChild(glow, outer, inner, subtitle, title);
+  root.position.set(centerX, centerY);
+  
   root.eventMode = "static";
   root.cursor = "pointer";
-  root.hitArea = new Rectangle(x, y, width, compact ? 44 : 48);
+  root.hitArea = new Rectangle(-radius, -radius, radius * 2, radius * 2);
+
+  // Interaction feedback
+  root.on("pointerover", () => { root.scale.set(1.05); });
+  root.on("pointerout", () => { root.scale.set(1); });
+  root.on("pointerdown", () => { root.scale.set(0.96); });
+  root.on("pointerup", () => { root.scale.set(1.05); });
   root.on("pointertap", onBorrow);
+
+  // Breathing animation
+  let time = 0;
+  const animateGlow = (ticker: Ticker) => {
+    time += ticker.deltaTime * 0.05;
+    const breathe = (Math.sin(time) + 1) / 2; // 0 to 1
+    glow.alpha = 0.15 + breathe * 0.25; // Pulses between 0.15 and 0.40
+    glow.scale.set(1 + breathe * 0.08); // Slight organic expansion
+  };
+  Ticker.shared.add(animateGlow);
+  root.on("destroyed", () => Ticker.shared.remove(animateGlow));
 
   return root;
 }
-
 
 export function createPlayerHandLayer({
   layout,
@@ -58,6 +107,7 @@ export function createPlayerHandLayer({
   snapshot,
   seenCards,
   selectedGiveCardId,
+  selectedPlayCardId,
 }: PlayerHandLayerOptions) {
   const root = new Container();
   root.zIndex = 50; // Ensure hand layer (and its borrow chip) renders above board
@@ -92,7 +142,8 @@ export function createPlayerHandLayer({
   // Dynamic scaling for large hand sizes to prevent extreme squeezing
   const totalCards = sortedHand.length;
   const isCrowded = totalCards > 13;
-  const scaleFactor = isCrowded ? Math.max(0.75, 1 - (totalCards - 13) * 0.02) : 1;
+  // Relax the scale down floor from 0.75 to 0.85 so cards stay relatively large
+  const scaleFactor = isCrowded ? Math.max(0.85, 1 - (totalCards - 13) * 0.015) : 1;
   const computedCardHeight = Math.min(availableHeight, availableWidth * 1.4) * scaleFactor;
   
   const cardHeight = Math.max(layout.compact ? 78 : 96, computedCardHeight);
@@ -127,22 +178,26 @@ export function createPlayerHandLayer({
   count.position.set(layout.handRail.x + layout.handRail.width - count.width - 18, layout.handRail.y + 13);
   root.addChild(shell, label, count);
   if (showBorrowChip) {
-    const chipY = layout.toastAnchor.y + (layout.compact ? 68 : 52);
+    // Globally center on the board layout!
+    const centerX = layout.board.x + layout.board.width / 2;
+    const centerY = layout.board.y + layout.board.height / 2;
+    
     const borrowChip = createBorrowChip(
-      layout.toastAnchor.x - 92,
-      chipY,
-      184,
+      centerX,
+      centerY,
       onBorrow,
       layout.compact,
     );
-    borrowChip.zIndex = 10;
+    borrowChip.zIndex = 100;
     root.addChild(borrowChip);
   }
 
   let currentX = startX;
   const positionedCards = sortedHand.map((card, index) => {
     const isLegal = legalIds.has(card.id);
-    const isSelected = card.id === selectedGiveCardId;
+    const isSelectedToGive = card.id === selectedGiveCardId;
+    const isSelectedToPlay = card.id === selectedPlayCardId;
+    const isSelected = isSelectedToGive || isSelectedToPlay;
     const isInteractive = (canAct && isLegal) || isBorrowing;
 
     const view = createCardView({
@@ -150,6 +205,7 @@ export function createPlayerHandLayer({
       height: cardHeight,
       isFaceUp: true,
       isInteractive,
+      isSelected,
       isLegal: isLegal || isBorrowing,
       onPress: onPlayCard,
       animateEntrance: !seenCards.has(card.id),

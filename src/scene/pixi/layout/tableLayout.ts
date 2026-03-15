@@ -45,8 +45,8 @@ export function createTableLayout(width: number, height: number): TableLayout {
   const actionInset = compact ? 92 : 144;
   const topHeight = clamp(height * 0.115, compact ? 74 : 80, compact ? 92 : 102);
   const topWidth = width - padding * 2 - actionInset;
-  // Shrink the hand rail height significantly to give the board more vertical space
-  const handHeight = clamp(height * 0.20, compact ? 130 : 140, compact ? 160 : 180);
+  // Increase the hand rail height to make the cards more visible
+  const handHeight = clamp(height * 0.28, compact ? 160 : 190, compact ? 240 : 280);
   const boardTop = padding + topHeight + (compact ? 16 : 22);
   // Also reduce the bottom padding under the hand rail to push it lower
   const bottomPadding = compact ? 8 : 12;

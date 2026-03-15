@@ -27,6 +27,7 @@ export function GameScreen({
   showChildGuidance,
 }: GameScreenProps) {
   const [selectedGiveCardId, setSelectedGiveCardId] = useState<string | null>(null);
+  const [selectedPlayCardId, setSelectedPlayCardId] = useState<string | null>(null);
   const [isResultModalDismissed, setIsResultModalDismissed] = useState(false);
 
   const showResultModal = matchSnapshot.status === "finished" && !isResultModalDismissed;
@@ -36,7 +37,12 @@ export function GameScreen({
     if (matchSnapshot.phase === "borrowing") {
       setSelectedGiveCardId((prev) => (prev === cardId ? null : cardId));
     } else {
-      onPlayCard(cardId);
+      if (selectedPlayCardId === cardId) {
+        onPlayCard(cardId);
+        setSelectedPlayCardId(null);
+      } else {
+        setSelectedPlayCardId(cardId);
+      }
     }
   };
   return (
@@ -56,19 +62,21 @@ export function GameScreen({
           onBorrow={onBorrow}
           onPlayCard={handleCardInteract}
           selectedGiveCardId={selectedGiveCardId}
+          selectedPlayCardId={selectedPlayCardId}
           showChildGuidance={showChildGuidance}
         />
         {matchSnapshot.phase === "borrowing" && selectedGiveCardId && (
           <div className="give-card-overlay">
             <button
-              className="primary-action give-card-confirm"
+              className="give-card-confirm"
               onClick={() => {
                 setSelectedGiveCardId(null);
                 onGiveCard(selectedGiveCardId);
               }}
               type="button"
             >
-              确认借出
+              <span className="give-card-subtitle">选定卡牌</span>
+              <span className="give-card-title">确认出借</span>
             </button>
           </div>
         )}

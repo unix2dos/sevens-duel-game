@@ -73,10 +73,11 @@ describe("createPlayerHandLayer", () => {
       onPlayCard: vi.fn(),
       seenCards: new Set(),
       selectedGiveCardId: null,
+      selectedPlayCardId: null,
       snapshot,
     });
     const borrowChip = layer.children.find(
-      (child) => child instanceof Container && findText(child, "无牌可出 · 点击借牌"),
+      (child) => child instanceof Container && findText(child, "点击借牌"),
     ) as Container | undefined;
 
     expect(borrowChip).toBeDefined();

@@ -10,6 +10,7 @@ interface CardViewOptions {
   card: Card;
   isFaceUp: boolean;
   isInteractive: boolean;
+  isSelected?: boolean;
   isLegal: boolean;
   onPress?: (cardId: string) => void;
   animateEntrance?: boolean;
@@ -26,6 +27,7 @@ export function createCardView({
   card,
   isFaceUp,
   isInteractive,
+  isSelected = false,
   isLegal,
   onPress,
   animateEntrance = true,
@@ -45,6 +47,7 @@ export function createCardView({
           card,
           height,
           isInteractive,
+          isSelected,
           isLegal,
           onPress,
           animateEntrance,

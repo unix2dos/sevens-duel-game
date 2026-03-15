@@ -5,10 +5,12 @@ const { mockCreateCardView } = vi.hoisted(() => ({
   mockCreateCardView: vi.fn(
     ({
       card,
+      isFaceUp,
       replayFlip,
       faceVariant,
     }: {
       card: { id: string };
+      isFaceUp?: boolean;
       replayFlip?: boolean;
       faceVariant?: string;
     }) => {
@@ -16,6 +18,7 @@ const { mockCreateCardView } = vi.hoisted(() => ({
       Object.assign(node, {
         __cardId: card.id,
         __faceVariant: faceVariant ?? "standard",
+        __isFaceUp: isFaceUp ?? true,
         __replayFlip: replayFlip ?? false,
       });
       return node;
@@ -33,6 +36,24 @@ import type { MatchSnapshot } from "../../../../game/match/engine";
 
 function getCardNode(layer: Container, cardId: string) {
   return layer.children.find((child) => (child as Container & { __cardId?: string }).__cardId === cardId) as Container;
+}
+
+function buildCompleteSuit(suit: "spades" | "hearts" | "clubs" | "diamonds") {
+  return [
+    { id: `${suit}-A`, suit, rank: "A" as const },
+    { id: `${suit}-2`, suit, rank: 2 as const },
+    { id: `${suit}-3`, suit, rank: 3 as const },
+    { id: `${suit}-4`, suit, rank: 4 as const },
+    { id: `${suit}-5`, suit, rank: 5 as const },
+    { id: `${suit}-6`, suit, rank: 6 as const },
+    { id: `${suit}-7`, suit, rank: 7 as const },
+    { id: `${suit}-8`, suit, rank: 8 as const },
+    { id: `${suit}-9`, suit, rank: 9 as const },
+    { id: `${suit}-10`, suit, rank: 10 as const },
+    { id: `${suit}-J`, suit, rank: "J" as const },
+    { id: `${suit}-Q`, suit, rank: "Q" as const },
+    { id: `${suit}-K`, suit, rank: "K" as const },
+  ];
 }
 
 afterEach(() => {
@@ -67,11 +88,42 @@ describe("createSuitBoardLayer", () => {
     } as never);
 
     const spadeCalls = mockCreateCardView.mock.calls
-      .map(([options]) => options as { card: { id: string }; replayFlip?: boolean })
+      .map(([options]) => options as { card: { id: string }; isFaceUp?: boolean; replayFlip?: boolean })
       .filter((options) => options.card.id.startsWith("spades-"));
 
     expect(spadeCalls).not.toHaveLength(0);
     expect(spadeCalls.every((options) => options.replayFlip === true)).toBe(true);
+    expect(spadeCalls.every((options) => options.isFaceUp === true)).toBe(true);
+  });
+
+  it("keeps a completed suit face-down after the celebration window ends", () => {
+    const layout = createTableLayout(1280, 860);
+    const snapshot: MatchSnapshot = {
+      cardOwners: {},
+      difficulty: "normal",
+      eventLog: [{ type: "GAME_STARTED", seed: 7 }],
+      hands: { player: [], opponent: [] },
+      layout: buildCompleteSuit("spades"),
+      phase: "playing",
+      rngState: 7,
+      seed: 7,
+      status: "playing",
+      turn: "player",
+    };
+
+    createSuitBoardLayer({
+      layout,
+      snapshot,
+      seenCards: new Set(),
+    } as never);
+
+    const spadeCalls = mockCreateCardView.mock.calls
+      .map(([options]) => options as { card: { id: string }; isFaceUp?: boolean; replayFlip?: boolean })
+      .filter((options) => options.card.id.startsWith("spades-"));
+
+    expect(spadeCalls).toHaveLength(13);
+    expect(spadeCalls.every((options) => options.replayFlip === false)).toBe(true);
+    expect(spadeCalls.every((options) => options.isFaceUp === false)).toBe(true);
   });
 
   it("renders ace above two on the low-card side", () => {

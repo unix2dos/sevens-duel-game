@@ -19,6 +19,7 @@ interface TableViewOptions {
   snapshot: MatchSnapshot;
   seenCards?: Set<string>;
   selectedGiveCardId: string | null;
+  selectedPlayCardId: string | null;
   width: number;
 }
 
@@ -32,6 +33,7 @@ export function createTableView({
   snapshot,
   seenCards = new Set(),
   selectedGiveCardId,
+  selectedPlayCardId,
   width,
 }: TableViewOptions) {
   const root = new Container();
@@ -58,7 +60,7 @@ export function createTableView({
     createOpponentLayer({ layout, snapshot }),
     createSuitBoardLayer({ celebrationStartTimes, layout, snapshot, seenCards }),
     createTransientFeedLayer({ layout, showChildGuidance, snapshot }),
-    createPlayerHandLayer({ layout, onBorrow, onPlayCard, snapshot, seenCards, selectedGiveCardId }),
+    createPlayerHandLayer({ layout, onBorrow, onPlayCard, snapshot, seenCards, selectedGiveCardId, selectedPlayCardId }),
   );
 
   return root;
