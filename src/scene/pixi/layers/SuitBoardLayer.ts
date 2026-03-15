@@ -94,7 +94,7 @@ export function createSuitBoardLayer({ layout, snapshot, seenCards }: SuitBoardL
     title.position.set(lane.centerX, lane.rect.y + 18);
     centerCard.position.set(lane.centerX - cardWidth / 2, lane.centerY - cardHeight / 2);
     centerCard.alpha = cards.length === 0 ? 0.4 : 1;
-    centerCard.zIndex = 100;
+    centerCard.zIndex = 0;
 
     root.addChild(laneShell, axis, slotGlow, title, centerCard);
 
@@ -115,7 +115,7 @@ export function createSuitBoardLayer({ layout, snapshot, seenCards }: SuitBoardL
         lane.centerX - cardWidth / 2,
         lane.centerY - cardHeight / 2 - (index + 1) * cardStep,
       );
-      view.zIndex = rankValue[card.rank];
+      view.zIndex = 7 - rankValue[card.rank];
       root.addChild(view);
     });
 
@@ -133,7 +133,7 @@ export function createSuitBoardLayer({ layout, snapshot, seenCards }: SuitBoardL
         lane.centerX - cardWidth / 2,
         lane.centerY - cardHeight / 2 + (index + 1) * cardStep,
       );
-      view.zIndex = 30 - rankValue[card.rank];
+      view.zIndex = rankValue[card.rank] - 7;
       root.addChild(view);
     });
   });
