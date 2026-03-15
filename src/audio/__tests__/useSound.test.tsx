@@ -3,7 +3,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const { mockPlay, mockHowl } = vi.hoisted(() => {
   const mockPlay = vi.fn();
-  const mockHowl = vi.fn(() => ({ play: mockPlay }));
+  const mockHowl = vi.fn(function MockHowl() {
+    return {
+      once: vi.fn(),
+      play: mockPlay,
+      unload: vi.fn(),
+    };
+  });
 
   return { mockPlay, mockHowl };
 });
