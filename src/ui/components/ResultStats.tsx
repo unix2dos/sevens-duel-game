@@ -6,7 +6,7 @@ interface ResultStatsProps {
 
 function finishReasonLabel(snapshot: MatchSnapshot) {
   if (snapshot.reason === "borrowed-empty") {
-    return "借光对手";
+    return "借牌后手牌归零";
   }
 
   if (snapshot.reason === "played-all") {

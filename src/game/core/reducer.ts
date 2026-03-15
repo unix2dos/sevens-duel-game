@@ -202,7 +202,7 @@ export function applyBorrowWhenStuck(state: GameState): GameState {
   );
 
   if (remainingTargetHand.length === 0) {
-    return finishGame(withBorrow, actor, "borrowed-empty");
+    return finishGame(withBorrow, target, "borrowed-empty");
   }
 
   if (canPlayCard(withBorrow.layout, borrowedCard)) {
@@ -242,7 +242,7 @@ export function applyGiveCard(state: GameState, cardId: string): GameState {
   );
 
   if (remainingTargetHand.length === 0) {
-    return finishGame(withBorrow, actor, "borrowed-empty");
+    return finishGame(withBorrow, target, "borrowed-empty");
   }
 
   if (canPlayCard(withBorrow.layout, borrowedCard)) {

@@ -27,7 +27,7 @@ export function GameScreen({
 
   const handleCardInteract = (cardId: string) => {
     if (matchSnapshot.phase === "borrowing") {
-      setSelectedGiveCardId(cardId);
+      setSelectedGiveCardId((prev) => (prev === cardId ? null : cardId));
     } else {
       onPlayCard(cardId);
     }
@@ -51,17 +51,14 @@ export function GameScreen({
           selectedGiveCardId={selectedGiveCardId}
           showChildGuidance={showChildGuidance}
         />
-        {matchSnapshot.phase === "borrowing" && (
-          <div style={{ position: "absolute", bottom: 130, left: "50%", transform: "translateX(-50%)", zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", gap: 12, background: "rgba(15, 63, 31, 0.9)", padding: "16px 32px", borderRadius: 24, border: "1px solid rgba(212, 175, 55, 0.6)", boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}>
-            <span style={{ color: "#fff8dc", fontWeight: "bold", fontSize: 15, fontFamily: "'IBM Plex Sans', sans-serif" }}>AI 无牌可出，请选择一张手牌借给它</span>
+        {matchSnapshot.phase === "borrowing" && selectedGiveCardId && (
+          <div style={{ position: "absolute", top: 120, left: "50%", transform: "translateX(-50%)", zIndex: 10, display: "flex", alignItems: "center", pointerEvents: "none" }}>
             <button
               className="primary-action"
-              disabled={!selectedGiveCardId}
+              style={{ padding: "8px 24px", fontSize: 16, minWidth: "auto", boxShadow: "0 6px 20px rgba(0,0,0,0.6)", pointerEvents: "auto", backgroundColor: "#f59e0b", color: "#612c00", fontWeight: "bold" }}
               onClick={() => {
-                if (selectedGiveCardId) {
-                  setSelectedGiveCardId(null);
-                  onGiveCard(selectedGiveCardId);
-                }
+                setSelectedGiveCardId(null);
+                onGiveCard(selectedGiveCardId);
               }}
               type="button"
             >

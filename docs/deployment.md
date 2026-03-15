@@ -4,7 +4,18 @@
 
 Publish the current single-player web game behind a public HTTPS URL with the lowest possible operating cost and the simplest future update flow.
 
-## Recommended Host: Cloudflare Pages
+## Chosen Model: Dual Deployment
+
+This repository now uses a split deployment model:
+
+- `Cloudflare Pages` is the primary public host.
+- `GitHub Pages` is the fallback public host.
+- `GitHub Actions` only publishes the GitHub Pages copy.
+- `Cloudflare Pages` should deploy through Cloudflare's own Git integration, not through a GitHub Actions upload step.
+
+This keeps each platform on its native deployment path while preserving two live URLs.
+
+## Primary Host: Cloudflare Pages
 
 This repository is a plain static Vite app. It builds into `dist/` and does not require a server runtime, database, or edge function. That makes it a good fit for Cloudflare Pages.
 
@@ -23,6 +34,7 @@ If Cloudflare does not auto-detect the project correctly, use:
 - Build command: `npm run build`
 - Build output directory: `dist`
 - Root directory: leave empty unless the repo becomes a monorepo later
+- Production branch: `main`
 
 ### Expected maintenance flow
 
@@ -49,6 +61,33 @@ GitHub Pages serves project sites from a subpath such as `/sevens-duel-game/`. T
 3. Set the build source to `GitHub Actions`.
 4. Push the workflow on `main`.
 5. Wait for the `Deploy to GitHub Pages` workflow to publish the site.
+
+## CI Coverage Inside GitHub
+
+The repository now keeps a separate validation workflow for the two static-host build modes:
+
+- `VITE_BASE_PATH=/` for Cloudflare Pages
+- `VITE_BASE_PATH=/sevens-duel-game/` for GitHub Pages
+
+That workflow verifies build compatibility on pull requests and on pushes to `main`, but it does not upload anything to Cloudflare.
+
+## Why Not Upload Cloudflare from GitHub Actions
+
+This repository intentionally avoids a second deploy step from GitHub Actions to Cloudflare because:
+
+- Cloudflare Pages already supports Git-native deployment from the same repository.
+- keeping Cloudflare deployment inside Cloudflare avoids extra API tokens in GitHub secrets
+- platform-native previews and deploy status remain available in Cloudflare
+- failure isolation is simpler when each platform owns its own deploy pipeline
+
+## Suggested Operator Checklist
+
+When dual deployment is considered healthy, all of the following should be true:
+
+1. A push to `main` triggers the `Deploy to GitHub Pages` workflow on GitHub.
+2. The same push appears as a production deploy inside Cloudflare Pages.
+3. The GitHub Pages URL loads correctly under `/sevens-duel-game/`.
+4. The Cloudflare Pages URL loads correctly from `/`.
 
 ## Scope Boundaries
 

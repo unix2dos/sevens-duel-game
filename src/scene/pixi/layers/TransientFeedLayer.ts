@@ -1,4 +1,4 @@
-import { Container, Graphics, Text } from "pixi.js";
+import { Container, Text } from "pixi.js";
 
 import { cardTheme } from "../cards/cardTheme";
 import type { TableLayout } from "../layout/tableLayout";
@@ -54,24 +54,22 @@ export function createTransientFeedLayer({
   snapshot,
 }: TransientFeedLayerOptions) {
   const root = new Container();
-  const plaque = new Graphics();
   const primary = latestMessage(snapshot);
   const secondary = helperMessage(snapshot, showChildGuidance);
   const width = Math.min(layout.board.width * 0.36, layout.compact ? 236 : 332);
-  const height = secondary ? (layout.compact ? 58 : 62) : 42;
-
-  plaque
-    .roundRect(layout.toastAnchor.x - width / 2, layout.toastAnchor.y, width, height, 18)
-    .fill({ color: 0x15181d, alpha: 0.84 })
-    .stroke({ color: cardTheme.backAccent, alpha: 0.45, width: 1 });
-  root.addChild(plaque);
 
   const primaryText = new Text({
     style: {
       fill: cardTheme.textPrimary,
       fontFamily: "Sora, IBM Plex Sans, sans-serif",
-      fontSize: layout.compact ? 12 : 13,
+      fontSize: layout.compact ? 13 : 14,
       fontWeight: "700",
+      dropShadow: {
+        alpha: 0.8,
+        blur: 4,
+        color: 0x000000,
+        distance: 2,
+      }
     },
     text: primary,
   });
@@ -84,14 +82,20 @@ export function createTransientFeedLayer({
       style: {
         fill: cardTheme.textMuted,
         fontFamily: "IBM Plex Sans, sans-serif",
-        fontSize: layout.compact ? 10 : 11,
+        fontSize: layout.compact ? 11 : 12,
         wordWrap: true,
         wordWrapWidth: width - 28,
+        dropShadow: {
+          alpha: 0.8,
+          blur: 4,
+          color: 0x000000,
+          distance: 2,
+        }
       },
       text: secondary,
     });
     secondaryText.anchor.set(0.5, 0);
-    secondaryText.position.set(layout.toastAnchor.x, layout.toastAnchor.y + 30);
+    secondaryText.position.set(layout.toastAnchor.x, layout.toastAnchor.y + 32);
     root.addChild(secondaryText);
   }
 

@@ -27,7 +27,7 @@
 
 - 围绕四个 `7` 开线，向上接 `6/5/4...`，向下接 `8/9/10...`
 - 双方轮流出牌；没有可出的牌时，需要从对手手里借一张
-- 先打光手牌，或在特殊情况下借光对手，即可结束本局
+- 谁先让自己的手牌变成 `0` 张，谁就获胜
 
 ## 体验特性
 
@@ -80,11 +80,11 @@ npm run preview -- --host 127.0.0.1 --port 4173
 
 ## 部署
 
-当前项目适合部署到静态站点平台。推荐主方案是 `Cloudflare Pages`，备用零成本方案是 `GitHub Pages`。
+当前仓库采用双部署：`Cloudflare Pages` 作为主站，`GitHub Pages` 作为备用站。
 
 - 当前 Cloudflare Pages 地址：`https://79ae24dd.sevens-duel-game.pages.dev/`
 - 当前 GitHub Pages 备用地址：`https://unix2dos.github.io/sevens-duel-game/`
 - 详细部署说明：[`docs/deployment.md`](docs/deployment.md)
-- Cloudflare Pages 构建配置：`npm run build`，输出目录 `dist`
-- Cloudflare Pages 根目录：默认仓库根目录，不需要额外子路径
-- GitHub Pages 已预留自动发布工作流，合并到 `main` 后可自动构建部署
+- Cloudflare Pages：通过 Cloudflare Git integration 跟踪 `main`，构建命令 `npm run build`，输出目录 `dist`
+- GitHub Pages：通过仓库内 GitHub Actions workflow 自动发布，构建时使用 `VITE_BASE_PATH=/sevens-duel-game/`
+- 仓库内另有校验 workflow，会持续验证 `/` 和 `/sevens-duel-game/` 两种静态构建都能通过

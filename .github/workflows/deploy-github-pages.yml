@@ -1,3 +1,5 @@
+# This workflow only publishes the GitHub Pages fallback site.
+# Cloudflare Pages is intentionally deployed via Cloudflare Git integration.
 name: Deploy to GitHub Pages
 
 on:

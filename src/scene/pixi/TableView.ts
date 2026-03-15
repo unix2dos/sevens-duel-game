@@ -33,6 +33,7 @@ export function createTableView({
   width,
 }: TableViewOptions) {
   const root = new Container();
+  root.sortableChildren = true;
   const layout = createTableLayout(width, height);
   const backdrop = new Graphics();
   const felt = new Graphics();

@@ -27,18 +27,24 @@ function createBorrowChip(
   const shell = new Graphics();
   const title = new Text({
     style: {
-      fill: cardTheme.textPrimary,
+      fill: "#fef3c7", // light amber
       fontFamily: "Sora, IBM Plex Sans, sans-serif",
       fontSize: compact ? 14 : 15,
       fontWeight: "700",
+      dropShadow: {
+        alpha: 0.8,
+        blur: 4,
+        color: 0x000000,
+        distance: 2,
+      }
     },
     text: "无牌可出 · 点击借牌",
   });
 
   shell
     .roundRect(x, y, width, compact ? 44 : 48, 999)
-    .fill({ color: 0x2a1d1a, alpha: 0.92 })
-    .stroke({ color: cardTheme.backAccent, alpha: 0.58, width: 1 });
+    .fill({ color: 0x78350f, alpha: 0.95 }) // Dark amber/brown
+    .stroke({ color: 0xf59e0b, alpha: 0.85, width: 2 }); // Bright amber stroke
   title.anchor.set(0.5);
   title.position.set(x + width / 2, y + (compact ? 22 : 24));
   root.addChild(shell, title);
@@ -59,6 +65,7 @@ export function createPlayerHandLayer({
   selectedGiveCardId,
 }: PlayerHandLayerOptions) {
   const root = new Container();
+  root.zIndex = 50; // Ensure hand layer (and its borrow chip) renders above board
   root.sortableChildren = true;
   const shell = new Graphics();
   const label = new Text({
@@ -115,15 +122,18 @@ export function createPlayerHandLayer({
   root.addChild(shell, label, count);
 
   if (showBorrowChip) {
-    root.addChild(
-      createBorrowChip(
-        layout.handRail.x + layout.handRail.width / 2 - 92,
-        layout.handRail.y + 32,
-        184,
-        onBorrow,
-        layout.compact,
-      ),
+    // layout.toastAnchor.y is where TransientFeedLayer sits.
+    // We position it directly below that text (usually has height around 42-62).
+    const chipY = layout.toastAnchor.y + (layout.compact ? 68 : 52); 
+    const borrowChip = createBorrowChip(
+      layout.toastAnchor.x - 92,
+      chipY,
+      184,
+      onBorrow,
+      layout.compact,
     );
+    borrowChip.zIndex = 10;
+    root.addChild(borrowChip);
   }
 
   let currentX = startX;

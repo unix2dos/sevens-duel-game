@@ -34,6 +34,15 @@ function makeValue(text: string, size: number) {
   });
 }
 
+function createIndicatorBadge(color: number) {
+  const badge = new Graphics();
+  badge
+    .circle(0, 0, 4.5)
+    .fill({ color, alpha: 0.95 })
+    .stroke({ color: 0xffffff, alpha: 0.9, width: 1.5 });
+  return badge;
+}
+
 export function createTopStatusLayer({
   difficultyLabel,
   layout,
@@ -58,9 +67,6 @@ export function createTopStatusLayer({
   root.addChild(shell);
 
   const phaseLabel = snapshot.phase === "opening" ? "等待开线" : "牌局进行中";
-  const countSummary = layout.compact
-    ? `AI ${snapshot.hands.opponent.length}`
-    : `你的手牌 ${snapshot.hands.player.length} · AI 手牌 ${snapshot.hands.opponent.length}`;
 
   const club = makeLabel(`${difficultyLabel}局`, layout.compact ? 11 : 13);
   club.position.set(topBar.x + 20, topBar.y + 16);
@@ -77,13 +83,38 @@ export function createTopStatusLayer({
     root.addChild(phase);
   }
 
-  const counts = makeValue(countSummary, layout.compact ? 16 : 15);
-  counts.anchor.set(1, layout.compact ? 0 : 0.5);
-  counts.position.set(
+  const countsContainer = new Container();
+
+  if (layout.compact) {
+    const aiText = makeValue(` AI ${snapshot.hands.opponent.length}`, 16);
+    const aiBadge = createIndicatorBadge(0xef4444);
+    aiBadge.position.set(5.5, aiText.height / 2);
+    aiText.position.set(16, 0);
+    countsContainer.addChild(aiBadge, aiText);
+  } else {
+    let currentX = 0;
+    
+    const playerText = makeValue(` 你的手牌 ${snapshot.hands.player.length} · `, 15);
+    const playerBadge = createIndicatorBadge(0x3b82f6);
+    playerBadge.position.set(currentX + 5.5, playerText.height / 2);
+    playerText.position.set(currentX + 16, 0);
+    
+    currentX += 16 + playerText.width + 4;
+    
+    const aiText = makeValue(` AI 手牌 ${snapshot.hands.opponent.length}`, 15);
+    const aiBadge = createIndicatorBadge(0xef4444);
+    aiBadge.position.set(currentX + 5.5, aiText.height / 2);
+    aiText.position.set(currentX + 16, 0);
+    
+    countsContainer.addChild(playerBadge, playerText, aiBadge, aiText);
+  }
+
+  countsContainer.pivot.set(countsContainer.width, layout.compact ? 0 : countsContainer.height / 2);
+  countsContainer.position.set(
     topBar.x + topBar.width - 18,
     layout.compact ? topBar.y + 36 : topBar.y + topBar.height / 2,
   );
-  root.addChild(counts);
+  root.addChild(countsContainer);
 
   return root;
 }
