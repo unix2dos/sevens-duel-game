@@ -13,6 +13,7 @@ interface PlayerHandLayerOptions {
   onPlayCard: (cardId: string) => void;
   snapshot: MatchSnapshot;
   seenCards: Set<string>;
+  selectedGiveCardId: string | null;
 }
 
 function createBorrowChip(
@@ -55,6 +56,7 @@ export function createPlayerHandLayer({
   onPlayCard,
   snapshot,
   seenCards,
+  selectedGiveCardId,
 }: PlayerHandLayerOptions) {
   const root = new Container();
   root.sortableChildren = true;
@@ -80,7 +82,8 @@ export function createPlayerHandLayer({
   const sortedHand = sortCardsForDisplay(snapshot.hands.player);
   const legalIds = new Set(selectLegalCards(snapshot).map((card) => card.id));
   const canAct = snapshot.turn === "player" && snapshot.status === "playing";
-  const showBorrowChip = canAct && legalIds.size === 0;
+  const isBorrowing = snapshot.phase === "borrowing" && snapshot.borrowRequester === "opponent";
+  const showBorrowChip = canAct && legalIds.size === 0 && !isBorrowing;
   const availableWidth = layout.handRail.width - 32;
   const availableHeight = layout.handRail.height - 36; // Padding top/bottom
 
@@ -126,12 +129,15 @@ export function createPlayerHandLayer({
   let currentX = startX;
   const positionedCards = sortedHand.map((card, index) => {
     const isLegal = legalIds.has(card.id);
+    const isSelected = card.id === selectedGiveCardId;
+    const isInteractive = (canAct && isLegal) || isBorrowing;
+
     const view = createCardView({
       card,
       height: cardHeight,
       isFaceUp: true,
-      isInteractive: canAct && isLegal,
-      isLegal,
+      isInteractive,
+      isLegal: isLegal || isBorrowing,
       onPress: onPlayCard,
       animateEntrance: !seenCards.has(card.id),
       width: cardWidth,
@@ -141,13 +147,13 @@ export function createPlayerHandLayer({
     }
 
     const x = currentX;
-    const y = baselineY - (isLegal ? 12 : 0);
+    const y = baselineY - (isSelected ? 24 : isInteractive ? 12 : 0);
     currentX += step;
 
     view.position.set(x, y);
-    view.zIndex = canAct && isLegal ? 3 : 1;
+    view.zIndex = isInteractive ? 3 : 1;
 
-    if (canAct && isLegal) {
+    if (isInteractive) {
       view.hitArea = new Rectangle(-12, -24, Math.max(cardWidth + 24, step + 24), cardHeight + 36);
     }
 

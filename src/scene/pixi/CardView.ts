@@ -2,6 +2,7 @@ import { Container } from "pixi.js";
 
 import { createCardBackSprite } from "./cards/CardBackSprite";
 import { createPokerCardSprite } from "./cards/PokerCardSprite";
+import type { Actor } from "../../game/core/state";
 import type { Card } from "../../game/core/types";
 
 interface CardViewOptions {
@@ -11,6 +12,7 @@ interface CardViewOptions {
   isLegal: boolean;
   onPress?: (cardId: string) => void;
   animateEntrance?: boolean;
+  owner?: Actor;
   width: number;
   height: number;
 }
@@ -22,6 +24,7 @@ export function createCardView({
   isLegal,
   onPress,
   animateEntrance = true,
+  owner,
   width,
   height,
 }: CardViewOptions) {
@@ -36,6 +39,7 @@ export function createCardView({
           isLegal,
           onPress,
           animateEntrance,
+          owner,
           width,
         })
       : createCardBackSprite({ height, width }),

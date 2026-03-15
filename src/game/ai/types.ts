@@ -6,5 +6,5 @@ export interface Observation {
   layout: Card[];
   legalCards: Card[];
   opponentHandCount: number;
-  phase: "opening" | "playing" | "finished";
+  phase: "opening" | "playing" | "borrowing" | "finished";
 }

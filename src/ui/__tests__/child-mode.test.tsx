@@ -46,6 +46,7 @@ it("shows persistent guidance for legal cards in child difficulty", () => {
       matchSnapshot={match.snapshot}
       onBorrow={() => {}}
       onPlayCard={() => {}}
+      onGiveCard={() => {}}
       onRestart={() => {}}
       qualityLabel="自动"
       showChildGuidance
@@ -72,6 +73,7 @@ it("removes the old dom-based action rack from the gameplay screen", () => {
       matchSnapshot={match.snapshot}
       onBorrow={() => {}}
       onPlayCard={() => {}}
+      onGiveCard={() => {}}
       onRestart={() => {}}
       qualityLabel="高"
       showChildGuidance={false}

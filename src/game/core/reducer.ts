@@ -93,6 +93,7 @@ export function createInitialGameState(config: InitialStateConfig): GameState {
     turn: config.turn ?? detectStarter(hands),
     phase: config.phase ?? "opening",
     status: "playing",
+    cardOwners: {},
     eventLog: [{ type: "GAME_STARTED", seed: config.seed }],
   };
 }
@@ -149,6 +150,7 @@ export function applyPlayCard(state: GameState, cardId: string): GameState {
     {
       ...withCardRemoved,
       layout: nextLayout,
+      cardOwners: { ...state.cardOwners, [cardId]: state.turn },
       phase: "playing",
     },
     { type: "CARD_PLAYED", actor: state.turn, cardId },
@@ -174,6 +176,14 @@ export function applyBorrowWhenStuck(state: GameState): GameState {
     return state;
   }
 
+  if (target === "player") {
+    return {
+      ...state,
+      phase: "borrowing",
+      borrowRequester: actor,
+    };
+  }
+
   const targetHand = getHand(state, target);
   const { nextSeed, value } = nextRandom(state.rngState);
   const borrowIndex = Math.floor(value * targetHand.length);
@@ -189,6 +199,46 @@ export function applyBorrowWhenStuck(state: GameState): GameState {
       setHand(setHand(state.hands, actor, nextActorHand), target, remainingTargetHand),
     ),
     { type: "CARD_BORROWED", actor, target, cardId: borrowedCard.id },
+  );
+
+  if (remainingTargetHand.length === 0) {
+    return finishGame(withBorrow, actor, "borrowed-empty");
+  }
+
+  if (canPlayCard(withBorrow.layout, borrowedCard)) {
+    return applyPlayCard(withBorrow, borrowedCard.id);
+  }
+
+  return advanceTurn(withBorrow);
+}
+
+export function applyGiveCard(state: GameState, cardId: string): GameState {
+  if (state.phase !== "borrowing" || !state.borrowRequester) {
+    return state;
+  }
+
+  const actor = state.borrowRequester;
+  const target = otherActor(actor);
+  const hand = getHand(state, actor);
+  const targetHand = getHand(state, target);
+
+  const borrowedCard = targetHand.find((c) => c.id === cardId);
+  if (!borrowedCard) {
+    throw new Error(`Invalid give card: ${cardId}`);
+  }
+
+  const remainingTargetHand = targetHand.filter((c) => c.id !== cardId);
+  const nextActorHand = [...hand, borrowedCard];
+  const withBorrow = appendEvent(
+    replaceHands(
+      {
+        ...state,
+        phase: "playing",
+        borrowRequester: undefined,
+      },
+      setHand(setHand(state.hands, actor, nextActorHand), target, remainingTargetHand)
+    ),
+    { type: "CARD_BORROWED", actor, target, cardId }
   );
 
   if (remainingTargetHand.length === 0) {
