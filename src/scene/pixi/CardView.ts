@@ -10,6 +10,7 @@ interface CardViewOptions {
   isInteractive: boolean;
   isLegal: boolean;
   onPress?: (cardId: string) => void;
+  animateEntrance?: boolean;
   width: number;
   height: number;
 }
@@ -20,6 +21,7 @@ export function createCardView({
   isInteractive,
   isLegal,
   onPress,
+  animateEntrance = true,
   width,
   height,
 }: CardViewOptions) {
@@ -33,6 +35,7 @@ export function createCardView({
           isInteractive,
           isLegal,
           onPress,
+          animateEntrance,
           width,
         })
       : createCardBackSprite({ height, width }),

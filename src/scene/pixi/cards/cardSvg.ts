@@ -22,11 +22,11 @@ function pipMarkup(card: Card) {
 
   return points
     .map((point) => {
-      const rotation = point.rotate ? "rotate(180 0 0)" : "";
       const x = Math.round(point.x * ART_WIDTH);
       const y = Math.round(point.y * ART_HEIGHT);
+      const rotation = point.rotate ? `transform="rotate(180 ${x} ${y})"` : "";
 
-      return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-family="'Bodoni Moda', serif" font-size="40" fill="${color}" transform="${rotation}">${symbol}</text>`;
+      return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-family="'Bodoni Moda', serif" font-size="40" fill="${color}" ${rotation}>${symbol}</text>`;
     })
     .join("");
 }

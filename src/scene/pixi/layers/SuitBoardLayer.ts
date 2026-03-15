@@ -9,6 +9,7 @@ import type { Card, Rank, Suit } from "../../../game/core/types";
 interface SuitBoardLayerOptions {
   layout: TableLayout;
   snapshot: MatchSnapshot;
+  seenCards: Set<string>;
 }
 
 const rankValue: Record<Rank, number> = {
@@ -33,7 +34,7 @@ function suitCards(layout: Card[], suit: Suit) {
     .sort((left, right) => rankValue[left.rank] - rankValue[right.rank]);
 }
 
-export function createSuitBoardLayer({ layout, snapshot }: SuitBoardLayerOptions) {
+export function createSuitBoardLayer({ layout, snapshot, seenCards }: SuitBoardLayerOptions) {
   const root = new Container();
   const boardShell = new Graphics();
 
@@ -75,6 +76,7 @@ export function createSuitBoardLayer({ layout, snapshot }: SuitBoardLayerOptions
       isFaceUp: true,
       isInteractive: false,
       isLegal: false,
+      animateEntrance: !seenCards.has(`${lane.key}-7`),
       width: cardWidth,
     });
 
@@ -104,6 +106,7 @@ export function createSuitBoardLayer({ layout, snapshot }: SuitBoardLayerOptions
         isFaceUp: true,
         isInteractive: false,
         isLegal: false,
+        animateEntrance: !seenCards.has(card.id),
         width: cardWidth,
       });
       view.position.set(
@@ -120,6 +123,7 @@ export function createSuitBoardLayer({ layout, snapshot }: SuitBoardLayerOptions
         isFaceUp: true,
         isInteractive: false,
         isLegal: false,
+        animateEntrance: !seenCards.has(card.id),
         width: cardWidth,
       });
       view.position.set(

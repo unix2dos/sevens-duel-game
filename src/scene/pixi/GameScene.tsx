@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { createTableView } from "./TableView";
 import { preloadCardTextures } from "./cards/cardSvg";
@@ -22,6 +22,7 @@ export function GameScene({
   showChildGuidance,
 }: GameSceneProps) {
   const { appRef, hostRef, readyToken } = usePixiHost();
+  const seenCardsRef = useRef(new Set<string>());
 
   useEffect(() => {
     const app = appRef.current;
@@ -53,9 +54,12 @@ export function GameScene({
           onPlayCard,
           showChildGuidance,
           snapshot: matchSnapshot,
+          seenCards: seenCardsRef.current,
           width: app.screen.width,
         }),
       );
+
+      visibleCards.forEach((card) => seenCardsRef.current.add(card.id));
     });
 
     return () => {

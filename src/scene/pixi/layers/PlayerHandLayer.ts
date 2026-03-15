@@ -12,6 +12,7 @@ interface PlayerHandLayerOptions {
   onBorrow: () => void;
   onPlayCard: (cardId: string) => void;
   snapshot: MatchSnapshot;
+  seenCards: Set<string>;
 }
 
 function createBorrowChip(
@@ -53,6 +54,7 @@ export function createPlayerHandLayer({
   onBorrow,
   onPlayCard,
   snapshot,
+  seenCards,
 }: PlayerHandLayerOptions) {
   const root = new Container();
   root.sortableChildren = true;
@@ -131,6 +133,7 @@ export function createPlayerHandLayer({
       isInteractive: canAct && isLegal,
       isLegal,
       onPress: onPlayCard,
+      animateEntrance: !seenCards.has(card.id),
       width: cardWidth,
     });
     if (index > 0 && sortedHand[index - 1]?.suit !== card.suit) {

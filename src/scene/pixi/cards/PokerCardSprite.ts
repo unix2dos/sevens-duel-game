@@ -11,6 +11,7 @@ interface PokerCardSpriteOptions {
   isInteractive: boolean;
   isLegal: boolean;
   onPress?: (cardId: string) => void;
+  animateEntrance?: boolean;
   width: number;
 }
 
@@ -20,6 +21,7 @@ export function createPokerCardSprite({
   isInteractive,
   isLegal,
   onPress,
+  animateEntrance = true,
   width,
 }: PokerCardSpriteOptions) {
   const root = new Container();
@@ -44,34 +46,39 @@ export function createPokerCardSprite({
     root.alpha = 0.94;
   }
 
-  // Entrance micro-animation
-  const slideOffset = 15;
-  sprite.y += slideOffset;
-  shadow.y += slideOffset;
-  glow.y += slideOffset;
-  root.alpha = 0;
-
   const targetRootAlpha = isLegal ? 1 : 0.94;
-  const animateIn = () => {
-    sprite.y += (0 - sprite.y) * 0.2;
-    shadow.y += (cardMetrics.shadowOffsetY - shadow.y) * 0.2;
-    glow.y += (0 - glow.y) * 0.2;
 
-    if (root.alpha < targetRootAlpha) {
-      root.alpha += (targetRootAlpha - root.alpha) * 0.15;
-    }
+  if (animateEntrance) {
+    // Entrance micro-animation
+    const slideOffset = 15;
+    sprite.y += slideOffset;
+    shadow.y += slideOffset;
+    glow.y += slideOffset;
+    root.alpha = 0;
 
-    if (Math.abs(sprite.y) < 0.5) {
-      sprite.y = 0;
-      shadow.y = cardMetrics.shadowOffsetY;
-      glow.y = 0;
-      root.alpha = targetRootAlpha;
-      Ticker.shared.remove(animateIn);
-    }
-  };
+    const animateIn = () => {
+      sprite.y += (0 - sprite.y) * 0.2;
+      shadow.y += (cardMetrics.shadowOffsetY - shadow.y) * 0.2;
+      glow.y += (0 - glow.y) * 0.2;
 
-  Ticker.shared.add(animateIn);
-  root.on("destroyed", () => Ticker.shared.remove(animateIn));
+      if (root.alpha < targetRootAlpha) {
+        root.alpha += (targetRootAlpha - root.alpha) * 0.15;
+      }
+
+      if (Math.abs(sprite.y) < 0.5) {
+        sprite.y = 0;
+        shadow.y = cardMetrics.shadowOffsetY;
+        glow.y = 0;
+        root.alpha = targetRootAlpha;
+        Ticker.shared.remove(animateIn);
+      }
+    };
+
+    Ticker.shared.add(animateIn);
+    root.on("destroyed", () => Ticker.shared.remove(animateIn));
+  } else {
+    root.alpha = targetRootAlpha;
+  }
 
   if (isInteractive) {
     let hovered = false;
