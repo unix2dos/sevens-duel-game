@@ -24,7 +24,7 @@ export function HomeScreen({
         <p className="eyebrow">SEVENS SALON</p>
         <h1>双人改良版排七</h1>
         <p className="hero-copy">
-          一张深色绒面牌桌，一副真实扑克牌。围绕四个 7 接龙，在借牌与卡位之间，先把自己的手牌清空。
+          单机 AI 对战的改良版排七牌桌，在手机和桌面上都能快速开局。围绕四个 7 接龙，在借牌与卡位之间，先把自己的手牌清空。
         </p>
 
         <DifficultyPicker

@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 
 import { difficultyLabels, type DifficultyId, type ScreenId } from "./app/model";
 import { qualityLabel, resolveQualityPreset } from "./app/performance";
@@ -21,6 +21,8 @@ function App() {
   const [rulesOpen, setRulesOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [match, setMatch] = useState<Match | null>(null);
+  const previousMatchStatusRef = useRef<Match["snapshot"]["status"] | null>(null);
+  const uiSoundOnEnableRef = useRef(false);
 
   const difficultyLabel = difficultyLabels[selectedDifficulty];
   const performancePreset = resolveQualityPreset();
@@ -33,12 +35,32 @@ function App() {
   const { playSound } = useSound(soundEnabled);
 
   useEffect(() => {
-    if (!match || screen !== "game") {
+    if (soundEnabled && uiSoundOnEnableRef.current) {
+      uiSoundOnEnableRef.current = false;
+      playSound("ui");
+    }
+  }, [playSound, soundEnabled]);
+
+  useEffect(() => {
+    if (!match) {
+      previousMatchStatusRef.current = null;
       return;
     }
 
-    if (match.snapshot.status === "finished") {
-      startTransition(() => setScreen("result"));
+    const currentStatus = match.snapshot.status;
+    const previousStatus = previousMatchStatusRef.current;
+    previousMatchStatusRef.current = currentStatus;
+
+    if (screen !== "game" || currentStatus !== "finished" || previousStatus === "finished") {
+      return;
+    }
+
+    playSound("result");
+    startTransition(() => setScreen("result"));
+  }, [match, playSound, screen]);
+
+  useEffect(() => {
+    if (!match || screen !== "game") {
       return;
     }
 
@@ -92,14 +114,26 @@ function App() {
     <>
       {screen === "home" ? (
         <HomeScreen
-          onOpenRules={() => setRulesOpen(true)}
+          onOpenRules={() => {
+            playSound("ui");
+            setRulesOpen(true);
+          }}
           onSelectDifficulty={setSelectedDifficulty}
           onStart={() => {
-            playSound("ui");
+            playSound("deal");
             setMatch(createMatch({ difficulty: selectedDifficulty, seed: buildSeed() }));
             startTransition(() => setScreen("game"));
           }}
-          onToggleSound={() => setSoundEnabled((value) => !value)}
+          onToggleSound={() => {
+            if (soundEnabled) {
+              playSound("ui");
+              setSoundEnabled(false);
+              return;
+            }
+
+            uiSoundOnEnableRef.current = true;
+            setSoundEnabled(true);
+          }}
           selectedDifficulty={selectedDifficulty}
           soundEnabled={soundEnabled}
         />
