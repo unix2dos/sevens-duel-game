@@ -249,12 +249,56 @@
 
 .home-notes p {
   margin: 0;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  background: rgba(212, 175, 55, 0.08);
+  color: rgba(212, 175, 55, 0.78);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+
+.give-card-overlay {
+  position: absolute;
+  top: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.give-card-confirm {
+  padding: 8px 24px;
+  font-size: 16px;
+  min-width: auto;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  background: linear-gradient(135deg, #f6c95f, #f59e0b) !important;
+  color: #612c00 !important;
+  font-weight: bold;
+}
+
+.home-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  color: rgba(212, 175, 55, 0.4);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  pointer-events: none;
 }
 
 .game-layout--table {
   position: relative;
   display: grid;
   align-items: stretch;
+  overflow: hidden;
+  touch-action: none;
 }
 
 .table-shell--full {
@@ -355,6 +399,18 @@
 }
 
 @media (max-width: 899px) {
+  .app-shell--home {
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: auto;
+    padding-top: 1.2rem;
+    padding-bottom: 1.2rem;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 6vw, 3rem);
+  }
+
   .difficulty-options {
     grid-template-columns: 1fr;
   }

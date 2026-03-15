@@ -76,21 +76,32 @@ export function createTopStatusLayer({
   turn.position.set(topBar.x + 20, topBar.y + 36);
   root.addChild(turn);
 
-  if (!layout.compact) {
-    const phase = makeLabel(phaseLabel, 12);
-    phase.anchor.set(0.5, 0);
-    phase.position.set(topBar.x + topBar.width * 0.55, topBar.y + 20);
-    root.addChild(phase);
-  }
+  const phase = makeLabel(phaseLabel, layout.compact ? 11 : 12);
+  phase.anchor.set(0.5, 0);
+  phase.position.set(
+    layout.compact ? topBar.x + topBar.width / 2 : topBar.x + topBar.width * 0.55,
+    layout.compact ? topBar.y + 14 : topBar.y + 20,
+  );
+  root.addChild(phase);
 
   const countsContainer = new Container();
 
   if (layout.compact) {
-    const aiText = makeValue(` AI ${snapshot.hands.opponent.length}`, 16);
+    let currentX = 0;
+
+    const playerText = makeValue(`你 ${snapshot.hands.player.length}`, 13);
+    const playerBadge = createIndicatorBadge(0x3b82f6);
+    playerBadge.position.set(currentX + 4.5, playerText.height / 2);
+    playerText.position.set(currentX + 14, 0);
+
+    currentX += 14 + playerText.width + 6;
+
+    const aiText = makeValue(`AI ${snapshot.hands.opponent.length}`, 13);
     const aiBadge = createIndicatorBadge(0xef4444);
-    aiBadge.position.set(5.5, aiText.height / 2);
-    aiText.position.set(16, 0);
-    countsContainer.addChild(aiBadge, aiText);
+    aiBadge.position.set(currentX + 4.5, aiText.height / 2);
+    aiText.position.set(currentX + 14, 0);
+
+    countsContainer.addChild(playerBadge, playerText, aiBadge, aiText);
   } else {
     let currentX = 0;
     

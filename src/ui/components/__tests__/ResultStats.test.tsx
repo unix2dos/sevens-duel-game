@@ -27,5 +27,5 @@ it("shows a neutral finish reason when a hand reaches zero because of borrowing"
 
   render(<ResultStats snapshot={snapshot} />);
 
-  expect(screen.getByText("结束原因：借牌后手牌归零")).toBeInTheDocument();
+  expect(screen.getByText(/结束原因：借牌后手牌归零/)).toBeInTheDocument();
 });

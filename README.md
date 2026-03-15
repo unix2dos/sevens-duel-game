@@ -2,6 +2,11 @@
 
 单机 AI 对战的改良版排七 Web 游戏，用一张深色绒面牌桌和一副真实扑克牌，把传统接龙规则做成更适合桌面与手机试玩的短局体验。
 
+## 立即试玩
+
+- 主站：[`Cloudflare Pages`](https://79ae24dd.sevens-duel-game.pages.dev/)
+- 备用站：[`GitHub Pages`](https://unix2dos.github.io/sevens-duel-game/)
+
 ## 亮点
 
 - 单机 AI 对战，支持 `儿童 / 标准 / 挑战` 三档难度
@@ -82,7 +87,7 @@ npm run preview -- --host 127.0.0.1 --port 4173
 
 当前仓库采用双部署：`Cloudflare Pages` 作为主站，`GitHub Pages` 作为备用站。
 
-- 当前 Cloudflare Pages 地址：`https://79ae24dd.sevens-duel-game.pages.dev/`
+- 当前 Cloudflare Pages 地址：`https://sevens-duel-game.pages.dev/`
 - 当前 GitHub Pages 备用地址：`https://unix2dos.github.io/sevens-duel-game/`
 - 详细部署说明：[`docs/deployment.md`](docs/deployment.md)
 - Cloudflare Pages：通过 Cloudflare Git integration 跟踪 `main`，构建命令 `npm run build`，输出目录 `dist`

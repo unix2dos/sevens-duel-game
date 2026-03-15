@@ -17,14 +17,27 @@ function finishReasonLabel(snapshot: MatchSnapshot) {
 }
 
 export function ResultStats({ snapshot }: ResultStatsProps) {
-  const borrowCount = snapshot.eventLog.filter((event) => event.type === "CARD_BORROWED").length;
-  const turnCount = snapshot.eventLog.filter((event) => event.type === "TURN_PASSED").length;
+  const playerPlays = snapshot.eventLog.filter(
+    (e) => e.type === "CARD_PLAYED" && e.actor === "player",
+  ).length;
+  const aiPlays = snapshot.eventLog.filter(
+    (e) => e.type === "CARD_PLAYED" && e.actor === "opponent",
+  ).length;
+  const playerBorrows = snapshot.eventLog.filter(
+    (e) => e.type === "CARD_BORROWED" && e.actor === "player",
+  ).length;
+  const aiBorrows = snapshot.eventLog.filter(
+    (e) => e.type === "CARD_BORROWED" && e.actor === "opponent",
+  ).length;
+  const turnCount = snapshot.eventLog.filter((e) => e.type === "TURN_PASSED").length;
 
   return (
     <div className="result-stats">
-      <p>回合切换：{turnCount}</p>
-      <p>借牌次数：{borrowCount}</p>
-      <p>结束原因：{finishReasonLabel(snapshot)}</p>
+      <p>🃏 你出牌 {playerPlays} 张 · AI 出牌 {aiPlays} 张</p>
+      <p>🤝 你借牌 {playerBorrows} 次 · AI 借牌 {aiBorrows} 次</p>
+      <p>🔄 回合切换 {turnCount} 次</p>
+      <p>✋ 剩余手牌：你 {snapshot.hands.player.length} 张 · AI {snapshot.hands.opponent.length} 张</p>
+      <p>📋 结束原因：{finishReasonLabel(snapshot)}</p>
     </div>
   );
 }

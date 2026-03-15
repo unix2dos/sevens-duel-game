@@ -52,10 +52,9 @@ export function GameScreen({
           showChildGuidance={showChildGuidance}
         />
         {matchSnapshot.phase === "borrowing" && selectedGiveCardId && (
-          <div style={{ position: "absolute", top: 120, left: "50%", transform: "translateX(-50%)", zIndex: 10, display: "flex", alignItems: "center", pointerEvents: "none" }}>
+          <div className="give-card-overlay">
             <button
-              className="primary-action"
-              style={{ padding: "8px 24px", fontSize: 16, minWidth: "auto", boxShadow: "0 6px 20px rgba(0,0,0,0.6)", pointerEvents: "auto", backgroundColor: "#f59e0b", color: "#612c00", fontWeight: "bold" }}
+              className="primary-action give-card-confirm"
               onClick={() => {
                 setSelectedGiveCardId(null);
                 onGiveCard(selectedGiveCardId);

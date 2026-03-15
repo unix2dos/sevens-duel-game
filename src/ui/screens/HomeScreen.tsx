@@ -65,6 +65,10 @@ export function HomeScreen({
           <p>电影感牌桌反馈</p>
         </div>
       </section>
+
+      <footer className="home-footer">
+        <span>Sevens Duel v0.1</span>
+      </footer>
     </main>
   );
 }

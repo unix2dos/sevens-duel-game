@@ -47,7 +47,8 @@ export function createTableLayout(width: number, height: number): TableLayout {
   const topWidth = width - padding * 2 - actionInset;
   const handHeight = clamp(height * 0.24, compact ? 164 : 170, compact ? 192 : 226);
   const boardTop = padding + topHeight + (compact ? 16 : 22);
-  const boardHeight = height - boardTop - handHeight - padding - (compact ? 14 : 20);
+  const rawBoardHeight = height - boardTop - handHeight - padding - (compact ? 14 : 20);
+  const boardHeight = compact ? Math.min(rawBoardHeight, width * 1.05) : rawBoardHeight;
   const laneGap = clamp(width * 0.012, 10, 18);
   const boardWidth = width - padding * 2;
   const laneWidth = (boardWidth - laneGap * 3) / 4;
