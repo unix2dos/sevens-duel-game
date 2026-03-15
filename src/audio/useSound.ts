@@ -7,8 +7,10 @@ export function useSound(enabled: boolean) {
   const soundsRef = useRef<Partial<Record<SoundName, Howl | null>>>({});
 
   useEffect(() => {
+    const sounds = soundsRef.current;
+
     return () => {
-      for (const sound of Object.values(soundsRef.current)) {
+      for (const sound of Object.values(sounds)) {
         sound?.unload();
       }
     };
