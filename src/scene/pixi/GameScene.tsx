@@ -41,17 +41,24 @@ export const GameScene = forwardRef<GameSceneRef, GameSceneProps>(({
   const previousLayoutRef = useRef<Card[] | null>(null);
   const celebrationStartTimesRef = useRef(new Map<Suit, number>());
   const timerRef = useRef<number | null>(null);
+  const hasPlayedVFXRef = useRef(false);
 
   useImperativeHandle(ref, () => ({
     playEndGameVFX: async () => {
-      if (!appRef.current) return;
-      const { playVictoryVFX } = await import("./vfx/VictoryVFX");
-      const { playDefeatVFX } = await import("./vfx/DefeatVFX");
+      if (!appRef.current || hasPlayedVFXRef.current) return;
+      hasPlayedVFXRef.current = true;
       
-      if (matchSnapshot.winner === "player") {
-        await playVictoryVFX(appRef.current.stage, appRef.current.screen.width, appRef.current.screen.height);
-      } else {
-        await playDefeatVFX(appRef.current.stage, appRef.current.screen.width, appRef.current.screen.height);
+      try {
+        const { playVictoryVFX } = await import("./vfx/VictoryVFX");
+        const { playDefeatVFX } = await import("./vfx/DefeatVFX");
+        
+        if (matchSnapshot.winner === "player") {
+          await playVictoryVFX(appRef.current.stage, appRef.current.screen.width, appRef.current.screen.height);
+        } else {
+          await playDefeatVFX(appRef.current.stage, appRef.current.screen.width, appRef.current.screen.height);
+        }
+      } catch (err) {
+        console.error("VFX Error:", err);
       }
     },
     updateTimerText: (time: number | null) => {

@@ -109,7 +109,7 @@ function App() {
   }, [match, playSound, screen]);
 
   useEffect(() => {
-    if (!match || screen !== "game" || match.snapshot.turn !== "player") {
+    if (!match || screen !== "game" || match.snapshot.turn !== "player" || match.snapshot.status !== "playing") {
       return;
     }
 
