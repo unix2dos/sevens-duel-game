@@ -71,13 +71,15 @@ export function createSuitBoardLayer({ layout, snapshot, seenCards }: SuitBoardL
     const computedCardHeight = Math.min((availableLaneHeight / 2) + cardStep * 3, lane.rect.width * 1.5 - 20);
     const cardHeight = Math.max(layout.compact ? 60 : 80, computedCardHeight);
     const cardWidth = cardHeight * 0.7; // maintain poker card ratio (2.5/3.5)
+    const centerCardId = `${lane.key}-7`;
     const centerCard = createCardView({
-      card: { id: `${lane.key}-7`, rank: 7, suit: lane.key },
+      card: { id: centerCardId, rank: 7, suit: lane.key },
       height: cardHeight,
       isFaceUp: true,
       isInteractive: false,
       isLegal: false,
-      animateEntrance: !seenCards.has(`${lane.key}-7`),
+      animateEntrance: !seenCards.has(centerCardId),
+      owner: cards.length > 0 ? snapshot.cardOwners[centerCardId] : undefined,
       width: cardWidth,
     });
 

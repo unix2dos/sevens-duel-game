@@ -74,7 +74,7 @@ export function createTransientFeedLayer({
     text: primary,
   });
   primaryText.anchor.set(0.5, 0);
-  primaryText.position.set(layout.toastAnchor.x, layout.toastAnchor.y + 10);
+  primaryText.position.set(layout.toastAnchor.x, layout.toastAnchor.y - 12);
   root.addChild(primaryText);
 
   if (secondary) {
@@ -95,7 +95,7 @@ export function createTransientFeedLayer({
       text: secondary,
     });
     secondaryText.anchor.set(0.5, 0);
-    secondaryText.position.set(layout.toastAnchor.x, layout.toastAnchor.y + 32);
+    secondaryText.position.set(layout.toastAnchor.x, layout.toastAnchor.y + 10);
     root.addChild(secondaryText);
   }
 

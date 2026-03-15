@@ -27,24 +27,18 @@ function createBorrowChip(
   const shell = new Graphics();
   const title = new Text({
     style: {
-      fill: "#fef3c7", // light amber
+      fill: "#612c00", // dark amber text
       fontFamily: "Sora, IBM Plex Sans, sans-serif",
       fontSize: compact ? 14 : 15,
-      fontWeight: "700",
-      dropShadow: {
-        alpha: 0.8,
-        blur: 4,
-        color: 0x000000,
-        distance: 2,
-      }
+      fontWeight: "800",
     },
     text: "无牌可出 · 点击借牌",
   });
 
   shell
     .roundRect(x, y, width, compact ? 44 : 48, 999)
-    .fill({ color: 0x78350f, alpha: 0.95 }) // Dark amber/brown
-    .stroke({ color: 0xf59e0b, alpha: 0.85, width: 2 }); // Bright amber stroke
+    .fill({ color: 0xf59e0b, alpha: 1 }) // Bright yellow/amber background
+    .stroke({ color: 0xb45309, alpha: 0.6, width: 2 }); // Darker outline
   title.anchor.set(0.5);
   title.position.set(x + width / 2, y + (compact ? 22 : 24));
   root.addChild(shell, title);
