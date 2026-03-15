@@ -61,7 +61,7 @@ it("keeps the player name after returning to the home screen", () => {
 
   fillPlayerName("张三");
   fireEvent.click(screen.getByRole("button", { name: /开始游戏/i }));
-  fireEvent.click(screen.getByRole("button", { name: /返回首页/i }));
+  fireEvent.click(screen.getByRole("button", { name: /^返回$/i }));
 
   expect(screen.getByRole("textbox", { name: /玩家姓名/i })).toHaveValue("张三");
 });

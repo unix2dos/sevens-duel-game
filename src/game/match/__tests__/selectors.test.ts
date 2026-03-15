@@ -5,6 +5,7 @@ import type { MatchSnapshot } from "../engine";
 
 const baseSnapshot: MatchSnapshot = {
   cardOwners: {},
+  lastPlayedCards: { player: undefined, opponent: undefined },
   difficulty: "normal",
   eventLog: [{ type: "GAME_STARTED", seed: 7 }],
   hands: {

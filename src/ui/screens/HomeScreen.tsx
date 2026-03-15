@@ -92,7 +92,7 @@ export function HomeScreen({
       </section>
 
       <footer className="home-footer">
-        <span>Sevens Duel v0.1</span>
+        <span>Sevens Duel v1.0.0</span>
       </footer>
     </main>
   );

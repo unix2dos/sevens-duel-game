@@ -6,6 +6,13 @@ import type { Card } from "../../../game/core/types";
 
 const ART_WIDTH = 300;
 const ART_HEIGHT = 420;
+const cornerMetrics = {
+  insetX: 36,
+  insetY: 48,
+  rankFontSize: 42,
+  suitFontSize: 34,
+  suitOffsetY: 34,
+} as const;
 export type CardFaceVariant = "standard" | "suit-emblem";
 const faceTextureCache = new Map<string, Texture>();
 const faceTextureLoads = new Map<string, Promise<Texture>>();
@@ -89,14 +96,16 @@ function centerMarkup(card: Card, faceVariant: CardFaceVariant) {
 
 function cornerMarkup(card: Card, mirrored = false) {
   const color = inkColor(card);
-  const transform = mirrored ? `transform="translate(${ART_WIDTH - 34} ${ART_HEIGHT - 38}) rotate(180)"` : `transform="translate(28 38)"`;
+  const transform = mirrored
+    ? `transform="translate(${ART_WIDTH - cornerMetrics.insetX} ${ART_HEIGHT - cornerMetrics.insetY}) rotate(180)"`
+    : `transform="translate(${cornerMetrics.insetX} ${cornerMetrics.insetY})"`;
 
   return `
     <g ${transform}>
       <text x="0" y="0" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Bodoni Moda', serif" font-size="34" font-weight="700" fill="${color}">${rankText(card.rank)}</text>
-      <text x="0" y="28" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Bodoni Moda', serif" font-size="28" fill="${color}">${suitSymbol(card.suit)}</text>
+        font-family="'Bodoni Moda', serif" font-size="${cornerMetrics.rankFontSize}" font-weight="700" fill="${color}">${rankText(card.rank)}</text>
+      <text x="0" y="${cornerMetrics.suitOffsetY}" text-anchor="middle" dominant-baseline="middle"
+        font-family="'Bodoni Moda', serif" font-size="${cornerMetrics.suitFontSize}" fill="${color}">${suitSymbol(card.suit)}</text>
     </g>
   `;
 }

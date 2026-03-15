@@ -5,6 +5,7 @@ import { ResultScreen } from "../ResultScreen";
 
 const snapshot: MatchSnapshot = {
   cardOwners: {},
+  lastPlayedCards: { player: undefined, opponent: undefined },
   difficulty: "normal",
   eventLog: [
     { type: "GAME_STARTED", seed: 1 },

@@ -20,6 +20,6 @@ export interface GameState {
   winner?: Actor;
   reason?: GameResultReason;
   cardOwners: Record<string, Actor>;
-  lastPlayedCard?: { cardId: string; actor: Actor };
+  lastPlayedCards: Record<Actor, string | undefined>;
   eventLog: GameEvent[];
 }

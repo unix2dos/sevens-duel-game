@@ -53,6 +53,7 @@ describe("createPlayerHandLayer", () => {
     const layout = createTableLayout(1280, 860);
     const snapshot: MatchSnapshot = {
       cardOwners: {},
+  lastPlayedCards: { player: undefined, opponent: undefined },
       difficulty: "normal",
       eventLog: [{ type: "GAME_STARTED", seed: 7 }],
       hands: {

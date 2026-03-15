@@ -94,7 +94,7 @@ export function createInitialGameState(config: InitialStateConfig): GameState {
     phase: config.phase ?? "opening",
     status: "playing",
     cardOwners: {},
-    lastPlayedCard: undefined,
+    lastPlayedCards: { player: undefined, opponent: undefined },
     eventLog: [{ type: "GAME_STARTED", seed: config.seed }],
   };
 }
@@ -152,7 +152,7 @@ export function applyPlayCard(state: GameState, cardId: string): GameState {
       ...withCardRemoved,
       layout: nextLayout,
       cardOwners: { ...state.cardOwners, [cardId]: state.turn },
-      lastPlayedCard: { cardId, actor: state.turn },
+      lastPlayedCards: { ...state.lastPlayedCards, [state.turn]: cardId },
       phase: "playing",
     },
     { type: "CARD_PLAYED", actor: state.turn, cardId },

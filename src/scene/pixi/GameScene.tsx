@@ -1,6 +1,7 @@
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 
 import { createTableView } from "./TableView";
+import type { TableViewRoot } from "./TableView";
 import { preloadCardFaceTexture, preloadCardTextures } from "./cards/cardSvg";
 import { updateSuitCelebrations } from "./suitCelebration";
 import { usePixiHost } from "./usePixiHost";
@@ -39,6 +40,7 @@ export const GameScene = forwardRef<GameSceneRef, GameSceneProps>(({
   const seenCardsRef = useRef(new Set<string>());
   const previousLayoutRef = useRef<Card[] | null>(null);
   const celebrationStartTimesRef = useRef(new Map<Suit, number>());
+  const timerRef = useRef<number | null>(null);
 
   useImperativeHandle(ref, () => ({
     playEndGameVFX: async () => {
@@ -53,10 +55,10 @@ export const GameScene = forwardRef<GameSceneRef, GameSceneProps>(({
       }
     },
     updateTimerText: (time: number | null) => {
+      timerRef.current = time;
       if (appRef.current) {
-        // We will attach an update method to the root container in createTableView
-        const root = appRef.current.stage.children[0] as any;
-        if (root && typeof root.updateTimerText === "function") {
+        const root = appRef.current.stage.children[0] as TableViewRoot | undefined;
+        if (root) {
           root.updateTimerText(time);
         }
       }
@@ -114,6 +116,10 @@ export const GameScene = forwardRef<GameSceneRef, GameSceneProps>(({
       });
 
       app.stage.addChild(tableRoot);
+
+      if (timerRef.current !== null) {
+        tableRoot.updateTimerText(timerRef.current);
+      }
 
       visibleCards.forEach((card) => seenCardsRef.current.add(card.id));
     });

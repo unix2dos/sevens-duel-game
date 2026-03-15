@@ -37,7 +37,8 @@ export function GameScreen({
   const [isGameOverDelayComplete, setIsGameOverDelayComplete] = useState(false);
   const gameSceneRef = useRef<GameSceneRef>(null);
   const [isHintActive, setIsHintActive] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(15);
+  const [timeLeft, setTimeLeft] = useState(30);
+  const isPlayerActiveTurn = matchSnapshot.turn === "player" && matchSnapshot.status === "playing";
 
   // Reset hint state and timer when hint triggers
   useEffect(() => {
@@ -54,26 +55,33 @@ export function GameScreen({
 
   // Reset timer on turn or game state changes
   useEffect(() => {
-    if (matchSnapshot.turn === "player" && matchSnapshot.status === "playing") {
-      setTimeLeft(15);
-      gameSceneRef.current?.updateTimerText(15);
-    } else {
+    if (!isPlayerActiveTurn) {
       gameSceneRef.current?.updateTimerText(null);
-    }
-  }, [matchSnapshot.turn, matchSnapshot.status, matchSnapshot.eventLog.length]);
-
-  // Countdown ticking
-  useEffect(() => {
-    if (matchSnapshot.turn !== "player" || matchSnapshot.status !== "playing" || isHintActive) {
       return;
     }
 
-    if (timeLeft <= 0) {
-      setIsHintActive(true);
+    const resetTimerId = setTimeout(() => {
+      setTimeLeft(30);
+      gameSceneRef.current?.updateTimerText(30);
+    }, 0);
+
+    return () => clearTimeout(resetTimerId);
+  }, [isPlayerActiveTurn, matchSnapshot.eventLog.length]);
+
+  // Countdown ticking
+  useEffect(() => {
+    if (!isPlayerActiveTurn || isHintActive || timeLeft <= 0) {
       return;
     }
 
     const timerId = setTimeout(() => {
+      if (timeLeft <= 1) {
+        setTimeLeft(0);
+        gameSceneRef.current?.updateTimerText(null);
+        setIsHintActive(true);
+        return;
+      }
+
       setTimeLeft((prev) => {
         const next = prev - 1;
         gameSceneRef.current?.updateTimerText(next);
@@ -82,22 +90,23 @@ export function GameScreen({
     }, 1000);
 
     return () => clearTimeout(timerId);
-  }, [timeLeft, matchSnapshot.turn, matchSnapshot.status, isHintActive]);
+  }, [timeLeft, isHintActive, isPlayerActiveTurn]);
 
   // Handle post-game delay and trigger VFX when modal shows
   useEffect(() => {
-    if (matchSnapshot.status === "finished") {
-      const timer = setTimeout(() => {
-        setIsGameOverDelayComplete(true);
-        // Fire VFX right as the modal appears
-        if (gameSceneRef.current && !isResultModalDismissed) {
-          gameSceneRef.current.playEndGameVFX();
-        }
-      }, 1500); // 1.5s delay allowing players to see the board
-      return () => clearTimeout(timer);
-    } else {
-      setIsGameOverDelayComplete(false);
+    if (matchSnapshot.status !== "finished") {
+      return;
     }
+
+    const timer = setTimeout(() => {
+      setIsGameOverDelayComplete(true);
+      // Fire VFX right as the modal appears
+      if (gameSceneRef.current && !isResultModalDismissed) {
+        gameSceneRef.current.playEndGameVFX();
+      }
+    }, 1500); // 1.5s delay allowing players to see the board
+
+    return () => clearTimeout(timer);
   }, [matchSnapshot.status, isResultModalDismissed]);
 
   const showResultModal = matchSnapshot.status === "finished" && isGameOverDelayComplete && !isResultModalDismissed;

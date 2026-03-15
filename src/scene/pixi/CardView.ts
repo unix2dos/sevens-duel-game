@@ -6,6 +6,10 @@ import { createPokerCardSprite, playShakeAnimation } from "./cards/PokerCardSpri
 import type { Actor } from "../../game/core/state";
 import type { Card } from "../../game/core/types";
 
+export type CardViewContainer = Container & {
+  playShakeAnimation: () => void;
+};
+
 interface CardViewOptions {
   card: Card;
   isFaceUp: boolean;
@@ -41,7 +45,7 @@ export function createCardView({
   height,
   lastPlayedActor,
 }: CardViewOptions) {
-  const root = new Container();
+  const root = new Container() as CardViewContainer;
 
   root.addChild(
     isFaceUp
@@ -63,7 +67,7 @@ export function createCardView({
         })
       : createCardBackSprite({ height, width }),
   );
-  (root as any).playShakeAnimation = () => playShakeAnimation(root);
+  root.playShakeAnimation = () => playShakeAnimation(root);
 
   return root;
 }

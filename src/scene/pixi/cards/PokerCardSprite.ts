@@ -352,7 +352,7 @@ export function createPokerCardSprite({
     // Persistent glowing outline for the last card played globally
     const botHighlight = new Graphics();
     const borderThickness = 4;
-    const highlightColor = lastPlayedActor === "player" ? 0xd4af37 : 0xef4444;
+    const highlightColor = lastPlayedActor === "player" ? 0x3b82f6 : 0xef4444;
     
     botHighlight.roundRect(-borderThickness, -borderThickness, width + borderThickness * 2, height + borderThickness * 2, cardMetrics.radius + 4)
       .fill({ color: highlightColor, alpha: 0.0 }) // Transparent fill

@@ -47,6 +47,7 @@ async function hasRenderedTable(page: Page) {
 
 test("user can start a game and take a valid action on desktop", async ({ page }) => {
   await page.goto("/");
+  await page.getByRole("textbox", { name: /玩家姓名/i }).fill("测试玩家");
   await page.getByRole("button", { name: "开始游戏" }).click();
 
   await expect(page.getByRole("region", { name: /对局牌桌/i })).toBeVisible();

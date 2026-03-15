@@ -18,6 +18,7 @@ it("shows a neutral finish reason when a hand reaches zero because of borrowing"
     winner: "player",
     reason: "borrowed-empty",
     cardOwners: {},
+  lastPlayedCards: { player: undefined, opponent: undefined },
     difficulty: "normal",
     eventLog: [
       { type: "GAME_STARTED", seed: 1 },

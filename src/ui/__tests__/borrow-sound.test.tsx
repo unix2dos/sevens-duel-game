@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, vi } from "vitest";
 
@@ -35,16 +34,10 @@ vi.mock("../../game/match/engine", async () => {
 
 vi.mock("../../ui/screens/HomeScreen", () => ({
   HomeScreen: ({
-    onPlayerNameChange,
     onStart,
   }: {
-    onPlayerNameChange: (playerName: string) => void;
     onStart: (playerName: string) => void;
   }) => {
-    useEffect(() => {
-      onPlayerNameChange("测试玩家");
-    }, [onPlayerNameChange]);
-
     return (
       <button onClick={() => onStart("测试玩家")} type="button">
         开始游戏
@@ -69,6 +62,7 @@ import App from "../../App";
 
 beforeEach(() => {
   vi.useFakeTimers();
+  vi.spyOn(Math, "random").mockReturnValue(0);
   createMatchMock.mockReset();
   dispatchAiTurnMock.mockReset();
   dispatchHumanActionMock.mockReset();
@@ -77,6 +71,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.runOnlyPendingTimers();
+  vi.restoreAllMocks();
   vi.useRealTimers();
 });
 
@@ -108,14 +103,14 @@ it("does not replay ai action sounds while an opponent borrow is waiting for pla
   mockPlaySound.mockClear();
 
   act(() => {
-    vi.advanceTimersByTime(420);
+    vi.advanceTimersByTime(800);
   });
 
   expect(dispatchAiTurnMock).toHaveBeenCalledTimes(1);
   expect(mockPlaySound).toHaveBeenCalledTimes(1);
 
   act(() => {
-    vi.advanceTimersByTime(420);
+    vi.advanceTimersByTime(800);
   });
 
   expect(dispatchAiTurnMock).toHaveBeenCalledTimes(1);

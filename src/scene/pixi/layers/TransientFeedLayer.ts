@@ -11,6 +11,10 @@ import {
   playerWonRound,
 } from "../../../ui/playerText";
 
+export type TransientFeedLayerContainer = Container & {
+  updateTimerText: (time: number | null) => void;
+};
+
 interface TransientFeedLayerOptions {
   layout: TableLayout;
   playerName: string;
@@ -71,7 +75,7 @@ export function createTransientFeedLayer({
   showChildGuidance,
   snapshot,
 }: TransientFeedLayerOptions) {
-  const root = new Container();
+  const root = new Container() as TransientFeedLayerContainer;
   const primary = latestMessage(snapshot, playerName);
   const secondary = helperMessage(snapshot, showChildGuidance, playerName);
   const width = Math.min(layout.board.width * 0.50, layout.compact ? 320 : 460);
@@ -112,7 +116,7 @@ export function createTransientFeedLayer({
       fontSize: 14,
       fontWeight: "600",
     },
-    text: "15s",
+    text: "30s",
   });
   timerText.anchor.set(0.5);
   timerText.position.set(21, 12);
@@ -122,7 +126,7 @@ export function createTransientFeedLayer({
   timerContainer.pivot.set(0, 12);
   root.addChild(timerContainer);
 
-  (root as any).updateTimerText = (time: number | null) => {
+  root.updateTimerText = (time: number | null) => {
     if (time !== null && snapshot.status === "playing" && snapshot.turn === "player") {
       primaryText.text = primary;
       timerText.text = `${time}s`;

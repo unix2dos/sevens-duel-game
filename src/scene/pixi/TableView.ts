@@ -6,8 +6,13 @@ import { createPlayerHandLayer } from "./layers/PlayerHandLayer";
 import { createSuitBoardLayer } from "./layers/SuitBoardLayer";
 import { createTopStatusLayer } from "./layers/TopStatusLayer";
 import { createTransientFeedLayer } from "./layers/TransientFeedLayer";
+import type { TransientFeedLayerContainer } from "./layers/TransientFeedLayer";
 import type { MatchSnapshot } from "../../game/match/engine";
 import type { Suit } from "../../game/core/types";
+
+export type TableViewRoot = Container & {
+  updateTimerText: (time: number | null) => void;
+};
 
 interface TableViewOptions {
   celebrationStartTimes: Map<Suit, number>;
@@ -40,7 +45,7 @@ export function createTableView({
   width,
   isHintActive,
 }: TableViewOptions) {
-  const root = new Container();
+  const root = new Container() as TableViewRoot;
   root.sortableChildren = true;
   const layout = createTableLayout(width, height);
   const backdrop = new Graphics();
@@ -59,7 +64,7 @@ export function createTableView({
     .stroke({ color: 0x2e7547, alpha: 0.15, width: 2 });
 
   root.addChild(backdrop, felt);
-  const feedLayer = createTransientFeedLayer({ layout, playerName, showChildGuidance, snapshot });
+  const feedLayer = createTransientFeedLayer({ layout, playerName, showChildGuidance, snapshot }) as TransientFeedLayerContainer;
   
   root.addChild(
     createTopStatusLayer({ difficultyLabel, layout, playerName, snapshot }),
@@ -69,10 +74,8 @@ export function createTableView({
     createPlayerHandLayer({ layout, onBorrow, onPlayCard, playerName, snapshot, seenCards, selectedGiveCardId, selectedPlayCardId, isHintActive }),
   );
 
-  (root as any).updateTimerText = (time: number | null) => {
-    if (typeof (feedLayer as any).updateTimerText === "function") {
-      (feedLayer as any).updateTimerText(time);
-    }
+  root.updateTimerText = (time: number | null) => {
+    feedLayer.updateTimerText(time);
   };
 
   return root;

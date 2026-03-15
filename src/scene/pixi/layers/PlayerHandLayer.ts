@@ -1,6 +1,7 @@
 import { Container, Graphics, Rectangle, Text, Ticker } from "pixi.js";
 
 import { createCardView } from "../CardView";
+import type { CardViewContainer } from "../CardView";
 import { cardTheme } from "../cards/cardTheme";
 import type { TableLayout } from "../layout/tableLayout";
 import type { MatchSnapshot } from "../../../game/match/engine";
@@ -264,8 +265,8 @@ export function createPlayerHandLayer({
     const cardId = customEvent.detail?.cardId;
     if (cardId) {
       const targetView = positionedCards.find(p => p.id === cardId);
-      if (targetView && (targetView.container as any).playShakeAnimation) {
-        (targetView.container as any).playShakeAnimation();
+      if (targetView) {
+        (targetView.container as CardViewContainer).playShakeAnimation();
       }
     }
   };
