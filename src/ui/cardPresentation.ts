@@ -1,3 +1,4 @@
+import { visualRankValue } from "../game/core/visualRank";
 import type { Card, Rank, Suit } from "../game/core/types";
 
 const suitSymbols: Record<Suit, string> = {
@@ -19,22 +20,6 @@ const suitOrder: Record<Suit, number> = {
   hearts: 1,
   clubs: 2,
   diamonds: 3,
-};
-
-const rankOrder: Record<Rank, number> = {
-  2: 2,
-  3: 3,
-  4: 4,
-  5: 5,
-  6: 6,
-  7: 7,
-  8: 8,
-  9: 9,
-  10: 10,
-  J: 11,
-  Q: 12,
-  K: 13,
-  A: 14,
 };
 
 function formatRank(rank: Rank) {
@@ -69,6 +54,6 @@ export function sortCardsForDisplay(cards: Card[]) {
       return suitOrder[left.suit] - suitOrder[right.suit];
     }
 
-    return rankOrder[left.rank] - rankOrder[right.rank];
+    return visualRankValue[left.rank] - visualRankValue[right.rank];
   });
 }

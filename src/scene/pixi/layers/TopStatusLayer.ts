@@ -55,10 +55,10 @@ export function createTopStatusLayer({
     snapshot.status === "finished"
       ? snapshot.winner === "player"
         ? "你赢了"
-        : "AI 获胜"
+        : "机器人获胜"
       : snapshot.turn === "player"
         ? "轮到你"
-        : "AI 回合";
+        : "机器人回合";
 
   shell
     .roundRect(topBar.x, topBar.y, topBar.width, topBar.height, 24)
@@ -86,7 +86,7 @@ export function createTopStatusLayer({
 
     currentX += 14 + playerText.width + 6;
 
-    const aiText = makeValue(`AI ${snapshot.hands.opponent.length}`, 13);
+    const aiText = makeValue(`机器人 ${snapshot.hands.opponent.length}`, 13);
     const aiBadge = createIndicatorBadge(0xef4444);
     aiBadge.position.set(currentX + 4.5, aiText.height / 2);
     aiText.position.set(currentX + 14, 0);
@@ -102,7 +102,7 @@ export function createTopStatusLayer({
     
     currentX += 16 + playerText.width + 4;
     
-    const aiText = makeValue(` AI 手牌 ${snapshot.hands.opponent.length}`, 15);
+    const aiText = makeValue(` 机器人手牌 ${snapshot.hands.opponent.length}`, 15);
     const aiBadge = createIndicatorBadge(0xef4444);
     aiBadge.position.set(currentX + 5.5, aiText.height / 2);
     aiText.position.set(currentX + 16, 0);

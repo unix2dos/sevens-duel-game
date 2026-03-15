@@ -30,7 +30,7 @@ function App() {
     match?.snapshot.status === "finished"
       ? match.snapshot.winner === "player"
         ? "你赢了"
-        : "AI 获胜"
+        : "机器人获胜"
       : "本局结束";
   const { playSound } = useSound(soundEnabled);
 

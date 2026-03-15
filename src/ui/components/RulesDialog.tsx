@@ -38,10 +38,11 @@ export function RulesDialog({ open, onClose }: RulesDialogProps) {
         <p className="eyebrow">HOUSE RULES</p>
         <h2>规则说明</h2>
         <p className="hero-copy">
-          这是基于排七母规则改造的双人版本，重点在于围绕 7 接龙，以及"无牌可出时向对手借牌"的节奏变化。
+          这是基于传统接7玩法改造的双人版本，重点在于围绕 7 接龙，以及"无牌可出时向对手借牌"的节奏变化。
         </p>
         <ul className="rules-list">
           <li>红桃 3 持有者先尝试开局，第一张必须是 7。</li>
+          <li>同花色的 A 不接在 K 后面，只有该花色已经出到 2 时才能再出 A。</li>
           <li>若无合法牌可出，则从对方手中随机借 1 张牌。</li>
           <li>借到后若立刻合法，则必须马上打出。</li>
           <li>谁先让自己的手牌变成 0 张，谁获胜。</li>

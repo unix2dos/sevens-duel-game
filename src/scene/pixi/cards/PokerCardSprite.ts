@@ -2,7 +2,7 @@ import { Container, Graphics, Sprite, Ticker } from "pixi.js";
 
 import { cardMetrics, cardTheme } from "./cardTheme";
 import { suitInk } from "./cardGlyphs";
-import { getCardFaceTexture } from "./cardSvg";
+import { getCardBackTexture, getCardFaceTexture } from "./cardSvg";
 import type { Actor } from "../../../game/core/state";
 import type { Card } from "../../../game/core/types";
 
@@ -14,6 +14,9 @@ interface PokerCardSpriteOptions {
   onPress?: (cardId: string) => void;
   animateEntrance?: boolean;
   owner?: Actor;
+  replayFlip?: boolean;
+  flipDelay?: number;
+  flipStartTime?: number; // Absolute timestamp when the celebration started
   width: number;
 }
 
@@ -25,12 +28,18 @@ export function createPokerCardSprite({
   onPress,
   animateEntrance = true,
   owner,
+  replayFlip = false,
+  flipDelay = 0,
+  flipStartTime = 0,
   width,
 }: PokerCardSpriteOptions) {
   const root = new Container();
   const glow = new Graphics();
   const shadow = new Graphics();
-  const sprite = new Sprite(getCardFaceTexture(card));
+  const cardSurface = new Container();
+  const faceSprite = new Sprite(getCardFaceTexture(card));
+  const backSprite = new Sprite(getCardBackTexture());
+  const baseSurfaceY = height / 2;
 
   glow.roundRect(0, 0, width, height, cardMetrics.radius + 6).fill({
     alpha: isLegal ? 0.35 : 0.12,
@@ -41,9 +50,42 @@ export function createPokerCardSprite({
     color: cardTheme.shadow,
   });
   shadow.position.y = cardMetrics.shadowOffsetY;
-  sprite.width = width;
-  sprite.height = height;
-  root.addChild(glow, shadow, sprite);
+  cardSurface.pivot.set(width / 2, height / 2);
+  cardSurface.position.set(width / 2, baseSurfaceY);
+  faceSprite.anchor.set(0.5);
+  faceSprite.position.set(width / 2, height / 2);
+  faceSprite.width = width;
+  faceSprite.height = height;
+  backSprite.anchor.set(0.5);
+  backSprite.position.set(width / 2, height / 2);
+  backSprite.width = width;
+  backSprite.height = height;
+  
+  const FLIP_DURATION = 800; // ms per card
+  const isFlipResolved = replayFlip && flipStartTime > 0 && Date.now() > flipStartTime + flipDelay + FLIP_DURATION;
+  const isFlipStarted = replayFlip && flipStartTime > 0 && Date.now() >= flipStartTime + flipDelay;
+  
+  if (replayFlip) {
+    if (isFlipResolved) {
+      // Animation completely finished
+      backSprite.visible = true;
+      faceSprite.visible = false;
+    } else if (isFlipStarted) {
+      // We are *currently* mid-animation, or just about to start.
+      // We set the initial state to face-up, and let the ticker catch up the scale.
+      backSprite.visible = false;
+      faceSprite.visible = true;
+    } else {
+      // Animation hasn't started yet (still in delay phase).
+      backSprite.visible = false;
+      faceSprite.visible = true;
+    }
+  } else {
+    backSprite.visible = false;
+  }
+  
+  cardSurface.addChild(backSprite, faceSprite);
+  root.addChild(glow, shadow, cardSurface);
 
   if (owner) {
     const badge = new Graphics();
@@ -66,13 +108,13 @@ export function createPokerCardSprite({
   if (animateEntrance) {
     // Entrance micro-animation
     const slideOffset = 15;
-    sprite.y += slideOffset;
+    cardSurface.y += slideOffset;
     shadow.y += slideOffset;
     glow.y += slideOffset;
     root.alpha = 0;
 
     const animateIn = () => {
-      sprite.y += (0 - sprite.y) * 0.2;
+      cardSurface.y += (baseSurfaceY - cardSurface.y) * 0.2;
       shadow.y += (cardMetrics.shadowOffsetY - shadow.y) * 0.2;
       glow.y += (0 - glow.y) * 0.2;
 
@@ -80,8 +122,8 @@ export function createPokerCardSprite({
         root.alpha += (targetRootAlpha - root.alpha) * 0.15;
       }
 
-      if (Math.abs(sprite.y) < 0.5) {
-        sprite.y = 0;
+      if (Math.abs(cardSurface.y - baseSurfaceY) < 0.5) {
+        cardSurface.y = baseSurfaceY;
         shadow.y = cardMetrics.shadowOffsetY;
         glow.y = 0;
         root.alpha = targetRootAlpha;
@@ -95,9 +137,55 @@ export function createPokerCardSprite({
     root.alpha = targetRootAlpha;
   }
 
+  if (replayFlip && !isFlipResolved) {
+    const minScale = 0.08;
+    const shrinkDuration = FLIP_DURATION * 0.45; // 45% of time shrinking
+    const targetTime = flipStartTime + flipDelay;
+
+    const animateFlip = () => {
+      const now = Date.now();
+      
+      // If animation hasn't started yet, do nothing (keep looking like face)
+      if (now < targetTime) {
+        cardSurface.scale.x = 1;
+        return;
+      }
+      
+      const elapsedSinceStart = now - targetTime;
+      
+      if (elapsedSinceStart >= FLIP_DURATION) {
+        // Animation is completely done
+        cardSurface.scale.x = 1;
+        faceSprite.visible = false;
+        backSprite.visible = true;
+        Ticker.shared.remove(animateFlip);
+        return;
+      }
+      
+      if (elapsedSinceStart < shrinkDuration) {
+        // Phase 1: Shrinking face
+        const progress = elapsedSinceStart / shrinkDuration;
+        // Ease out quadratic (faster start, slower end)
+        cardSurface.scale.x = Math.max(minScale, 1 - progress);
+        faceSprite.visible = true;
+        backSprite.visible = false;
+      } else {
+        // Phase 2: Expanding back
+        const expandProgress = (elapsedSinceStart - shrinkDuration) / (FLIP_DURATION - shrinkDuration);
+        // Ease in quadratic
+        cardSurface.scale.x = Math.max(minScale, expandProgress);
+        faceSprite.visible = false;
+        backSprite.visible = true;
+      }
+    };
+    
+    Ticker.shared.add(animateFlip);
+    root.on("destroyed", () => Ticker.shared.remove(animateFlip));
+  }
+
   if (isInteractive) {
     let hovered = false;
-    let targetY = 0;
+    let targetY = baseSurfaceY;
 
     root.eventMode = "static";
     root.cursor = "pointer";
@@ -105,22 +193,22 @@ export function createPokerCardSprite({
     
     root.on("pointerover", () => {
       hovered = true;
-      targetY = -18; // Elevate card higher 
+      targetY = baseSurfaceY - 18; // Elevate card higher 
       glow.alpha = isLegal ? 0.6 : 0.25; // Much brighter hover glow
     });
 
     root.on("pointerout", () => {
       hovered = false;
-      targetY = 0;
+      targetY = baseSurfaceY;
       glow.alpha = isLegal ? 0.35 : 0.12;
     });
 
     const updateHover = () => {
-      if (Math.abs(sprite.y - targetY) > 0.1) {
-        sprite.y += (targetY - sprite.y) * 0.25; // Faster spring
+      if (Math.abs(cardSurface.y - targetY) > 0.1) {
+        cardSurface.y += (targetY - cardSurface.y) * 0.25; // Faster spring
         glow.y += (targetY - glow.y) * 0.25;
         
-        const targetShadowY = cardMetrics.shadowOffsetY + (targetY * -0.4);
+        const targetShadowY = cardMetrics.shadowOffsetY + ((targetY - baseSurfaceY) * -0.4);
         shadow.y += (targetShadowY - shadow.y) * 0.25;
 
         const targetShadowAlpha = cardMetrics.shadowAlpha + (hovered ? -0.15 : 0);

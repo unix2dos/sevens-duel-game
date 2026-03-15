@@ -22,13 +22,13 @@ function latestMessage(snapshot: MatchSnapshot) {
     case "GAME_STARTED":
       return "红桃 3 持有者负责尝试开线";
     case "CARD_PLAYED":
-      return `${event.actor === "player" ? "你" : "AI"}打出 ${formatCardId(event.cardId)}`;
+      return `${event.actor === "player" ? "你" : "机器人"}打出 ${formatCardId(event.cardId)}`;
     case "CARD_BORROWED":
-      return `${event.actor === "player" ? "你" : "AI"}借到 ${formatCardId(event.cardId)}`;
+      return `${event.actor === "player" ? "你" : "机器人"}借到 ${formatCardId(event.cardId)}`;
     case "TURN_PASSED":
-      return event.actor === "player" ? "轮到你出牌" : "AI 接手";
+      return event.actor === "player" ? "轮到你出牌" : "机器人接手";
     case "GAME_FINISHED":
-      return event.winner === "player" ? "你赢下这一局" : "AI 赢下这一局";
+      return event.winner === "player" ? "你赢下这一局" : "机器人赢下这一局";
   }
 }
 

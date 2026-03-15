@@ -22,9 +22,9 @@ export function HomeScreen({
     <main className="app-shell app-shell--home">
       <section className="hero-panel">
         <p className="eyebrow">SEVENS SALON</p>
-        <h1>双人改良版排七</h1>
+        <h1>双人改良版接7</h1>
         <p className="hero-copy">
-          单机 AI 对战的改良版排七牌桌，在手机和桌面上都能快速开局。围绕四个 7 接龙，在借牌与卡位之间，先把自己的手牌清空。
+          单机 机器人 对战的改良版接7牌桌，在手机和桌面上都能快速开局。围绕四个 7 接龙，在借牌与卡位之间，先把自己的手牌清空。
         </p>
 
         <DifficultyPicker
@@ -60,7 +60,7 @@ export function HomeScreen({
           <small>方块 8</small>
         </article>
         <div className="home-notes">
-          <p>单机 AI</p>
+          <p>单机 机器人</p>
           <p>手机 + 桌面</p>
           <p>电影感牌桌反馈</p>
         </div>

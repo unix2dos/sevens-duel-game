@@ -8,8 +8,10 @@ import { createSuitBoardLayer } from "./layers/SuitBoardLayer";
 import { createTopStatusLayer } from "./layers/TopStatusLayer";
 import { createTransientFeedLayer } from "./layers/TransientFeedLayer";
 import type { MatchSnapshot } from "../../game/match/engine";
+import type { Suit } from "../../game/core/types";
 
 interface TableViewOptions {
+  celebratingSuits: Set<Suit>;
   difficultyLabel: string;
   height: number;
   onBorrow: () => void;
@@ -22,6 +24,7 @@ interface TableViewOptions {
 }
 
 export function createTableView({
+  celebratingSuits,
   difficultyLabel,
   height,
   onBorrow,
@@ -50,7 +53,7 @@ export function createTableView({
   root.addChild(
     createTopStatusLayer({ difficultyLabel, layout, snapshot }),
     createOpponentLayer({ layout, snapshot }),
-    createSuitBoardLayer({ layout, snapshot, seenCards }),
+    createSuitBoardLayer({ celebratingSuits, layout, snapshot, seenCards }),
     createTransientFeedLayer({ layout, showChildGuidance, snapshot }),
     createPlayerHandLayer({ layout, onBorrow, onPlayCard, snapshot, seenCards, selectedGiveCardId }),
   );

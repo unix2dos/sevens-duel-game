@@ -45,9 +45,12 @@ export function createTableLayout(width: number, height: number): TableLayout {
   const actionInset = compact ? 92 : 144;
   const topHeight = clamp(height * 0.115, compact ? 74 : 80, compact ? 92 : 102);
   const topWidth = width - padding * 2 - actionInset;
-  const handHeight = clamp(height * 0.24, compact ? 164 : 170, compact ? 192 : 226);
+  // Shrink the hand rail height significantly to give the board more vertical space
+  const handHeight = clamp(height * 0.20, compact ? 130 : 140, compact ? 160 : 180);
   const boardTop = padding + topHeight + (compact ? 16 : 22);
-  const rawBoardHeight = height - boardTop - handHeight - padding - (compact ? 14 : 20);
+  // Also reduce the bottom padding under the hand rail to push it lower
+  const bottomPadding = compact ? 8 : 12;
+  const rawBoardHeight = height - boardTop - handHeight - bottomPadding - (compact ? 14 : 20);
   const boardHeight = compact ? Math.min(rawBoardHeight, width * 1.05) : rawBoardHeight;
   const laneGap = clamp(width * 0.012, 10, 18);
   const boardWidth = width - padding * 2;
@@ -73,7 +76,7 @@ export function createTableLayout(width: number, height: number): TableLayout {
     },
     handRail: {
       x: padding,
-      y: height - padding - handHeight,
+      y: height - bottomPadding - handHeight,
       width: width - padding * 2,
       height: handHeight,
     },

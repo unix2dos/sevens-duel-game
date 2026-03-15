@@ -4,37 +4,28 @@ import { createCardView } from "../CardView";
 import { cardTheme } from "../cards/cardTheme";
 import type { TableLayout } from "../layout/tableLayout";
 import type { MatchSnapshot } from "../../../game/match/engine";
-import type { Card, Rank, Suit } from "../../../game/core/types";
+import type { Card, Suit } from "../../../game/core/types";
+import { visualRankValue } from "../../../game/core/visualRank";
 
 interface SuitBoardLayerOptions {
+  celebratingSuits?: Set<Suit>;
   layout: TableLayout;
   snapshot: MatchSnapshot;
   seenCards: Set<string>;
 }
 
-const rankValue: Record<Rank, number> = {
-  2: 2,
-  3: 3,
-  4: 4,
-  5: 5,
-  6: 6,
-  7: 7,
-  8: 8,
-  9: 9,
-  10: 10,
-  J: 11,
-  Q: 12,
-  K: 13,
-  A: 14,
-};
-
 function suitCards(layout: Card[], suit: Suit) {
   return layout
     .filter((card) => card.suit === suit)
-    .sort((left, right) => rankValue[left.rank] - rankValue[right.rank]);
+    .sort((left, right) => visualRankValue[left.rank] - visualRankValue[right.rank]);
 }
 
-export function createSuitBoardLayer({ layout, snapshot, seenCards }: SuitBoardLayerOptions) {
+export function createSuitBoardLayer({
+  celebratingSuits = new Set<Suit>(),
+  layout,
+  snapshot,
+  seenCards,
+}: SuitBoardLayerOptions) {
   const root = new Container();
   root.sortableChildren = true;
   const boardShell = new Graphics();
@@ -47,6 +38,15 @@ export function createSuitBoardLayer({ layout, snapshot, seenCards }: SuitBoardL
 
   layout.suitLanes.forEach((lane) => {
     const cards = suitCards(snapshot.layout, lane.key);
+    const replayFlip = celebratingSuits.has(lane.key);
+    
+    // Use an absolute time for the flip so that if this component is re-rendered mid-animation,
+    // the flip state and timing are perfectly preserved and recovered.
+    // We attach this to the lane object for simplicity. We use a stable reference if possible, 
+    // or just assume Date.now() when first rendered is okay because the top level Snapshot 
+    // doesn't currently provide an event timestamp.
+    const flipStartTime = replayFlip ? Date.now() : 0;
+    
     const laneShell = new Graphics();
     const axis = new Graphics();
     const slotGlow = new Graphics();
@@ -59,27 +59,34 @@ export function createSuitBoardLayer({ layout, snapshot, seenCards }: SuitBoardL
       },
       text: lane.label,
     });
-    // Dynamically calculate maximum card width based on the lane container
-    const availableLaneHeight = layout.board.height - 40; // padding top/bottom
-    const maxStackedCards = 7; // up to 7 cards on each side of the center 7
-    // Determine card step (spacing between cards) dynamically based on available height
-    const cardStep = Math.max(layout.compact ? 18 : 24, availableLaneHeight / (maxStackedCards * 2 + 1) * 0.4);
+    const lowCards = cards
+      .filter((card) => visualRankValue[card.rank] < 7)
+      .sort((a, b) => visualRankValue[b.rank] - visualRankValue[a.rank]);
+    const highCards = cards
+      .filter((card) => visualRankValue[card.rank] > 7)
+      .sort((a, b) => visualRankValue[a.rank] - visualRankValue[b.rank]);
+
+    // Dynamically calculate card height within lane constraints
+    const paddingY = layout.compact ? 12 : 20;
+    const availableLaneHeight = layout.board.height - paddingY * 2;
+    const baseCardHeight = lane.rect.width * 1.5 - (layout.compact ? 16 : 24);
+    const cardHeight = Math.max(layout.compact ? 60 : 76, Math.min(baseCardHeight, availableLaneHeight * 0.45));
+    const cardWidth = cardHeight * 0.714; // exact poker card ratio (2.5/3.5)
     
-    // Maximize cardHeight while fitting inside the available lane height taking the step overlaps into account.
-    // Total column height = cardHeight + (maxCards - 1) * step
-    // So: cardHeight = available height / 2 - (maxStackedCards - 1) * step
-    const computedCardHeight = Math.min((availableLaneHeight / 2) + cardStep * 3, lane.rect.width * 1.5 - 20);
-    const cardHeight = Math.max(layout.compact ? 60 : 80, computedCardHeight);
-    const cardWidth = cardHeight * 0.7; // maintain poker card ratio (2.5/3.5)
+    // Fixed visual tight safe spacing (A) - exactly fits the index.
+    const fixedStep = Math.max(layout.compact ? 16 : 22, cardHeight * 0.15);
     const centerCardId = `${lane.key}-7`;
     const centerCard = createCardView({
       card: { id: centerCardId, rank: 7, suit: lane.key },
       height: cardHeight,
-      isFaceUp: true,
       isInteractive: false,
+      isFaceUp: true,
       isLegal: false,
-      animateEntrance: !seenCards.has(centerCardId),
+      animateEntrance: !replayFlip && !seenCards.has(centerCardId),
       owner: cards.length > 0 ? snapshot.cardOwners[centerCardId] : undefined,
+      replayFlip,
+      flipDelay: 0,
+      flipStartTime,
       width: cardWidth,
     });
 
@@ -100,25 +107,25 @@ export function createSuitBoardLayer({ layout, snapshot, seenCards }: SuitBoardL
 
     root.addChild(laneShell, axis, slotGlow, title, centerCard);
 
-    const lowCards = cards.filter((card) => rankValue[card.rank] < 7).sort((a, b) => rankValue[b.rank] - rankValue[a.rank]);
-    const highCards = cards.filter((card) => rankValue[card.rank] > 7).sort((a, b) => rankValue[a.rank] - rankValue[b.rank]);
-
     lowCards.forEach((card, index) => {
       const view = createCardView({
         card,
         height: cardHeight,
-        isFaceUp: true,
         isInteractive: false,
+        isFaceUp: true,
         isLegal: false,
-        animateEntrance: !seenCards.has(card.id),
+        animateEntrance: !replayFlip && !seenCards.has(card.id),
         owner: snapshot.cardOwners[card.id],
+        replayFlip,
+        flipDelay: Math.abs(visualRankValue[card.rank] - 7) * 120, // Domino delay
+        flipStartTime,
         width: cardWidth,
       });
       view.position.set(
         lane.centerX - cardWidth / 2,
-        lane.centerY - cardHeight / 2 - (index + 1) * cardStep,
+        lane.centerY - cardHeight / 2 - (index + 1) * fixedStep,
       );
-      view.zIndex = rankValue[card.rank];
+      view.zIndex = visualRankValue[card.rank];
       root.addChild(view);
     });
 
@@ -126,18 +133,21 @@ export function createSuitBoardLayer({ layout, snapshot, seenCards }: SuitBoardL
       const view = createCardView({
         card,
         height: cardHeight,
-        isFaceUp: true,
         isInteractive: false,
+        isFaceUp: true,
         isLegal: false,
-        animateEntrance: !seenCards.has(card.id),
+        animateEntrance: !replayFlip && !seenCards.has(card.id),
         owner: snapshot.cardOwners[card.id],
+        replayFlip,
+        flipDelay: Math.abs(visualRankValue[card.rank] - 7) * 120, // Domino delay
+        flipStartTime,
         width: cardWidth,
       });
       view.position.set(
         lane.centerX - cardWidth / 2,
-        lane.centerY - cardHeight / 2 + (index + 1) * cardStep,
+        lane.centerY - cardHeight / 2 + (index + 1) * fixedStep,
       );
-      view.zIndex = rankValue[card.rank];
+      view.zIndex = visualRankValue[card.rank];
       root.addChild(view);
     });
   });

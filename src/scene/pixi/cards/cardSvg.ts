@@ -195,5 +195,5 @@ export function preloadCardBackTexture() {
 export async function preloadCardTextures(cards: Card[]) {
   const uniqueCards = Array.from(new Map(cards.map((card) => [textureKey(card), card])).values());
 
-  await Promise.all(uniqueCards.map((card) => preloadCardFaceTexture(card)));
+  await Promise.all([preloadCardBackTexture(), ...uniqueCards.map((card) => preloadCardFaceTexture(card))]);
 }

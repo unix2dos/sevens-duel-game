@@ -13,6 +13,9 @@ interface CardViewOptions {
   onPress?: (cardId: string) => void;
   animateEntrance?: boolean;
   owner?: Actor;
+  replayFlip?: boolean;
+  flipDelay?: number;
+  flipStartTime?: number;
   width: number;
   height: number;
 }
@@ -25,6 +28,9 @@ export function createCardView({
   onPress,
   animateEntrance = true,
   owner,
+  replayFlip = false,
+  flipDelay = 0,
+  flipStartTime = 0,
   width,
   height,
 }: CardViewOptions) {
@@ -40,6 +46,9 @@ export function createCardView({
           onPress,
           animateEntrance,
           owner,
+          replayFlip,
+          flipDelay,
+          flipStartTime,
           width,
         })
       : createCardBackSprite({ height, width }),

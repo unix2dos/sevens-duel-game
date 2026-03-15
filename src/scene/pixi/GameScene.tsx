@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 
 import { createTableView } from "./TableView";
 import { preloadCardTextures } from "./cards/cardSvg";
+import { getNewlyCompletedSuits } from "./suitCelebration";
 import { usePixiHost } from "./usePixiHost";
 import type { MatchSnapshot } from "../../game/match/engine";
 import type { Card } from "../../game/core/types";
@@ -25,6 +26,7 @@ export function GameScene({
 }: GameSceneProps) {
   const { appRef, hostRef, readyToken } = usePixiHost();
   const seenCardsRef = useRef(new Set<string>());
+  const previousLayoutRef = useRef<Card[] | null>(null);
 
   useEffect(() => {
     const app = appRef.current;
@@ -41,6 +43,8 @@ export function GameScene({
       { id: "seed-diamonds-7", rank: 7, suit: "diamonds" },
     ];
     const visibleCards = [...matchSnapshot.hands.player, ...matchSnapshot.layout, ...laneSeeds];
+    const celebratingSuits = getNewlyCompletedSuits(previousLayoutRef.current, matchSnapshot.layout);
+    previousLayoutRef.current = matchSnapshot.layout;
 
     void preloadCardTextures(visibleCards).then(() => {
       if (!active || !appRef.current) {
@@ -54,6 +58,7 @@ export function GameScene({
           height: app.screen.height,
           onBorrow,
           onPlayCard,
+          celebratingSuits,
           selectedGiveCardId,
           showChildGuidance,
           snapshot: matchSnapshot,

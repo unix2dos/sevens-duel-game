@@ -1,8 +1,8 @@
 import type { Layout } from "./state";
 import type { Card, Rank } from "./types";
 
-const ascendingOrder: Rank[] = [7, 8, 9, 10, "J", "Q", "K", "A"];
-const descendingOrder: Rank[] = [7, 6, 5, 4, 3, 2];
+const ascendingOrder: Rank[] = [7, 8, 9, 10, "J", "Q", "K"];
+const descendingOrder: Rank[] = [7, 6, 5, 4, 3, 2, "A"];
 
 function hasNeighbor(ranks: Rank[], order: Rank[], rank: Rank) {
   const rankIndex = order.indexOf(rank);

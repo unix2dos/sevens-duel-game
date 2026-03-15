@@ -29,5 +29,5 @@ export function selectWinnerSummary(snapshot: MatchSnapshot) {
     return "对局进行中";
   }
 
-  return snapshot.winner === "player" ? "玩家获胜" : "AI 获胜";
+  return snapshot.winner === "player" ? "玩家获胜" : "机器人获胜";
 }
