@@ -56,13 +56,13 @@ export function createTransientFeedLayer({
   const root = new Container();
   const primary = latestMessage(snapshot);
   const secondary = helperMessage(snapshot, showChildGuidance);
-  const width = Math.min(layout.board.width * 0.36, layout.compact ? 236 : 332);
+  const width = Math.min(layout.board.width * 0.50, layout.compact ? 320 : 460);
 
   const primaryText = new Text({
     style: {
       fill: cardTheme.textPrimary,
       fontFamily: "Sora, IBM Plex Sans, sans-serif",
-      fontSize: layout.compact ? 13 : 14,
+      fontSize: layout.compact ? 18 : 20,
       fontWeight: "700",
       dropShadow: {
         alpha: 0.8,
@@ -73,8 +73,8 @@ export function createTransientFeedLayer({
     },
     text: primary,
   });
-  primaryText.anchor.set(0.5, 0);
-  primaryText.position.set(layout.toastAnchor.x, layout.toastAnchor.y - 12);
+  primaryText.anchor.set(0.5, 1);
+  primaryText.position.set(layout.toastAnchor.x, layout.toastAnchor.y - 2);
   root.addChild(primaryText);
 
   if (secondary) {
@@ -82,7 +82,7 @@ export function createTransientFeedLayer({
       style: {
         fill: cardTheme.textMuted,
         fontFamily: "IBM Plex Sans, sans-serif",
-        fontSize: layout.compact ? 11 : 12,
+        fontSize: layout.compact ? 13 : 14,
         wordWrap: true,
         wordWrapWidth: width - 28,
         dropShadow: {
@@ -95,7 +95,7 @@ export function createTransientFeedLayer({
       text: secondary,
     });
     secondaryText.anchor.set(0.5, 0);
-    secondaryText.position.set(layout.toastAnchor.x, layout.toastAnchor.y + 10);
+    secondaryText.position.set(layout.toastAnchor.x, layout.toastAnchor.y + 4);
     root.addChild(secondaryText);
   }
 

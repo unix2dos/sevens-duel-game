@@ -79,7 +79,7 @@ export function createTableLayout(width: number, height: number): TableLayout {
     },
     toastAnchor: {
       x: padding + topWidth / 2,
-      y: padding + topHeight - (compact ? 24 : 26),
+      y: padding + topHeight / 2,
     },
     opponentAnchor: {
       x: padding + topWidth - (compact ? 124 : 152),

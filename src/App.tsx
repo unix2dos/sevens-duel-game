@@ -172,6 +172,10 @@ function App() {
 
       {screen === "result" ? (
         <ResultScreen
+          onBackHome={() => {
+            setMatch(null);
+            startTransition(() => setScreen("home"));
+          }}
           onReplay={() => {
             playSound("deal");
             setMatch(createMatch({ difficulty: selectedDifficulty, seed: buildSeed() }));

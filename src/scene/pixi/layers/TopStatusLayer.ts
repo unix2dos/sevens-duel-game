@@ -66,8 +66,6 @@ export function createTopStatusLayer({
     .stroke({ color: cardTheme.lineSoft, alpha: 0.85, width: 1 });
   root.addChild(shell);
 
-  const phaseLabel = snapshot.phase === "opening" ? "等待开线" : "牌局进行中";
-
   const club = makeLabel(`${difficultyLabel}局`, layout.compact ? 11 : 13);
   club.position.set(topBar.x + 20, topBar.y + 16);
   root.addChild(club);
@@ -75,14 +73,6 @@ export function createTopStatusLayer({
   const turn = makeValue(turnLabel, layout.compact ? 22 : 24);
   turn.position.set(topBar.x + 20, topBar.y + 36);
   root.addChild(turn);
-
-  const phase = makeLabel(phaseLabel, layout.compact ? 11 : 12);
-  phase.anchor.set(0.5, 0);
-  phase.position.set(
-    layout.compact ? topBar.x + topBar.width / 2 : topBar.x + topBar.width * 0.55,
-    layout.compact ? topBar.y + 14 : topBar.y + 20,
-  );
-  root.addChild(phase);
 
   const countsContainer = new Container();
 

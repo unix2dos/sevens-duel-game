@@ -7,7 +7,8 @@ describe("soundDefinitions", () => {
         definition.src?.length,
         `${name} should have at least one source`,
       ).toBeGreaterThan(0);
-      expect(definition.src?.[0]).toMatch(/^\/assets\/audio\//);
+      expect(definition.src?.[0]).toContain("assets/audio/");
+      expect(definition.src?.[0]).not.toMatch(/^\/assets\//);
       expect(definition.volume).toBeGreaterThan(0);
     }
   });

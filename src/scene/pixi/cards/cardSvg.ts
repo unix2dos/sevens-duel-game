@@ -1,6 +1,7 @@
 import { Texture } from "pixi.js";
 
 import { isFaceRank, pipLayout, rankText, suitInk, suitSymbol } from "./cardGlyphs";
+import { resolveAssetUrl } from "../../../app/assetUrl";
 import type { Card } from "../../../game/core/types";
 
 const ART_WIDTH = 300;
@@ -181,7 +182,7 @@ export function preloadCardBackTexture() {
       image.decoding = "async";
       image.onload = () => resolve(Texture.from(image));
       image.onerror = () => reject(new Error("Failed to load back texture"));
-      image.src = "/assets/card-back.png"; 
+      image.src = resolveAssetUrl("assets/card-back.png");
     }).then((texture) => {
       backTexture = texture;
       return texture;

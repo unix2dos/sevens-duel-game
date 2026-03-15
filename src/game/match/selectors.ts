@@ -17,6 +17,8 @@ export function selectPhaseLabel(snapshot: MatchSnapshot) {
       return "开局";
     case "playing":
       return "对局中";
+    case "borrowing":
+      return "借牌处理中";
     case "finished":
       return "已结束";
   }

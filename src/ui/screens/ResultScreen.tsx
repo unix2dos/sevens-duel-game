@@ -4,10 +4,11 @@ import { ResultStats } from "../components/ResultStats";
 interface ResultScreenProps {
   snapshot: MatchSnapshot | null;
   title: string;
+  onBackHome: () => void;
   onReplay: () => void;
 }
 
-export function ResultScreen({ snapshot, title, onReplay }: ResultScreenProps) {
+export function ResultScreen({ snapshot, title, onBackHome, onReplay }: ResultScreenProps) {
   return (
     <main className="game-layout result-layout">
       <section className="overlay-card result-card result-card--luxury">
@@ -18,6 +19,9 @@ export function ResultScreen({ snapshot, title, onReplay }: ResultScreenProps) {
         <div className="hero-actions">
           <button className="primary-action" onClick={onReplay} type="button">
             再来一局
+          </button>
+          <button className="secondary-action" onClick={onBackHome} type="button">
+            返回首页
           </button>
         </div>
       </section>
