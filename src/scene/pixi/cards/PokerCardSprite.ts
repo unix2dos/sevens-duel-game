@@ -182,98 +182,87 @@ export function createPokerCardSprite({
     root.on("pointertap", () => onPress?.(card.id));
   }
 
-  // Dark Night Flowing Gold selected effect
+  // Elegant Fire Selected Effect
   if (isSelected) {
-    // --- Particle System ---
     const particlesContainer = new Container();
-    // Insert particles behind card surface but above glow
     root.addChildAt(particlesContainer, root.getChildIndex(cardSurface));
 
-    const NUM_PARTICLES = 250;
-    const particles: { g: Graphics, x: number, y: number, vx: number, vy: number, life: number, maxLife: number, baseScale: number }[] = [];
+    const NUM_PARTICLES = 70; // Balanced fire density
+    const particles: { g: Graphics, x: number, y: number, vx: number, vy: number, life: number, maxLife: number, phase: number, baseScale: number }[] = [];
 
     for (let i = 0; i < NUM_PARTICLES; i++) {
         const p = new Graphics();
-        // Determine color: mostly gold/orange, some red, few white for extreme heat
-        const rand = Math.random();
-        let color = 0xffd700; // Gold
-        if (rand < 0.15) color = 0xffffff; // White core (hottest)
-        else if (rand < 0.5) color = 0xffa500; // Bright orange
-        else if (rand < 0.8) color = 0xff4500; // Deep orange-red
         
-        // Larger, more diffuse glow for fire
-        p.circle(0, 0, 12).fill({ color, alpha: 0.18 });
-        p.circle(0, 0, 4).fill({ color: 0xffffff, alpha: 0.85 });
+        // Fire colors
+        const rand = Math.random();
+        let color = 0xffffff;
+        if (rand < 0.1) color = 0xffffff; // Hot core
+        else if (rand < 0.4) color = 0xffe885; // Yellow
+        else if (rand < 0.8) color = 0xff8c00; // Orange
+        else color = 0xff3300; // Red-orange
+        
+        p.circle(0, 0, 8).fill({ color, alpha: 0.4 });
+        p.circle(0, 0, 3).fill({ color: 0xffffff, alpha: 0.8 });
         p.blendMode = "add";
         p.visible = false;
+        
         particlesContainer.addChild(p);
-        particles.push({ g: p, x: 0, y: 0, vx: 0, vy: 0, life: 0, maxLife: 0, baseScale: 1 });
+        particles.push({ g: p, x: 0, y: 0, vx: 0, vy: 0, life: 0, maxLife: 0, phase: Math.random() * Math.PI * 2, baseScale: 1 });
     }
 
-    const emitParticle = (isBurst = false) => {
-        // Find a dead particle
+    const emitParticle = () => {
         const p = particles.find(p => p.life <= 0);
         if (p) {
-            if (isBurst) {
-                // Dramatic burst outward
-                p.x = width / 2;
-                p.y = height / 2;
-                const angle = Math.random() * Math.PI * 2;
-                const speed = 5 + Math.random() * 12; // Extremely fast burst
-                p.vx = Math.cos(angle) * speed;
-                p.vy = Math.sin(angle) * speed - 3; 
-            } else {
-                // Fire usually spawns densely around the bottom and sides
-                const side = Math.random();
-                if (side < 0.7) {
-                    // Base of the flame (bottom edge)
-                    p.x = -15 + Math.random() * (width + 30);
-                    p.y = height - 10 + Math.random() * 25;
-                } else {
-                    // Sizzling up the sides
-                    p.x = Math.random() < 0.5 ? -20 : width + 20;
-                    p.y = height * 0.1 + Math.random() * height * 0.9;
-                }
-                
-                p.vx = (Math.random() - 0.5) * 4.0; // wide chaotic spread
-                p.vy = -4 - Math.random() * 8.0; // Fast violently upwards flow
+            // Spawn mostly at bottom and lower sides
+            const spawnPos = Math.random();
+            if (spawnPos < 0.7) { // Bottom edge
+                p.x = -10 + Math.random() * (width + 20);
+                p.y = height - 5 + Math.random() * 20;
+            } else if (spawnPos < 0.85) { // Left lower edge
+                p.x = -5 - Math.random() * 15;
+                p.y = height * 0.4 + Math.random() * height * 0.6;
+            } else { // Right lower edge
+                p.x = width + 5 + Math.random() * 15;
+                p.y = height * 0.4 + Math.random() * height * 0.6;
             }
             
-            p.maxLife = 20 + Math.random() * 35; // Shorter lived but faster
+            p.vx = (Math.random() - 0.5) * 1.5; 
+            p.vy = -1.5 - Math.random() * 3.5; // Fast upward float
+            
+            p.maxLife = 25 + Math.random() * 30; 
             p.life = p.maxLife;
-            p.baseScale = 0.6 + Math.random() * 1.8; // Massive particles
+            p.baseScale = 0.3 + Math.random() * 0.9;
             p.g.scale.set(p.baseScale);
             p.g.position.set(p.x, p.y);
             p.g.visible = true;
-            p.g.alpha = 1;
+            p.g.alpha = 0; 
         }
     };
 
-    // Huge initial explosion on selection
-    for(let i = 0; i < 80; i++) emitParticle(true);
+    // Initial soft emission
+    for(let i = 0; i < 20; i++) emitParticle();
 
     let time = 0;
     const updateSelectedEffect = (ticker: Ticker) => {
-      time += ticker.deltaTime * 0.08;
-      const breathe = (Math.sin(time) + 1) / 2; 
+      time += ticker.deltaTime * 0.055; // Noticeable breathing speed
+      const breathe = (Math.sin(time) + 1) / 2; // 0 to 1
       
-      // Intense golden glow breathing
-      glow.alpha = 0.6 + breathe * 0.4; // Brighter floor
-      glow.tint = 0xffd700; 
+      // Breathing glow
+      glow.alpha = 0.4 + breathe * 0.5; // Deep pulse
+      glow.tint = 0xffaa00; // Warm vivid gold/orange glow
       
-      // Levitation breathing
-      const scaleAdd = breathe * 0.03;
+      // Pronounced breathing levitation
+      const scaleAdd = breathe * 0.04; // 4% extra scale on breath
       cardSurface.scale.set(1.02 + scaleAdd);
       glow.scale.set(1.01 + scaleAdd);
       
       shadow.scale.set(1.0 + scaleAdd * 0.5);
-      shadow.alpha = cardMetrics.shadowAlpha - 0.2; 
-      shadow.y = cardMetrics.shadowOffsetY + 12; 
+      shadow.alpha = cardMetrics.shadowAlpha - 0.2 + (breathe * 0.1); 
+      shadow.y = cardMetrics.shadowOffsetY + 8 + (breathe * 4); 
 
-      // Update particles
-      // Continuous violent emission
-      for (let i = 0; i < 4; i++) {
-          if (Math.random() < 0.9) emitParticle(false);
+      // Continuous emission
+      for(let i = 0; i < 2; i++) {
+         if (Math.random() < 0.6 * ticker.deltaTime) emitParticle();
       }
 
       for (const p of particles) {
@@ -284,16 +273,20 @@ export function createPokerCardSprite({
               } else {
                   p.x += p.vx * ticker.deltaTime;
                   p.y += p.vy * ticker.deltaTime;
-                  // Fire flutter and heat distortion
-                  p.x += Math.sin(time * 5 + p.life) * 1.5 * ticker.deltaTime;
+                  
+                  // Fire flutter
+                  p.phase += ticker.deltaTime * 0.1;
+                  p.x += Math.sin(p.phase) * 0.8 * ticker.deltaTime;
                   
                   p.g.position.set(p.x, p.y);
                   
                   const lifeRatio = Math.max(0, p.life / p.maxLife);
-                  // Ease out alpha sharply for fire tip fade
-                  p.g.alpha = Math.pow(lifeRatio, 1.5); 
-                  // Shrink aggressively as it burns out
-                  p.g.scale.set(p.baseScale * (0.1 + 0.9 * lifeRatio)); 
+                  // Fire fade out (fade in quick, fade out slow)
+                  const alphaCurve = Math.min(1, (1 - lifeRatio) * 4) * lifeRatio;
+                  p.g.alpha = alphaCurve * 1.5;
+                  
+                  // Shrink as it burns
+                  p.g.scale.set(p.baseScale * (0.5 + 0.5 * lifeRatio));
               }
           }
       }

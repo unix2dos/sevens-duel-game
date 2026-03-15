@@ -25,8 +25,17 @@ const snapshot: MatchSnapshot = {
 };
 
 it("offers a direct way back to the home screen from results", () => {
-  render(<ResultScreen onBackHome={() => {}} onReplay={() => {}} snapshot={snapshot} title="你赢了" />);
+  render(
+    <ResultScreen
+      onBackHome={() => {}}
+      onReplay={() => {}}
+      playerName="张三"
+      snapshot={snapshot}
+      title="张三赢了"
+    />,
+  );
 
   expect(screen.getByRole("button", { name: "再来一局" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "返回首页" })).toBeInTheDocument();
+  expect(screen.getByText(/张三可以立刻再开一局/)).toBeInTheDocument();
 });

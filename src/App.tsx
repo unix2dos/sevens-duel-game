@@ -6,6 +6,7 @@ import { useSound } from "./audio/useSound";
 import { getForcedCard, shouldAutoBorrow } from "./game/assists/child-mode";
 import { dispatchAiTurn, dispatchHumanAction, type Match, createMatch } from "./game/match/engine";
 import { RulesDialog } from "./ui/components/RulesDialog";
+import { isValidPlayerName, normalizePlayerName, playerWinTitle } from "./ui/playerText";
 import { GameScreen } from "./ui/screens/GameScreen";
 import { HomeScreen } from "./ui/screens/HomeScreen";
 import { ResultScreen } from "./ui/screens/ResultScreen";
@@ -18,6 +19,7 @@ function buildSeed() {
 function App() {
   const [screen, setScreen] = useState<ScreenId>("home");
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyId>("normal");
+  const [playerName, setPlayerName] = useState("");
   const [rulesOpen, setRulesOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [match, setMatch] = useState<Match | null>(null);
@@ -29,7 +31,7 @@ function App() {
   const resultTitle =
     match?.snapshot.status === "finished"
       ? match.snapshot.winner === "player"
-        ? "你赢了"
+        ? playerWinTitle(playerName)
         : "机器人获胜"
       : "本局结束";
   const { playSound } = useSound(soundEnabled);
@@ -119,12 +121,20 @@ function App() {
     <>
       {screen === "home" ? (
         <HomeScreen
+          onPlayerNameChange={setPlayerName}
           onOpenRules={() => {
             playSound("ui");
             setRulesOpen(true);
           }}
           onSelectDifficulty={setSelectedDifficulty}
-          onStart={() => {
+          onStart={(nextPlayerName) => {
+            if (!isValidPlayerName(nextPlayerName)) {
+              return;
+            }
+
+            const normalizedPlayerName = normalizePlayerName(nextPlayerName);
+
+            setPlayerName(normalizedPlayerName);
             playSound("deal");
             setMatch(createMatch({ difficulty: selectedDifficulty, seed: buildSeed() }));
             startTransition(() => setScreen("game"));
@@ -139,6 +149,7 @@ function App() {
             uiSoundOnEnableRef.current = true;
             setSoundEnabled(true);
           }}
+          playerName={playerName}
           selectedDifficulty={selectedDifficulty}
           soundEnabled={soundEnabled}
         />
@@ -174,6 +185,7 @@ function App() {
             playSound("deal");
             setMatch(createMatch({ difficulty: selectedDifficulty, seed: buildSeed() }));
           }}
+          playerName={playerName}
           qualityLabel={qualityLabel(performancePreset)}
           showChildGuidance={match.snapshot.difficulty === "child"}
         />
@@ -190,6 +202,7 @@ function App() {
             setMatch(createMatch({ difficulty: selectedDifficulty, seed: buildSeed() }));
             startTransition(() => setScreen("game"));
           }}
+          playerName={playerName}
           snapshot={match?.snapshot ?? null}
           title={resultTitle}
         />

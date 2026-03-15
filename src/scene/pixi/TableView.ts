@@ -15,6 +15,7 @@ interface TableViewOptions {
   height: number;
   onBorrow: () => void;
   onPlayCard: (cardId: string) => void;
+  playerName: string;
   showChildGuidance: boolean;
   snapshot: MatchSnapshot;
   seenCards?: Set<string>;
@@ -29,6 +30,7 @@ export function createTableView({
   height,
   onBorrow,
   onPlayCard,
+  playerName,
   showChildGuidance,
   snapshot,
   seenCards = new Set(),
@@ -56,11 +58,11 @@ export function createTableView({
 
   root.addChild(backdrop, felt);
   root.addChild(
-    createTopStatusLayer({ difficultyLabel, layout, snapshot }),
+    createTopStatusLayer({ difficultyLabel, layout, playerName, snapshot }),
     createOpponentLayer({ layout, snapshot }),
     createSuitBoardLayer({ celebrationStartTimes, layout, snapshot, seenCards }),
-    createTransientFeedLayer({ layout, showChildGuidance, snapshot }),
-    createPlayerHandLayer({ layout, onBorrow, onPlayCard, snapshot, seenCards, selectedGiveCardId, selectedPlayCardId }),
+    createTransientFeedLayer({ layout, playerName, showChildGuidance, snapshot }),
+    createPlayerHandLayer({ layout, onBorrow, onPlayCard, playerName, snapshot, seenCards, selectedGiveCardId, selectedPlayCardId }),
   );
 
   return root;

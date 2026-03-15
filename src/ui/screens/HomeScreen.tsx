@@ -2,17 +2,21 @@ import type { DifficultyId } from "../../app/model";
 import { DifficultyPicker } from "../components/DifficultyPicker";
 
 interface HomeScreenProps {
+  playerName: string;
   selectedDifficulty: DifficultyId;
   soundEnabled: boolean;
+  onPlayerNameChange: (playerName: string) => void;
   onSelectDifficulty: (difficulty: DifficultyId) => void;
-  onStart: () => void;
+  onStart: (playerName: string) => void;
   onOpenRules: () => void;
   onToggleSound: () => void;
 }
 
 export function HomeScreen({
+  playerName,
   selectedDifficulty,
   soundEnabled,
+  onPlayerNameChange,
   onSelectDifficulty,
   onStart,
   onOpenRules,
@@ -27,13 +31,34 @@ export function HomeScreen({
           单机 机器人 对战的改良版接7牌桌，在手机和桌面上都能快速开局。围绕四个 7 接龙，在借牌与卡位之间，先把自己的手牌清空。
         </p>
 
+        <div className="player-name-field">
+          <label className="player-name-label" htmlFor="player-name">
+            玩家姓名
+          </label>
+          <input
+            className="player-name-input"
+            id="player-name"
+            maxLength={100}
+            onChange={(event) => onPlayerNameChange(event.target.value)}
+            placeholder="请输入玩家姓名"
+            required
+            type="text"
+            value={playerName}
+          />
+        </div>
+
         <DifficultyPicker
           onSelectDifficulty={onSelectDifficulty}
           selectedDifficulty={selectedDifficulty}
         />
 
         <div className="hero-actions">
-          <button className="primary-action" onClick={onStart} type="button">
+          <button
+            className="primary-action"
+            disabled={playerName.trim().length === 0}
+            onClick={() => onStart(playerName)}
+            type="button"
+          >
             开始游戏
           </button>
           <button className="secondary-action" onClick={onOpenRules} type="button">

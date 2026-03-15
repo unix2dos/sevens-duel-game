@@ -4,14 +4,25 @@ import { cardTheme } from "../cards/cardTheme";
 import type { TableLayout } from "../layout/tableLayout";
 import type { MatchSnapshot } from "../../../game/match/engine";
 import { formatCardId } from "../../../ui/cardPresentation";
+import {
+  actorName,
+  playerBorrowWaitingMessage,
+  playerTurnFeed,
+  playerWonRound,
+} from "../../../ui/playerText";
 
 interface TransientFeedLayerOptions {
   layout: TableLayout;
+  playerName: string;
   showChildGuidance: boolean;
   snapshot: MatchSnapshot;
 }
 
-function latestMessage(snapshot: MatchSnapshot) {
+function latestMessage(snapshot: MatchSnapshot, playerName: string) {
+  if (snapshot.phase === "borrowing") {
+    return snapshot.turn !== "player" ? "协助出借" : "等待借牌";
+  }
+
   const event = snapshot.eventLog.at(-1);
 
   if (!event) {
@@ -22,19 +33,25 @@ function latestMessage(snapshot: MatchSnapshot) {
     case "GAME_STARTED":
       return "红桃 3 持有者负责尝试开线";
     case "CARD_PLAYED":
-      return `${event.actor === "player" ? "你" : "机器人"}打出 ${formatCardId(event.cardId)}`;
+      return `${actorName(event.actor, playerName)}打出 ${formatCardId(event.cardId)}`;
     case "CARD_BORROWED":
-      return `${event.actor === "player" ? "你" : "机器人"}借到 ${formatCardId(event.cardId)}`;
+      return `${actorName(event.actor, playerName)}借到 ${formatCardId(event.cardId)}`;
     case "TURN_PASSED":
-      return event.actor === "player" ? "轮到你出牌" : "机器人接手";
+      return event.actor === "player" ? playerTurnFeed(playerName) : "机器人接手";
     case "GAME_FINISHED":
-      return event.winner === "player" ? "你赢下这一局" : "机器人赢下这一局";
+      return event.winner === "player" ? playerWonRound(playerName) : "机器人赢下这一局";
   }
 }
 
-function helperMessage(snapshot: MatchSnapshot, showChildGuidance: boolean) {
+function helperMessage(snapshot: MatchSnapshot, showChildGuidance: boolean, playerName: string) {
   if (snapshot.status === "finished") {
     return "";
+  }
+
+  if (snapshot.phase === "borrowing") {
+    return snapshot.turn !== "player" 
+      ? "对手无牌可出。请从下方选择一张手牌借给对手。"
+      : playerBorrowWaitingMessage(playerName);
   }
 
   if (snapshot.turn !== "player") {
@@ -50,12 +67,13 @@ function helperMessage(snapshot: MatchSnapshot, showChildGuidance: boolean) {
 
 export function createTransientFeedLayer({
   layout,
+  playerName,
   showChildGuidance,
   snapshot,
 }: TransientFeedLayerOptions) {
   const root = new Container();
-  const primary = latestMessage(snapshot);
-  const secondary = helperMessage(snapshot, showChildGuidance);
+  const primary = latestMessage(snapshot, playerName);
+  const secondary = helperMessage(snapshot, showChildGuidance, playerName);
   const width = Math.min(layout.board.width * 0.50, layout.compact ? 320 : 460);
 
   const primaryText = new Text({

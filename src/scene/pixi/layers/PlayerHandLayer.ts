@@ -6,11 +6,13 @@ import type { TableLayout } from "../layout/tableLayout";
 import type { MatchSnapshot } from "../../../game/match/engine";
 import { selectLegalCards } from "../../../game/match/selectors";
 import { sortCardsForDisplay } from "../../../ui/cardPresentation";
+import { playerHandLabel } from "../../../ui/playerText";
 
 interface PlayerHandLayerOptions {
   layout: TableLayout;
   onBorrow: () => void;
   onPlayCard: (cardId: string) => void;
+  playerName: string;
   snapshot: MatchSnapshot;
   seenCards: Set<string>;
   selectedGiveCardId: string | null;
@@ -104,6 +106,7 @@ export function createPlayerHandLayer({
   layout,
   onBorrow,
   onPlayCard,
+  playerName,
   snapshot,
   seenCards,
   selectedGiveCardId,
@@ -120,7 +123,7 @@ export function createPlayerHandLayer({
       fontSize: 12,
       fontWeight: "600",
     },
-    text: "你的手牌",
+    text: playerHandLabel(playerName),
   });
   const count = new Text({
     style: {

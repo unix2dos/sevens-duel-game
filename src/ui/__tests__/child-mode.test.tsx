@@ -49,6 +49,7 @@ it("shows persistent guidance for legal cards in child difficulty", () => {
       onGiveCard={() => {}}
       onRestart={() => {}}
       onReplay={() => {}}
+      playerName="张三"
       qualityLabel="自动"
       showChildGuidance
     />,
@@ -77,6 +78,7 @@ it("removes the old dom-based action rack from the gameplay screen", () => {
       onGiveCard={() => {}}
       onRestart={() => {}}
       onReplay={() => {}}
+      playerName="张三"
       qualityLabel="高"
       showChildGuidance={false}
     />,

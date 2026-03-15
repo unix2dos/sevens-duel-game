@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { MatchSnapshot } from "../../game/match/engine";
 import { GameScene } from "../../scene/pixi/GameScene";
 import { ResultStats } from "../components/ResultStats";
+import { gameModalResultCopy, playerWinTitle } from "../playerText";
 
 interface GameScreenProps {
   difficultyLabel: string;
@@ -11,6 +12,7 @@ interface GameScreenProps {
   onGiveCard: (cardId: string) => void;
   onRestart: () => void;
   onReplay: () => void;
+  playerName: string;
   qualityLabel: string;
   showChildGuidance: boolean;
 }
@@ -23,15 +25,26 @@ export function GameScreen({
   onGiveCard,
   onRestart,
   onReplay,
+  playerName,
   qualityLabel,
   showChildGuidance,
 }: GameScreenProps) {
   const [selectedGiveCardId, setSelectedGiveCardId] = useState<string | null>(null);
   const [selectedPlayCardId, setSelectedPlayCardId] = useState<string | null>(null);
   const [isResultModalDismissed, setIsResultModalDismissed] = useState(false);
+  const [isVFXComplete, setIsVFXComplete] = useState(false);
 
-  const showResultModal = matchSnapshot.status === "finished" && !isResultModalDismissed;
-  const resultTitle = matchSnapshot.winner === "player" ? "你赢了" : "机器人获胜";
+  // Reset VFX state when restarting or replaying
+  useEffect(() => {
+    if (matchSnapshot.status !== "finished") {
+      setIsVFXComplete(false);
+      setIsResultModalDismissed(false);
+    }
+  }, [matchSnapshot.status]);
+
+  const showResultModal = matchSnapshot.status === "finished" && isVFXComplete && !isResultModalDismissed;
+  const resultTitle =
+    matchSnapshot.winner === "player" ? playerWinTitle(playerName) : "机器人获胜";
 
   const handleCardInteract = (cardId: string) => {
     if (matchSnapshot.phase === "borrowing") {
@@ -61,23 +74,63 @@ export function GameScreen({
           matchSnapshot={matchSnapshot}
           onBorrow={onBorrow}
           onPlayCard={handleCardInteract}
+          onEndGameVFXComplete={() => setIsVFXComplete(true)}
+          playerName={playerName}
           selectedGiveCardId={selectedGiveCardId}
           selectedPlayCardId={selectedPlayCardId}
           showChildGuidance={showChildGuidance}
         />
-        {matchSnapshot.phase === "borrowing" && selectedGiveCardId && (
+        {matchSnapshot.phase === "borrowing" && (
           <div className="give-card-overlay">
-            <button
-              className="give-card-confirm"
-              onClick={() => {
-                setSelectedGiveCardId(null);
-                onGiveCard(selectedGiveCardId);
-              }}
-              type="button"
-            >
-              <span className="give-card-subtitle">选定卡牌</span>
-              <span className="give-card-title">确认出借</span>
-            </button>
+            {selectedGiveCardId ? (
+              <button
+                className="give-card-confirm"
+                onClick={() => {
+                  setSelectedGiveCardId(null);
+                  onGiveCard(selectedGiveCardId);
+                }}
+                type="button"
+              >
+                <span className="give-card-subtitle">选定卡牌</span>
+                <span className="give-card-title">确认出借</span>
+              </button>
+            ) : matchSnapshot.turn !== "player" ? (
+              <div 
+                className="give-card-hint" 
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  background: 'rgba(8, 18, 11, 0.85)',
+                  border: '1px solid rgba(212, 175, 55, 0.4)',
+                  padding: '1.2rem 2.5rem',
+                  borderRadius: '999px',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(212, 175, 55, 0.1)',
+                  backdropFilter: 'blur(8px)',
+                  animation: 'pulseGlow 2.5s infinite ease-in-out'
+                }}
+              >
+                <span style={{ 
+                  color: '#d4af37', 
+                  fontFamily: '"Cormorant Garamond", serif', 
+                  fontSize: '0.9rem', 
+                  fontWeight: 600, 
+                  letterSpacing: '0.15em', 
+                  marginBottom: '0.3rem' 
+                }}>
+                  对手借牌
+                </span>
+                <span style={{ 
+                  color: '#fff8dc', 
+                  fontFamily: '"Bodoni Moda", "PingFang SC", serif', 
+                  fontSize: '1.3rem', 
+                  fontWeight: 700, 
+                  letterSpacing: '0.05em' 
+                }}>
+                  请选择下方手牌出借
+                </span>
+              </div>
+            ) : null}
           </div>
         )}
         
@@ -104,8 +157,8 @@ export function GameScreen({
               </button>
               <p className="eyebrow">TABLE CLOSED</p>
               <h2>{resultTitle}</h2>
-              <p className="result-copy">这一局已经收桌。你可以立刻再开一局，或者关闭此弹窗查看桌面的最后一手牌复盘。</p>
-              <ResultStats snapshot={matchSnapshot} />
+              <p className="result-copy">{gameModalResultCopy(playerName)}</p>
+              <ResultStats playerName={playerName} snapshot={matchSnapshot} />
               <div className="hero-actions">
                 <button className="primary-action" onClick={onReplay} type="button">
                   再来一局

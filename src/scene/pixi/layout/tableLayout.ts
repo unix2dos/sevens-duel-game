@@ -29,10 +29,10 @@ export interface TableLayout {
 }
 
 const laneMeta: Array<{ key: Suit; label: string }> = [
-  { key: "spades", label: "黑桃" },
-  { key: "hearts", label: "红桃" },
-  { key: "clubs", label: "梅花" },
-  { key: "diamonds", label: "方块" },
+  { key: "spades", label: "黑桃 ♠" },
+  { key: "hearts", label: "红桃 ♥" },
+  { key: "clubs", label: "梅花 ♣" },
+  { key: "diamonds", label: "方块 ♦" },
 ];
 
 function clamp(value: number, min: number, max: number) {

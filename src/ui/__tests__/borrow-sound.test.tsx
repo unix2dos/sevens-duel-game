@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, vi } from "vitest";
 
@@ -33,11 +34,23 @@ vi.mock("../../game/match/engine", async () => {
 });
 
 vi.mock("../../ui/screens/HomeScreen", () => ({
-  HomeScreen: ({ onStart }: { onStart: () => void }) => (
-    <button onClick={onStart} type="button">
-      开始游戏
-    </button>
-  ),
+  HomeScreen: ({
+    onPlayerNameChange,
+    onStart,
+  }: {
+    onPlayerNameChange: (playerName: string) => void;
+    onStart: (playerName: string) => void;
+  }) => {
+    useEffect(() => {
+      onPlayerNameChange("测试玩家");
+    }, [onPlayerNameChange]);
+
+    return (
+      <button onClick={() => onStart("测试玩家")} type="button">
+        开始游戏
+      </button>
+    );
+  },
 }));
 
 vi.mock("../../ui/screens/GameScreen", () => ({

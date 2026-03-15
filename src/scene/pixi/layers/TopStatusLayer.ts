@@ -3,10 +3,12 @@ import { Container, Graphics, Text } from "pixi.js";
 import { cardTheme } from "../cards/cardTheme";
 import type { TableLayout } from "../layout/tableLayout";
 import type { MatchSnapshot } from "../../../game/match/engine";
+import { playerHandLabel, playerTurnLabel, playerWinTitle } from "../../../ui/playerText";
 
 interface TopStatusLayerOptions {
   difficultyLabel: string;
   layout: TableLayout;
+  playerName: string;
   snapshot: MatchSnapshot;
 }
 
@@ -50,6 +52,7 @@ function createIndicatorBadge(color: number) {
 export function createTopStatusLayer({
   difficultyLabel,
   layout,
+  playerName,
   snapshot,
 }: TopStatusLayerOptions) {
   const root = new Container();
@@ -58,10 +61,10 @@ export function createTopStatusLayer({
   const turnLabel =
     snapshot.status === "finished"
       ? snapshot.winner === "player"
-        ? "你赢了"
+        ? playerWinTitle(playerName)
         : "机器人获胜"
       : snapshot.turn === "player"
-        ? "轮到你"
+        ? playerTurnLabel(playerName)
         : "机器人回合";
 
   shell
@@ -83,7 +86,7 @@ export function createTopStatusLayer({
   if (layout.compact) {
     let currentX = 0;
 
-    const playerText = makeValue(`你 ${snapshot.hands.player.length}`, 13);
+    const playerText = makeValue(`${playerName} ${snapshot.hands.player.length}`, 13);
     const playerBadge = createIndicatorBadge(0x3b82f6);
     playerBadge.position.set(currentX + 4.5, playerText.height / 2);
     playerText.position.set(currentX + 14, 0);
@@ -99,7 +102,7 @@ export function createTopStatusLayer({
   } else {
     let currentX = 0;
     
-    const playerText = makeValue(` 你的手牌 ${snapshot.hands.player.length} · `, 15);
+    const playerText = makeValue(` ${playerHandLabel(playerName)} ${snapshot.hands.player.length} · `, 15);
     const playerBadge = createIndicatorBadge(0x3b82f6);
     playerBadge.position.set(currentX + 5.5, playerText.height / 2);
     playerText.position.set(currentX + 16, 0);

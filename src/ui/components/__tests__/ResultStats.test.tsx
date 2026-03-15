@@ -25,7 +25,9 @@ it("shows a neutral finish reason when a hand reaches zero because of borrowing"
     ],
   };
 
-  render(<ResultStats snapshot={snapshot} />);
+  render(<ResultStats playerName="张三" snapshot={snapshot} />);
 
   expect(screen.getByText(/结束原因：借牌后手牌归零/)).toBeInTheDocument();
+  expect(screen.getByText(/张三出牌 0 张/)).toBeInTheDocument();
+  expect(screen.getByText(/剩余手牌：张三 0 张 · 机器人 0 张/)).toBeInTheDocument();
 });

@@ -71,6 +71,7 @@ describe("createPlayerHandLayer", () => {
       layout,
       onBorrow,
       onPlayCard: vi.fn(),
+      playerName: "张三",
       seenCards: new Set(),
       selectedGiveCardId: null,
       selectedPlayCardId: null,
