@@ -6,6 +6,7 @@ import type { Card } from "../../../game/core/types";
 
 const ART_WIDTH = 300;
 const ART_HEIGHT = 420;
+export type CardFaceVariant = "standard" | "suit-emblem";
 const faceTextureCache = new Map<string, Texture>();
 const faceTextureLoads = new Map<string, Promise<Texture>>();
 const emptyTexture = Texture.EMPTY;
@@ -61,7 +62,20 @@ function faceMarkup(card: Card) {
   `;
 }
 
-function centerMarkup(card: Card) {
+function suitEmblemMarkup(card: Card) {
+  return `
+    <g transform="translate(${ART_WIDTH / 2} ${ART_HEIGHT / 2})">
+      <text x="0" y="12" text-anchor="middle" dominant-baseline="middle"
+        font-family="'Bodoni Moda', serif" font-size="170" fill="${inkColor(card)}">${suitSymbol(card.suit)}</text>
+    </g>
+  `;
+}
+
+function centerMarkup(card: Card, faceVariant: CardFaceVariant) {
+  if (faceVariant === "suit-emblem") {
+    return suitEmblemMarkup(card);
+  }
+
   if (card.rank === "A") {
     return aceMarkup(card);
   }
@@ -87,7 +101,11 @@ function cornerMarkup(card: Card, mirrored = false) {
   `;
 }
 
-export function buildCardFaceSvg(card: Card) {
+interface BuildCardFaceSvgOptions {
+  faceVariant?: CardFaceVariant;
+}
+
+export function buildCardFaceSvg(card: Card, { faceVariant = "standard" }: BuildCardFaceSvgOptions = {}) {
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="${ART_WIDTH}" height="${ART_HEIGHT}" viewBox="0 0 ${ART_WIDTH} ${ART_HEIGHT}">
       <defs>
@@ -116,9 +134,8 @@ export function buildCardFaceSvg(card: Card) {
       <rect x="8" y="8" width="${ART_WIDTH - 16}" height="${ART_HEIGHT - 16}" rx="20" fill="none" stroke="#d4af37" stroke-width="1.2" opacity="0.6"/>
       <rect x="0" y="0" width="${ART_WIDTH}" height="${ART_HEIGHT}" rx="26" fill="url(#paperNoise)"/>
       <path d="M18 18 C88 8 150 18 282 10" stroke="url(#shine)" stroke-opacity="0.68" stroke-width="10" stroke-linecap="round" fill="none"/>
-      ${cornerMarkup(card)}
-      ${cornerMarkup(card, true)}
-      ${centerMarkup(card)}
+      ${faceVariant === "standard" ? `${cornerMarkup(card)}${cornerMarkup(card, true)}` : ""}
+      ${centerMarkup(card, faceVariant)}
     </svg>
   `.trim();
 }
@@ -128,12 +145,12 @@ export function buildCardBackSvg() {
   return ""; 
 }
 
-function textureKey(card: Card) {
-  return `${card.suit}-${card.rank}`;
+function textureKey(card: Card, faceVariant: CardFaceVariant) {
+  return `${card.suit}-${card.rank}-${faceVariant}`;
 }
 
-export function getCardFaceTexture(card: Card) {
-  return faceTextureCache.get(textureKey(card)) ?? emptyTexture;
+export function getCardFaceTexture(card: Card, faceVariant: CardFaceVariant = "standard") {
+  return faceTextureCache.get(textureKey(card, faceVariant)) ?? emptyTexture;
 }
 
 export function getCardBackTexture() {
@@ -151,8 +168,8 @@ function loadSvgTexture(svg: string) {
   });
 }
 
-export function preloadCardFaceTexture(card: Card) {
-  const key = textureKey(card);
+export function preloadCardFaceTexture(card: Card, faceVariant: CardFaceVariant = "standard") {
+  const key = textureKey(card, faceVariant);
 
   if (faceTextureCache.has(key)) {
     return Promise.resolve(faceTextureCache.get(key)!);
@@ -161,7 +178,7 @@ export function preloadCardFaceTexture(card: Card) {
   if (!faceTextureLoads.has(key)) {
     faceTextureLoads.set(
       key,
-      loadSvgTexture(buildCardFaceSvg(card)).then((texture) => {
+      loadSvgTexture(buildCardFaceSvg(card, { faceVariant })).then((texture) => {
         faceTextureCache.set(key, texture);
         return texture;
       }),
@@ -193,7 +210,7 @@ export function preloadCardBackTexture() {
 }
 
 export async function preloadCardTextures(cards: Card[]) {
-  const uniqueCards = Array.from(new Map(cards.map((card) => [textureKey(card), card])).values());
+  const uniqueCards = Array.from(new Map(cards.map((card) => [textureKey(card, "standard"), card])).values());
 
   await Promise.all([preloadCardBackTexture(), ...uniqueCards.map((card) => preloadCardFaceTexture(card))]);
 }

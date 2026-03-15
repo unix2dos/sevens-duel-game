@@ -1,8 +1,10 @@
 import { Container, Graphics, Sprite, Ticker } from "pixi.js";
 
 import { cardMetrics, cardTheme } from "./cardTheme";
+import type { CardFaceVariant } from "./cardSvg";
 import { suitInk } from "./cardGlyphs";
 import { getCardBackTexture, getCardFaceTexture } from "./cardSvg";
+import { CARD_FLIP_DURATION_MS } from "../suitCelebration";
 import type { Actor } from "../../../game/core/state";
 import type { Card } from "../../../game/core/types";
 
@@ -17,6 +19,7 @@ interface PokerCardSpriteOptions {
   replayFlip?: boolean;
   flipDelay?: number;
   flipStartTime?: number; // Absolute timestamp when the celebration started
+  faceVariant?: CardFaceVariant;
   width: number;
 }
 
@@ -31,13 +34,14 @@ export function createPokerCardSprite({
   replayFlip = false,
   flipDelay = 0,
   flipStartTime = 0,
+  faceVariant = "standard",
   width,
 }: PokerCardSpriteOptions) {
   const root = new Container();
   const glow = new Graphics();
   const shadow = new Graphics();
   const cardSurface = new Container();
-  const faceSprite = new Sprite(getCardFaceTexture(card));
+  const faceSprite = new Sprite(getCardFaceTexture(card, faceVariant));
   const backSprite = new Sprite(getCardBackTexture());
   const baseSurfaceY = height / 2;
 
@@ -56,34 +60,24 @@ export function createPokerCardSprite({
   faceSprite.position.set(width / 2, height / 2);
   faceSprite.width = width;
   faceSprite.height = height;
+  faceSprite.visible = true;
   backSprite.anchor.set(0.5);
   backSprite.position.set(width / 2, height / 2);
   backSprite.width = width;
   backSprite.height = height;
-  
-  const FLIP_DURATION = 800; // ms per card
-  const isFlipResolved = replayFlip && flipStartTime > 0 && Date.now() > flipStartTime + flipDelay + FLIP_DURATION;
-  const isFlipStarted = replayFlip && flipStartTime > 0 && Date.now() >= flipStartTime + flipDelay;
-  
-  if (replayFlip) {
-    if (isFlipResolved) {
-      // Animation completely finished
-      backSprite.visible = true;
-      faceSprite.visible = false;
-    } else if (isFlipStarted) {
-      // We are *currently* mid-animation, or just about to start.
-      // We set the initial state to face-up, and let the ticker catch up the scale.
-      backSprite.visible = false;
-      faceSprite.visible = true;
-    } else {
-      // Animation hasn't started yet (still in delay phase).
-      backSprite.visible = false;
-      faceSprite.visible = true;
-    }
-  } else {
+  backSprite.visible = false;
+
+  const isFlipResolved =
+    replayFlip &&
+    flipStartTime > 0 &&
+    Date.now() > flipStartTime + flipDelay + CARD_FLIP_DURATION_MS;
+
+  if (isFlipResolved) {
+    cardSurface.scale.x = 1;
+    faceSprite.visible = true;
     backSprite.visible = false;
   }
-  
+
   cardSurface.addChild(backSprite, faceSprite);
   root.addChild(glow, shadow, cardSurface);
 
@@ -139,46 +133,59 @@ export function createPokerCardSprite({
 
   if (replayFlip && !isFlipResolved) {
     const minScale = 0.08;
-    const shrinkDuration = FLIP_DURATION * 0.45; // 45% of time shrinking
     const targetTime = flipStartTime + flipDelay;
+    const phaseDuration = CARD_FLIP_DURATION_MS / 4;
 
     const animateFlip = () => {
       const now = Date.now();
-      
-      // If animation hasn't started yet, do nothing (keep looking like face)
+
       if (now < targetTime) {
         cardSurface.scale.x = 1;
+        faceSprite.visible = true;
+        backSprite.visible = false;
         return;
       }
-      
+
       const elapsedSinceStart = now - targetTime;
-      
-      if (elapsedSinceStart >= FLIP_DURATION) {
-        // Animation is completely done
+
+      if (elapsedSinceStart >= CARD_FLIP_DURATION_MS) {
         cardSurface.scale.x = 1;
-        faceSprite.visible = false;
-        backSprite.visible = true;
+        faceSprite.visible = true;
+        backSprite.visible = false;
         Ticker.shared.remove(animateFlip);
         return;
       }
-      
-      if (elapsedSinceStart < shrinkDuration) {
-        // Phase 1: Shrinking face
-        const progress = elapsedSinceStart / shrinkDuration;
-        // Ease out quadratic (faster start, slower end)
-        cardSurface.scale.x = Math.max(minScale, 1 - progress);
+
+      if (elapsedSinceStart < phaseDuration) {
+        const progress = elapsedSinceStart / phaseDuration;
         faceSprite.visible = true;
         backSprite.visible = false;
-      } else {
-        // Phase 2: Expanding back
-        const expandProgress = (elapsedSinceStart - shrinkDuration) / (FLIP_DURATION - shrinkDuration);
-        // Ease in quadratic
-        cardSurface.scale.x = Math.max(minScale, expandProgress);
+        cardSurface.scale.x = Math.max(minScale, 1 - progress);
+        return;
+      }
+
+      if (elapsedSinceStart < phaseDuration * 2) {
+        const progress = (elapsedSinceStart - phaseDuration) / phaseDuration;
         faceSprite.visible = false;
         backSprite.visible = true;
+        cardSurface.scale.x = Math.max(minScale, progress);
+        return;
       }
+
+      if (elapsedSinceStart < phaseDuration * 3) {
+        const progress = (elapsedSinceStart - phaseDuration * 2) / phaseDuration;
+        faceSprite.visible = false;
+        backSprite.visible = true;
+        cardSurface.scale.x = Math.max(minScale, 1 - progress);
+        return;
+      }
+
+      const progress = (elapsedSinceStart - phaseDuration * 3) / phaseDuration;
+      faceSprite.visible = true;
+      backSprite.visible = false;
+      cardSurface.scale.x = Math.max(minScale, progress);
     };
-    
+
     Ticker.shared.add(animateFlip);
     root.on("destroyed", () => Ticker.shared.remove(animateFlip));
   }

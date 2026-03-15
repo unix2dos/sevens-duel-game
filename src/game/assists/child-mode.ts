@@ -1,16 +1,14 @@
-import { selectLegalCards } from "../match/selectors";
 import type { MatchSnapshot } from "../match/engine";
+import type { Card } from "../core/types";
 
 export function shouldAutoBorrow(snapshot: MatchSnapshot) {
-  return snapshot.difficulty === "child" && snapshot.turn === "player" && selectLegalCards(snapshot).length === 0;
+  void snapshot;
+
+  return false;
 }
 
-export function getForcedCard(snapshot: MatchSnapshot) {
-  if (snapshot.difficulty !== "child" || snapshot.turn !== "player") {
-    return null;
-  }
+export function getForcedCard(snapshot: MatchSnapshot): Card | null {
+  void snapshot;
 
-  const legalCards = selectLegalCards(snapshot);
-
-  return legalCards.length === 1 ? legalCards[0] : null;
+  return null;
 }

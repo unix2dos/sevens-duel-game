@@ -2,11 +2,25 @@ import { Container } from "pixi.js";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const { mockCreateCardView } = vi.hoisted(() => ({
-  mockCreateCardView: vi.fn(({ card, replayFlip }: { card: { id: string }; replayFlip?: boolean }) => {
-    const node = new Container();
-    Object.assign(node, { __cardId: card.id, __replayFlip: replayFlip ?? false });
-    return node;
-  }),
+  mockCreateCardView: vi.fn(
+    ({
+      card,
+      replayFlip,
+      faceVariant,
+    }: {
+      card: { id: string };
+      replayFlip?: boolean;
+      faceVariant?: string;
+    }) => {
+      const node = new Container();
+      Object.assign(node, {
+        __cardId: card.id,
+        __faceVariant: faceVariant ?? "standard",
+        __replayFlip: replayFlip ?? false,
+      });
+      return node;
+    },
+  ),
 }));
 
 vi.mock("../../CardView", () => ({
@@ -49,7 +63,7 @@ describe("createSuitBoardLayer", () => {
       layout,
       snapshot,
       seenCards: new Set(),
-      celebratingSuits: new Set(["spades"]),
+      celebrationStartTimes: new Map([["spades", 1_000]]),
     } as never);
 
     const spadeCalls = mockCreateCardView.mock.calls
@@ -86,5 +100,64 @@ describe("createSuitBoardLayer", () => {
 
     expect(twoNode.position.y).toBeLessThan(sevenNode.position.y);
     expect(aceNode.position.y).toBeLessThan(twoNode.position.y);
+  });
+
+  it("renders a suit-emblem placeholder before the real seven is played", () => {
+    const layout = createTableLayout(1280, 860);
+    const snapshot: MatchSnapshot = {
+      cardOwners: {},
+      difficulty: "normal",
+      eventLog: [{ type: "GAME_STARTED", seed: 7 }],
+      hands: { player: [], opponent: [] },
+      layout: [],
+      phase: "playing",
+      rngState: 7,
+      seed: 7,
+      status: "playing",
+      turn: "player",
+    };
+
+    createSuitBoardLayer({ layout, snapshot, seenCards: new Set() });
+
+    const placeholderCall = mockCreateCardView.mock.calls
+      .map(([options]) => options as { card: { id: string }; faceVariant?: string })
+      .find((options) => options.card.id === "seed-spades-7");
+
+    expect(placeholderCall?.faceVariant).toBe("suit-emblem");
+  });
+
+  it("renders the real seven in the center once it is on the board", () => {
+    const layout = createTableLayout(1280, 860);
+    const snapshot: MatchSnapshot = {
+      cardOwners: {},
+      difficulty: "normal",
+      eventLog: [{ type: "GAME_STARTED", seed: 7 }],
+      hands: { player: [], opponent: [] },
+      layout: [
+        { id: "spades-7", suit: "spades", rank: 7 },
+        { id: "spades-8", suit: "spades", rank: 8 },
+      ],
+      phase: "playing",
+      rngState: 7,
+      seed: 7,
+      status: "playing",
+      turn: "player",
+    };
+
+    createSuitBoardLayer({ layout, snapshot, seenCards: new Set() });
+
+    const regularCall = mockCreateCardView.mock.calls
+      .map(([options]) => options as { card: { id: string }; faceVariant?: string })
+      .find((options) => options.card.id === "spades-8");
+    const centerCall = mockCreateCardView.mock.calls
+      .map(([options]) => options as { card: { id: string }; faceVariant?: string })
+      .find((options) => options.card.id === "spades-7");
+    const placeholderCall = mockCreateCardView.mock.calls
+      .map(([options]) => options as { card: { id: string }; faceVariant?: string })
+      .find((options) => options.card.id === "seed-spades-7");
+
+    expect(centerCall?.faceVariant).toBeUndefined();
+    expect(regularCall?.faceVariant).toBeUndefined();
+    expect(placeholderCall).toBeUndefined();
   });
 });

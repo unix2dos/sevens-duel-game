@@ -1,6 +1,7 @@
 import { Container } from "pixi.js";
 
 import { createCardBackSprite } from "./cards/CardBackSprite";
+import type { CardFaceVariant } from "./cards/cardSvg";
 import { createPokerCardSprite } from "./cards/PokerCardSprite";
 import type { Actor } from "../../game/core/state";
 import type { Card } from "../../game/core/types";
@@ -16,6 +17,7 @@ interface CardViewOptions {
   replayFlip?: boolean;
   flipDelay?: number;
   flipStartTime?: number;
+  faceVariant?: CardFaceVariant;
   width: number;
   height: number;
 }
@@ -31,6 +33,7 @@ export function createCardView({
   replayFlip = false,
   flipDelay = 0,
   flipStartTime = 0,
+  faceVariant = "standard",
   width,
   height,
 }: CardViewOptions) {
@@ -49,6 +52,7 @@ export function createCardView({
           replayFlip,
           flipDelay,
           flipStartTime,
+          faceVariant,
           width,
         })
       : createCardBackSprite({ height, width }),

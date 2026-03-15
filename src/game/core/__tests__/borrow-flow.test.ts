@@ -13,7 +13,7 @@ it("borrows exactly one card during opening when the starter has no seven", () =
   expect(next.hands.player.length + next.hands.opponent.length + next.layout.length).toBe(4);
 });
 
-it("plays a borrowed card immediately when it becomes legal", () => {
+it("keeps a newly borrowed legal card in the player's hand until they choose to play it", () => {
   const state = createInitialGameState({
     playerCards: ["hearts-3"],
     opponentCards: ["spades-7", "clubs-7"],
@@ -22,8 +22,30 @@ it("plays a borrowed card immediately when it becomes legal", () => {
 
   const next = applyBorrowWhenStuck(state);
 
+  expect(next.turn).toBe("player");
+  expect(next.layout).toHaveLength(0);
+  expect(next.hands.player.map((card) => card.id)).toContain("spades-7");
+  expect(next.eventLog.map((event) => event.type)).toEqual(["GAME_STARTED", "CARD_BORROWED"]);
+  expect(next.phase).toBe("opening");
+});
+
+it("lets the opponent decide a borrowed legal card on their next action instead of auto-playing it", () => {
+  const state = createInitialGameState({
+    playerCards: ["spades-7", "hearts-9"],
+    opponentCards: ["clubs-2"],
+    seed: 1,
+    turn: "opponent",
+    phase: "playing",
+    layout: ["clubs-7"],
+  });
+
+  const borrowing = applyBorrowWhenStuck(state);
+  const next = applyGiveCard(borrowing, "spades-7");
+
+  expect(next.turn).toBe("opponent");
   expect(next.layout).toHaveLength(1);
-  expect(next.eventLog.map((event) => event.type)).toEqual(["GAME_STARTED", "CARD_BORROWED", "CARD_PLAYED", "TURN_PASSED"]);
+  expect(next.hands.opponent.map((card) => card.id)).toContain("spades-7");
+  expect(next.eventLog.map((event) => event.type)).toEqual(["GAME_STARTED", "CARD_BORROWED"]);
   expect(next.phase).toBe("playing");
 });
 

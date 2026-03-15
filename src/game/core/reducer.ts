@@ -206,7 +206,7 @@ export function applyBorrowWhenStuck(state: GameState): GameState {
   }
 
   if (canPlayCard(withBorrow.layout, borrowedCard)) {
-    return applyPlayCard(withBorrow, borrowedCard.id);
+    return withBorrow;
   }
 
   return advanceTurn(withBorrow);
@@ -246,7 +246,7 @@ export function applyGiveCard(state: GameState, cardId: string): GameState {
   }
 
   if (canPlayCard(withBorrow.layout, borrowedCard)) {
-    return applyPlayCard(withBorrow, borrowedCard.id);
+    return withBorrow;
   }
 
   return advanceTurn(withBorrow);

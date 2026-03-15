@@ -3,12 +3,13 @@ import { Container, Graphics, Text } from "pixi.js";
 import { createCardView } from "../CardView";
 import { cardTheme } from "../cards/cardTheme";
 import type { TableLayout } from "../layout/tableLayout";
+import { CARD_FLIP_DELAY_STEP_MS } from "../suitCelebration";
 import type { MatchSnapshot } from "../../../game/match/engine";
 import type { Card, Suit } from "../../../game/core/types";
 import { visualRankValue } from "../../../game/core/visualRank";
 
 interface SuitBoardLayerOptions {
-  celebratingSuits?: Set<Suit>;
+  celebrationStartTimes?: Map<Suit, number>;
   layout: TableLayout;
   snapshot: MatchSnapshot;
   seenCards: Set<string>;
@@ -21,7 +22,7 @@ function suitCards(layout: Card[], suit: Suit) {
 }
 
 export function createSuitBoardLayer({
-  celebratingSuits = new Set<Suit>(),
+  celebrationStartTimes = new Map<Suit, number>(),
   layout,
   snapshot,
   seenCards,
@@ -38,15 +39,8 @@ export function createSuitBoardLayer({
 
   layout.suitLanes.forEach((lane) => {
     const cards = suitCards(snapshot.layout, lane.key);
-    const replayFlip = celebratingSuits.has(lane.key);
-    
-    // Use an absolute time for the flip so that if this component is re-rendered mid-animation,
-    // the flip state and timing are perfectly preserved and recovered.
-    // We attach this to the lane object for simplicity. We use a stable reference if possible, 
-    // or just assume Date.now() when first rendered is okay because the top level Snapshot 
-    // doesn't currently provide an event timestamp.
-    const flipStartTime = replayFlip ? Date.now() : 0;
-    
+    const flipStartTime = celebrationStartTimes.get(lane.key) ?? 0;
+    const replayFlip = flipStartTime > 0;
     const laneShell = new Graphics();
     const axis = new Graphics();
     const slotGlow = new Graphics();
@@ -65,6 +59,12 @@ export function createSuitBoardLayer({
     const highCards = cards
       .filter((card) => visualRankValue[card.rank] > 7)
       .sort((a, b) => visualRankValue[a.rank] - visualRankValue[b.rank]);
+    const centerCardData = cards.find((card) => visualRankValue[card.rank] === 7) ?? {
+      id: `seed-${lane.key}-7`,
+      rank: 7,
+      suit: lane.key,
+    };
+    const centerIsPlaceholder = centerCardData.id.startsWith("seed-");
 
     // Dynamically calculate card height within lane constraints
     const paddingY = layout.compact ? 12 : 20;
@@ -75,15 +75,15 @@ export function createSuitBoardLayer({
     
     // Fixed visual tight safe spacing (A) - exactly fits the index.
     const fixedStep = Math.max(layout.compact ? 16 : 22, cardHeight * 0.15);
-    const centerCardId = `${lane.key}-7`;
     const centerCard = createCardView({
-      card: { id: centerCardId, rank: 7, suit: lane.key },
+      card: centerCardData,
       height: cardHeight,
       isInteractive: false,
       isFaceUp: true,
       isLegal: false,
-      animateEntrance: !replayFlip && !seenCards.has(centerCardId),
-      owner: cards.length > 0 ? snapshot.cardOwners[centerCardId] : undefined,
+      animateEntrance: !replayFlip && !seenCards.has(centerCardData.id),
+      faceVariant: centerIsPlaceholder ? "suit-emblem" : undefined,
+      owner: centerIsPlaceholder ? undefined : snapshot.cardOwners[centerCardData.id],
       replayFlip,
       flipDelay: 0,
       flipStartTime,
@@ -117,7 +117,7 @@ export function createSuitBoardLayer({
         animateEntrance: !replayFlip && !seenCards.has(card.id),
         owner: snapshot.cardOwners[card.id],
         replayFlip,
-        flipDelay: Math.abs(visualRankValue[card.rank] - 7) * 120, // Domino delay
+        flipDelay: Math.abs(visualRankValue[card.rank] - 7) * CARD_FLIP_DELAY_STEP_MS,
         flipStartTime,
         width: cardWidth,
       });
@@ -139,7 +139,7 @@ export function createSuitBoardLayer({
         animateEntrance: !replayFlip && !seenCards.has(card.id),
         owner: snapshot.cardOwners[card.id],
         replayFlip,
-        flipDelay: Math.abs(visualRankValue[card.rank] - 7) * 120, // Domino delay
+        flipDelay: Math.abs(visualRankValue[card.rank] - 7) * CARD_FLIP_DELAY_STEP_MS,
         flipStartTime,
         width: cardWidth,
       });

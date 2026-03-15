@@ -1,6 +1,5 @@
 import { Container, Graphics } from "pixi.js";
 
-import { cardTheme } from "./cards/cardTheme";
 import { createTableLayout } from "./layout/tableLayout";
 import { createOpponentLayer } from "./layers/OpponentLayer";
 import { createPlayerHandLayer } from "./layers/PlayerHandLayer";
@@ -11,7 +10,7 @@ import type { MatchSnapshot } from "../../game/match/engine";
 import type { Suit } from "../../game/core/types";
 
 interface TableViewOptions {
-  celebratingSuits: Set<Suit>;
+  celebrationStartTimes: Map<Suit, number>;
   difficultyLabel: string;
   height: number;
   onBorrow: () => void;
@@ -24,7 +23,7 @@ interface TableViewOptions {
 }
 
 export function createTableView({
-  celebratingSuits,
+  celebrationStartTimes,
   difficultyLabel,
   height,
   onBorrow,
@@ -41,19 +40,23 @@ export function createTableView({
   const backdrop = new Graphics();
   const felt = new Graphics();
 
+  // Create absolute luxury vignette and velvet depth
   backdrop
     .roundRect(0, 0, width, height, 34)
-    .fill(cardTheme.velvet)
-    .stroke({ color: cardTheme.lineSoft, alpha: 0.5, width: 1 });
+    .fill({ color: 0x071b0e, alpha: 1 }) // Deep base green-black
+    .stroke({ color: 0x1a3d24, alpha: 0.8, width: 1 });
+    
   felt
     .roundRect(6, 6, width - 12, height - 12, 30)
-    .fill({ color: cardTheme.velvetGlow, alpha: 0.24 });
+    // Rich gradient for center highlight 
+    .fill({ color: 0x1f5c36, alpha: 0.45 })
+    .stroke({ color: 0x2e7547, alpha: 0.15, width: 2 });
 
   root.addChild(backdrop, felt);
   root.addChild(
     createTopStatusLayer({ difficultyLabel, layout, snapshot }),
     createOpponentLayer({ layout, snapshot }),
-    createSuitBoardLayer({ celebratingSuits, layout, snapshot, seenCards }),
+    createSuitBoardLayer({ celebrationStartTimes, layout, snapshot, seenCards }),
     createTransientFeedLayer({ layout, showChildGuidance, snapshot }),
     createPlayerHandLayer({ layout, onBorrow, onPlayCard, snapshot, seenCards, selectedGiveCardId }),
   );

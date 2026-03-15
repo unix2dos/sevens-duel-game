@@ -10,13 +10,15 @@ interface TopStatusLayerOptions {
   snapshot: MatchSnapshot;
 }
 
-function makeLabel(text: string, size: number, color = cardTheme.textMuted) {
+function makeLabel(text: string, size: number, color = 0xdab775) {
   return new Text({
     style: {
       fill: color,
-      fontFamily: "IBM Plex Sans, sans-serif",
+      fontFamily: "'Cormorant Garamond', serif",
       fontSize: size,
       fontWeight: "600",
+      letterSpacing: 2,
+      dropShadow: { color: 0x000000, alpha: 0.6, blur: 2, distance: 1 }
     },
     text,
   });
@@ -25,10 +27,12 @@ function makeLabel(text: string, size: number, color = cardTheme.textMuted) {
 function makeValue(text: string, size: number) {
   return new Text({
     style: {
-      fill: cardTheme.textPrimary,
-      fontFamily: "Sora, IBM Plex Sans, sans-serif",
+      fill: 0xfff8dc,
+      fontFamily: "'Bodoni Moda', serif",
       fontSize: size,
-      fontWeight: "800",
+      fontWeight: "700",
+      letterSpacing: 1,
+      dropShadow: { color: 0x000000, alpha: 0.8, blur: 3, distance: 2 }
     },
     text,
   });

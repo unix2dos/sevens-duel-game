@@ -4,7 +4,7 @@ import { createMatch } from "../../game/match/engine";
 import { getForcedCard, shouldAutoBorrow } from "../../game/assists/child-mode";
 import { GameScreen } from "../screens/GameScreen";
 
-it("auto-resolves borrow actions in child difficulty when no legal move exists", () => {
+it("does not auto-borrow in child difficulty when no legal move exists", () => {
   const match = createMatch({
     seed: 7,
     difficulty: "child",
@@ -14,10 +14,10 @@ it("auto-resolves borrow actions in child difficulty when no legal move exists",
     },
   });
 
-  expect(shouldAutoBorrow(match.snapshot)).toBe(true);
+  expect(shouldAutoBorrow(match.snapshot)).toBe(false);
 });
 
-it("detects a single forced legal card in child difficulty", () => {
+it("does not force a single legal card in child difficulty", () => {
   const match = createMatch({
     seed: 7,
     difficulty: "child",
@@ -27,7 +27,7 @@ it("detects a single forced legal card in child difficulty", () => {
     },
   });
 
-  expect(getForcedCard(match.snapshot)?.id).toBe("spades-7");
+  expect(getForcedCard(match.snapshot)).toBeNull();
 });
 
 it("shows persistent guidance for legal cards in child difficulty", () => {
@@ -48,6 +48,7 @@ it("shows persistent guidance for legal cards in child difficulty", () => {
       onPlayCard={() => {}}
       onGiveCard={() => {}}
       onRestart={() => {}}
+      onReplay={() => {}}
       qualityLabel="自动"
       showChildGuidance
     />,
@@ -75,6 +76,7 @@ it("removes the old dom-based action rack from the gameplay screen", () => {
       onPlayCard={() => {}}
       onGiveCard={() => {}}
       onRestart={() => {}}
+      onReplay={() => {}}
       qualityLabel="高"
       showChildGuidance={false}
     />,

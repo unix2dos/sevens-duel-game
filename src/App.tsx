@@ -56,7 +56,8 @@ function App() {
     }
 
     playSound("result");
-    startTransition(() => setScreen("result"));
+    // We intentionally do not call setScreen("result") anymore. 
+    // The GameScreen will render an in-board completion modal automatically.
   }, [match, playSound, screen]);
 
   useEffect(() => {
@@ -64,7 +65,11 @@ function App() {
       return;
     }
 
-    if (match.snapshot.turn !== "opponent") {
+    if (match.snapshot.status !== "playing" || match.snapshot.turn !== "opponent") {
+      return;
+    }
+
+    if (match.snapshot.phase === "borrowing") {
       return;
     }
 
@@ -164,6 +169,10 @@ function App() {
           onRestart={() => {
             setMatch(null);
             startTransition(() => setScreen("home"));
+          }}
+          onReplay={() => {
+            playSound("deal");
+            setMatch(createMatch({ difficulty: selectedDifficulty, seed: buildSeed() }));
           }}
           qualityLabel={qualityLabel(performancePreset)}
           showChildGuidance={match.snapshot.difficulty === "child"}

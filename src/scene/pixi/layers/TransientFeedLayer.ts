@@ -42,7 +42,7 @@ function helperMessage(snapshot: MatchSnapshot, showChildGuidance: boolean) {
   }
 
   if (showChildGuidance) {
-    return "发亮的底部手牌可以直接点击，没有可出牌时系统会帮你借牌。";
+    return "发亮的底部手牌可以直接点击，没有可出牌时请手动借牌。";
   }
 
   return "从底部手牌区直接出牌。";

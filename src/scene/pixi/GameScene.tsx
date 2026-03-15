@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
 
 import { createTableView } from "./TableView";
-import { preloadCardTextures } from "./cards/cardSvg";
-import { getNewlyCompletedSuits } from "./suitCelebration";
+import { preloadCardFaceTexture, preloadCardTextures } from "./cards/cardSvg";
+import { updateSuitCelebrations } from "./suitCelebration";
 import { usePixiHost } from "./usePixiHost";
 import type { MatchSnapshot } from "../../game/match/engine";
-import type { Card } from "../../game/core/types";
+import type { Card, Suit } from "../../game/core/types";
 
 interface GameSceneProps {
   difficultyLabel: string;
@@ -27,6 +27,7 @@ export function GameScene({
   const { appRef, hostRef, readyToken } = usePixiHost();
   const seenCardsRef = useRef(new Set<string>());
   const previousLayoutRef = useRef<Card[] | null>(null);
+  const celebrationStartTimesRef = useRef(new Map<Suit, number>());
 
   useEffect(() => {
     const app = appRef.current;
@@ -43,22 +44,32 @@ export function GameScene({
       { id: "seed-diamonds-7", rank: 7, suit: "diamonds" },
     ];
     const visibleCards = [...matchSnapshot.hands.player, ...matchSnapshot.layout, ...laneSeeds];
-    const celebratingSuits = getNewlyCompletedSuits(previousLayoutRef.current, matchSnapshot.layout);
+    const celebrationStartTimes = updateSuitCelebrations(
+      celebrationStartTimesRef.current,
+      previousLayoutRef.current,
+      matchSnapshot.layout,
+      Date.now(),
+    );
+
+    celebrationStartTimesRef.current = celebrationStartTimes;
     previousLayoutRef.current = matchSnapshot.layout;
 
-    void preloadCardTextures(visibleCards).then(() => {
+    void Promise.all([
+      preloadCardTextures(visibleCards),
+      ...laneSeeds.map((card) => preloadCardFaceTexture(card, "suit-emblem")),
+    ]).then(() => {
       if (!active || !appRef.current) {
         return;
       }
 
-      app.stage.removeChildren();
+      app.stage.removeChildren().forEach((child) => child.destroy({ children: true }));
       app.stage.addChild(
         createTableView({
+          celebrationStartTimes,
           difficultyLabel,
           height: app.screen.height,
           onBorrow,
           onPlayCard,
-          celebratingSuits,
           selectedGiveCardId,
           showChildGuidance,
           snapshot: matchSnapshot,
