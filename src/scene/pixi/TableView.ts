@@ -22,6 +22,7 @@ interface TableViewOptions {
   selectedGiveCardId: string | null;
   selectedPlayCardId: string | null;
   width: number;
+  isHintActive?: boolean;
 }
 
 export function createTableView({
@@ -37,6 +38,7 @@ export function createTableView({
   selectedGiveCardId,
   selectedPlayCardId,
   width,
+  isHintActive,
 }: TableViewOptions) {
   const root = new Container();
   root.sortableChildren = true;
@@ -62,7 +64,7 @@ export function createTableView({
     createOpponentLayer({ layout, snapshot }),
     createSuitBoardLayer({ celebrationStartTimes, layout, snapshot, seenCards }),
     createTransientFeedLayer({ layout, playerName, showChildGuidance, snapshot }),
-    createPlayerHandLayer({ layout, onBorrow, onPlayCard, playerName, snapshot, seenCards, selectedGiveCardId, selectedPlayCardId }),
+    createPlayerHandLayer({ layout, onBorrow, onPlayCard, playerName, snapshot, seenCards, selectedGiveCardId, selectedPlayCardId, isHintActive }),
   );
 
   return root;

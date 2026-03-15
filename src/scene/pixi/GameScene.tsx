@@ -17,6 +17,7 @@ interface GameSceneProps {
   selectedGiveCardId: string | null;
   selectedPlayCardId: string | null;
   showChildGuidance: boolean;
+  isHintActive?: boolean;
 }
 
 export function GameScene({
@@ -29,6 +30,7 @@ export function GameScene({
   selectedGiveCardId,
   selectedPlayCardId,
   showChildGuidance,
+  isHintActive,
 }: GameSceneProps) {
   const { appRef, hostRef, readyToken } = usePixiHost();
   const seenCardsRef = useRef(new Set<string>());
@@ -117,6 +119,7 @@ export function GameScene({
           snapshot: matchSnapshot,
           seenCards: seenCardsRef.current,
           width: app.screen.width,
+          isHintActive,
         }),
       );
 

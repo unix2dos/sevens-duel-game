@@ -4,7 +4,7 @@ import { createCardView } from "../CardView";
 import { cardTheme } from "../cards/cardTheme";
 import type { TableLayout } from "../layout/tableLayout";
 import type { MatchSnapshot } from "../../../game/match/engine";
-import { selectLegalCards } from "../../../game/match/selectors";
+import { getLegalCards } from "../../../game/core/rules";
 import { sortCardsForDisplay } from "../../../ui/cardPresentation";
 import { playerHandLabel } from "../../../ui/playerText";
 
@@ -17,6 +17,7 @@ interface PlayerHandLayerOptions {
   seenCards: Set<string>;
   selectedGiveCardId: string | null;
   selectedPlayCardId: string | null;
+  isHintActive?: boolean;
 }
 
 function createBorrowChip(
@@ -97,7 +98,11 @@ function createBorrowChip(
     glow.scale.set(1 + breathe * 0.08); // Slight organic expansion
   };
   Ticker.shared.add(animateGlow);
-  root.on("destroyed", () => Ticker.shared.remove(animateGlow));
+  const _destroyGlow = root.destroy;
+  root.destroy = function(options) {
+    Ticker.shared.remove(animateGlow);
+    if (_destroyGlow) _destroyGlow.call(this, options);
+  };
 
   return root;
 }
@@ -111,6 +116,7 @@ export function createPlayerHandLayer({
   seenCards,
   selectedGiveCardId,
   selectedPlayCardId,
+  isHintActive = false,
 }: PlayerHandLayerOptions) {
   const root = new Container();
   root.zIndex = 50; // Ensure hand layer (and its borrow chip) renders above board
@@ -135,7 +141,8 @@ export function createPlayerHandLayer({
     text: `${snapshot.hands.player.length} 张`,
   });
   const sortedHand = sortCardsForDisplay(snapshot.hands.player);
-  const legalIds = new Set(selectLegalCards(snapshot).map((card) => card.id));
+  // Always evaluate legal cards against the PLAYER'S hand so they can trial-and-error even on opponent's turn
+  const legalIds = new Set(getLegalCards(snapshot.layout, snapshot.hands.player).map((card) => card.id));
   const canAct = snapshot.turn === "player" && snapshot.status === "playing";
   const isBorrowing = snapshot.phase === "borrowing" && snapshot.borrowRequester === "opponent";
   const showBorrowChip = canAct && legalIds.size === 0 && !isBorrowing;
@@ -222,13 +229,21 @@ export function createPlayerHandLayer({
     }
 
     const x = currentX;
-    // Increase selected pop-up height drastically to stand out of the thick deck
-    const y = baselineY - (isSelected ? 36 : isInteractive ? 16 : 0);
+    const isHintHighlight = isHintActive && isLegal;
+    // Increase selected pop-up height drastically to stand out of the thick deck, and support hint mode lift
+    const y = baselineY - (isSelected ? 36 : isHintHighlight ? 24 : isInteractive ? 16 : 0);
     currentX += step;
 
     view.position.set(x, y);
     // Extra elevation for hovered/selected components.
-    view.zIndex = isSelected ? 10 : isInteractive ? 3 : 1;
+    view.zIndex = isSelected ? 10 : isHintHighlight ? 8 : isInteractive ? 3 : 1;
+
+    // Dim non-matching cards during Hint
+    if (isHintActive && !isLegal) {
+      view.alpha = 0.4;
+    } else {
+      view.alpha = 1;
+    }
 
     if (isInteractive) {
       view.hitArea = new Rectangle(-12, -24, Math.max(cardWidth + 24, step + 24), cardHeight + 36);
@@ -256,9 +271,11 @@ export function createPlayerHandLayer({
   };
 
   window.addEventListener("shakeCard", handleShake);
-  root.on("destroyed", () => {
+  const _destroyShake = root.destroy;
+  root.destroy = function(options) {
     window.removeEventListener("shakeCard", handleShake);
-  });
+    if (_destroyShake) _destroyShake.call(this, options);
+  };
 
   return root;
 }

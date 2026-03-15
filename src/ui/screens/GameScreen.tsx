@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { MatchSnapshot } from "../../game/match/engine";
 import { GameScene } from "../../scene/pixi/GameScene";
 import { ResultStats } from "../components/ResultStats";
@@ -34,6 +34,14 @@ export function GameScreen({
   const [selectedPlayCardId, setSelectedPlayCardId] = useState<string | null>(null);
   const [isResultModalDismissed, setIsResultModalDismissed] = useState(false);
   const [isVFXComplete, setIsVFXComplete] = useState(false);
+  const [isHintActive, setIsHintActive] = useState(false);
+
+  useEffect(() => {
+    if (isHintActive) {
+      const timer = setTimeout(() => setIsHintActive(false), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [isHintActive]);
 
   const showResultModal = matchSnapshot.status === "finished" && isVFXComplete && !isResultModalDismissed;
   const resultTitle =
@@ -61,14 +69,38 @@ export function GameScreen({
   };
   return (
     <main className="game-layout game-layout--table">
-      <button
-        aria-label="返回首页"
-        className="table-return-button secondary-action"
-        onClick={onRestart}
-        type="button"
+      <div 
+        className="top-right-actions" 
+        style={{ 
+          position: "absolute", 
+          top: "1.5rem", 
+          right: "1.5rem", 
+          zIndex: 100, 
+          display: "flex", 
+          gap: "1rem" 
+        }}
       >
-        返回首页
-      </button>
+         <button 
+           className="secondary-action" 
+           onClick={() => setIsHintActive(true)}
+           type="button"
+           style={{
+             background: isHintActive ? "rgba(212, 175, 55, 0.4)" : "rgba(0, 0, 0, 0.6)",
+             color: isHintActive ? "#fff" : "#d4af37",
+             borderColor: isHintActive ? "#fff" : "rgba(212, 175, 55, 0.4)",
+           }}
+          >
+            💡 提示
+         </button>
+         <button
+           aria-label="返回首页"
+           className="secondary-action"
+           onClick={onRestart}
+           type="button"
+         >
+           返回首页
+         </button>
+      </div>
       <section aria-label={`对局牌桌，${difficultyLabel}，特效${qualityLabel}`} className="table-shell table-shell--full" style={{ position: "relative" }}>
         <GameScene
           difficultyLabel={difficultyLabel}
@@ -80,6 +112,7 @@ export function GameScreen({
           selectedGiveCardId={selectedGiveCardId}
           selectedPlayCardId={selectedPlayCardId}
           showChildGuidance={showChildGuidance}
+          isHintActive={isHintActive}
         />
         {matchSnapshot.phase === "borrowing" && (
           <div className="give-card-overlay">

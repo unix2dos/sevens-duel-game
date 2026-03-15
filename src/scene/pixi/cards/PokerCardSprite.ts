@@ -20,6 +20,11 @@ export function playShakeAnimation(target: Container) {
   };
 
   Ticker.shared.add(animateShake);
+  const _destroy = target.destroy;
+  target.destroy = function(options) {
+    Ticker.shared.remove(animateShake);
+    if (_destroy) _destroy.call(this, options);
+  };
 }
 
 import { cardMetrics, cardTheme } from "./cardTheme";
@@ -150,7 +155,11 @@ export function createPokerCardSprite({
     };
 
     Ticker.shared.add(animateIn);
-    root.on("destroyed", () => Ticker.shared.remove(animateIn));
+    const _destroyIn = root.destroy;
+    root.destroy = function(options) {
+      Ticker.shared.remove(animateIn);
+      if (_destroyIn) _destroyIn.call(this, options);
+    };
   } else {
     root.alpha = targetRootAlpha;
   }
@@ -195,7 +204,11 @@ export function createPokerCardSprite({
     };
 
     Ticker.shared.add(animateFlip);
-    root.on("destroyed", () => Ticker.shared.remove(animateFlip));
+    const _destroyFlip = root.destroy;
+    root.destroy = function(options) {
+      Ticker.shared.remove(animateFlip);
+      if (_destroyFlip) _destroyFlip.call(this, options);
+    };
   }
 
   if (isInteractive) {
@@ -262,16 +275,16 @@ export function createPokerCardSprite({
             
             p.maxLife = 25 + Math.random() * 30; 
             p.life = p.maxLife;
-            p.baseScale = 0.3 + Math.random() * 0.9;
+            p.baseScale = 0.4 + Math.random() * 0.8;
             p.g.scale.set(p.baseScale);
             p.g.position.set(p.x, p.y);
             p.g.visible = true;
-            p.g.alpha = 0; 
+            p.g.alpha = 1; // Instant bright spawn
         }
     };
 
-    // Initial soft emission
-    for(let i = 0; i < 20; i++) emitParticle();
+    // Initial loud burst
+    for(let i = 0; i < 30; i++) emitParticle();
 
     let time = 0;
     const updateSelectedEffect = (ticker: Ticker) => {
@@ -312,9 +325,8 @@ export function createPokerCardSprite({
                   p.g.position.set(p.x, p.y);
                   
                   const lifeRatio = Math.max(0, p.life / p.maxLife);
-                  // Fire fade out (fade in quick, fade out slow)
-                  const alphaCurve = Math.min(1, (1 - lifeRatio) * 4) * lifeRatio;
-                  p.g.alpha = alphaCurve * 1.5;
+                  // Fire fade out directly
+                  p.g.alpha = lifeRatio * 1.5;
                   
                   // Shrink as it burns
                   p.g.scale.set(p.baseScale * (0.5 + 0.5 * lifeRatio));
@@ -324,7 +336,11 @@ export function createPokerCardSprite({
     };
 
     Ticker.shared.add(updateSelectedEffect);
-    root.on("destroyed", () => Ticker.shared.remove(updateSelectedEffect));
+    const _destroyEffect = root.destroy;
+    root.destroy = function(options) {
+      Ticker.shared.remove(updateSelectedEffect);
+      if (_destroyEffect) _destroyEffect.call(this, options);
+    };
   } else {
     // Reset to base legal/illegal states cleanly
     glow.tint = 0xffffff; // Remove tint
