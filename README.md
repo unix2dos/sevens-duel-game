@@ -48,3 +48,12 @@ npm run build
 ```bash
 npm run preview -- --host 127.0.0.1 --port 4173
 ```
+
+## 部署
+
+当前项目适合部署到静态站点平台。推荐主方案是 `Cloudflare Pages`，备用零成本方案是 `GitHub Pages`。
+
+- 详细部署说明：[`docs/deployment.md`](docs/deployment.md)
+- Cloudflare Pages 构建配置：`npm run build`，输出目录 `dist`
+- Cloudflare Pages 根目录：默认仓库根目录，不需要额外子路径
+- GitHub Pages 已预留自动发布工作流，合并到 `main` 后可自动构建部署
