@@ -175,6 +175,7 @@
   padding: 1.5rem;
   display: grid;
   place-items: center;
+  pointer-events: none;
   background:
     radial-gradient(circle at center, rgba(17, 54, 72, 0.55), transparent 58%),
     linear-gradient(180deg, rgba(11, 22, 32, 0.98), rgba(6, 12, 19, 0.98));
