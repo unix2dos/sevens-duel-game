@@ -53,6 +53,8 @@ npm run preview -- --host 127.0.0.1 --port 4173
 
 当前项目适合部署到静态站点平台。推荐主方案是 `Cloudflare Pages`，备用零成本方案是 `GitHub Pages`。
 
+- 当前 Cloudflare Pages 地址：`https://79ae24dd.sevens-duel-game.pages.dev/`
+- 当前 GitHub Pages 备用地址：`https://unix2dos.github.io/sevens-duel-game/`
 - 详细部署说明：[`docs/deployment.md`](docs/deployment.md)
 - Cloudflare Pages 构建配置：`npm run build`，输出目录 `dist`
 - Cloudflare Pages 根目录：默认仓库根目录，不需要额外子路径
