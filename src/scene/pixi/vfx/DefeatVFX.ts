@@ -71,7 +71,7 @@ function playShatteredReality(
   }
 
   let time = 0;
-  const DURATION = 160;
+  const DURATION = 200; // frames (~3.3 seconds)
 
   const ticker = (t: Ticker) => {
       time += t.deltaTime;
@@ -108,9 +108,13 @@ function playShatteredReality(
       if (time > DURATION) {
           Ticker.shared.remove(ticker);
           if (container.parent && container.parent.filters) {
-              container.parent.filters = (container.parent.filters as any[]).filter(f => f !== desaturate && f !== glitch);
-              if (container.parent.filters.length === 0) {
+              const remainingFilters = container.parent.filters.filter(
+                (filter) => filter !== desaturate && filter !== glitch,
+              );
+              if (remainingFilters.length === 0) {
                   container.parent.filters = null;
+              } else {
+                  container.parent.filters = remainingFilters;
               }
           }
           onComplete();
@@ -175,7 +179,7 @@ function playVoidConsumption(
   }
 
   let time = 0;
-  const DURATION = 220;
+  const DURATION = 260; // frames (~4.3 seconds)
 
   const ticker = (t: Ticker) => {
       time += t.deltaTime;
@@ -212,9 +216,13 @@ function playVoidConsumption(
           Ticker.shared.remove(ticker);
           
           if (container.parent && container.parent.filters) {
-              container.parent.filters = (container.parent.filters as any[]).filter(f => f !== bulge);
-              if (container.parent.filters.length === 0) {
+              const remainingFilters = container.parent.filters.filter(
+                (filter) => filter !== bulge,
+              );
+              if (remainingFilters.length === 0) {
                   container.parent.filters = null;
+              } else {
+                  container.parent.filters = remainingFilters;
               }
           }
           

@@ -61,7 +61,7 @@ export function GameScene({
     celebrationStartTimesRef.current = celebrationStartTimes;
     previousLayoutRef.current = matchSnapshot.layout;
 
-    // Check if we need to schedule VFX
+    // Check if we need to schedule VFX for the VERY FIRST time
     let maxCelebrationTime = 0;
     if (matchSnapshot.status === "finished" && !hasTriggeredVFXRef.current) {
       hasTriggeredVFXRef.current = true;

@@ -82,7 +82,7 @@ function playExtravagantGold(
   container.addChild(flash);
 
   let time = 0;
-  const DURATION = 180; // frames (~3 seconds)
+  const DURATION = 200; // frames (~3.3 seconds)
 
   const ticker = (t: Ticker) => {
     time += t.deltaTime;
@@ -212,7 +212,7 @@ function playDivineAscension(
   }
 
   let time = 0;
-  const DURATION = 180;
+  const DURATION = 200; // frames (~3.3 seconds)
 
   const ticker = (t: Ticker) => {
     time += t.deltaTime;
@@ -251,9 +251,13 @@ function playDivineAscension(
       
       // Cleanup parent filter
       if (container.parent && container.parent.filters) {
-          container.parent.filters = (container.parent.filters as any[]).filter(f => f !== shockwave);
-          if (container.parent.filters.length === 0) {
+          const remainingFilters = container.parent.filters.filter(
+            (filter) => filter !== shockwave,
+          );
+          if (remainingFilters.length === 0) {
               container.parent.filters = null;
+          } else {
+              container.parent.filters = remainingFilters;
           }
       }
 

@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { MatchSnapshot } from "../../game/match/engine";
 import { GameScene } from "../../scene/pixi/GameScene";
 import { ResultStats } from "../components/ResultStats";
 import { gameModalResultCopy, playerWinTitle } from "../playerText";
+import { selectLegalCards } from "../../game/match/selectors";
 
 interface GameScreenProps {
   difficultyLabel: string;
@@ -34,14 +35,6 @@ export function GameScreen({
   const [isResultModalDismissed, setIsResultModalDismissed] = useState(false);
   const [isVFXComplete, setIsVFXComplete] = useState(false);
 
-  // Reset VFX state when restarting or replaying
-  useEffect(() => {
-    if (matchSnapshot.status !== "finished") {
-      setIsVFXComplete(false);
-      setIsResultModalDismissed(false);
-    }
-  }, [matchSnapshot.status]);
-
   const showResultModal = matchSnapshot.status === "finished" && isVFXComplete && !isResultModalDismissed;
   const resultTitle =
     matchSnapshot.winner === "player" ? playerWinTitle(playerName) : "机器人获胜";
@@ -51,8 +44,16 @@ export function GameScreen({
       setSelectedGiveCardId((prev) => (prev === cardId ? null : cardId));
     } else {
       if (selectedPlayCardId === cardId) {
-        onPlayCard(cardId);
-        setSelectedPlayCardId(null);
+        // Attempting to PLAY the selected card
+        const legalIds = selectLegalCards(matchSnapshot).map((c) => c.id);
+        if (legalIds.includes(cardId)) {
+          onPlayCard(cardId);
+          setSelectedPlayCardId(null);
+        } else {
+          // Reject play: trigger shake animation via global event and deselect
+          window.dispatchEvent(new CustomEvent("shakeCard", { detail: { cardId } }));
+          setSelectedPlayCardId(null);
+        }
       } else {
         setSelectedPlayCardId(cardId);
       }
@@ -134,6 +135,33 @@ export function GameScreen({
           </div>
         )}
         
+        {/* Persistent Replay Button after VFX */}
+        {matchSnapshot.status === "finished" && isVFXComplete && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: "2rem",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 40,
+            }}
+          >
+            <button
+              className="primary-action"
+              onClick={onReplay}
+              type="button"
+              style={{
+                padding: "1rem 3rem",
+                fontSize: "1.2rem",
+                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(212, 175, 55, 0.4)",
+                 animation: "pulseGlow 2s infinite ease-in-out"
+              }}
+            >
+              再来一局
+            </button>
+          </div>
+        )}
+
         {showResultModal && (
           <div 
             className="overlay" 

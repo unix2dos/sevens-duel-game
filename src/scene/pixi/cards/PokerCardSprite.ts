@@ -1,5 +1,27 @@
 import { Container, Graphics, Sprite, Ticker } from "pixi.js";
 
+// Animation to show a card being rejected
+export function playShakeAnimation(target: Container) {
+  const DURATION = 20; // very fast (~0.33s)
+  const shakeAmount = 8;
+  const originalX = target.x;
+
+  let time = 0;
+  const animateShake = (ticker: Ticker) => {
+    time += ticker.deltaTime;
+
+    if (time < DURATION) {
+      // Fast sine wave shake left and right
+      target.x = originalX + Math.sin(time * 1.5) * shakeAmount * (1 - time / DURATION);
+    } else {
+      target.x = originalX;
+      Ticker.shared.remove(animateShake);
+    }
+  };
+
+  Ticker.shared.add(animateShake);
+}
+
 import { cardMetrics, cardTheme } from "./cardTheme";
 import type { CardFaceVariant } from "./cardSvg";
 import { suitInk } from "./cardGlyphs";
@@ -96,7 +118,7 @@ export function createPokerCardSprite({
   }
 
   if (!isLegal) {
-    root.alpha = 0.94;
+    root.alpha = 0.94; // Keep the slight transparent dimming for illegal cards
   }
 
   const targetRootAlpha = isLegal ? 1 : 0.94;
@@ -182,8 +204,17 @@ export function createPokerCardSprite({
     root.on("pointertap", () => onPress?.(card.id));
   }
 
-  // Elegant Fire Selected Effect
+  // Base lift for ALL selected cards (so you can pull out invalid cards to look at them)
   if (isSelected) {
+     cardSurface.scale.set(1.02);
+     glow.scale.set(1.01);
+     shadow.scale.set(1.0);
+     shadow.alpha = cardMetrics.shadowAlpha - 0.1;
+     shadow.y = cardMetrics.shadowOffsetY + 8;
+  }
+
+  // Elegant Fire Selected Effect - ONLY FOR LEGAL CARDS
+  if (isSelected && isLegal) {
     const particlesContainer = new Container();
     root.addChildAt(particlesContainer, root.getChildIndex(cardSurface));
 

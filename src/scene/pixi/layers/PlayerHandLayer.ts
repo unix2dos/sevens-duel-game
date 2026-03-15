@@ -201,7 +201,7 @@ export function createPlayerHandLayer({
     const isSelectedToGive = card.id === selectedGiveCardId;
     const isSelectedToPlay = card.id === selectedPlayCardId;
     const isSelected = isSelectedToGive || isSelectedToPlay;
-    const isInteractive = (canAct && isLegal) || isBorrowing;
+    const isInteractive = true; // 闲置解压玩具：所有的牌永远都可以被点击选定！
 
     const view = createCardView({
       card,
@@ -210,7 +210,10 @@ export function createPlayerHandLayer({
       isInteractive,
       isSelected,
       isLegal: isLegal || isBorrowing,
-      onPress: onPlayCard,
+      onPress: () => {
+        // Idle Tinkering or selecting a card
+        onPlayCard(card.id); 
+      },
       animateEntrance: !seenCards.has(card.id),
       width: cardWidth,
     });
@@ -231,15 +234,31 @@ export function createPlayerHandLayer({
       view.hitArea = new Rectangle(-12, -24, Math.max(cardWidth + 24, step + 24), cardHeight + 36);
     }
 
-    return view;
+    return { id: card.id, container: view, zIndex: view.zIndex };
   });
 
   positionedCards
     .filter((view) => view.zIndex === 1)
-    .forEach((view) => root.addChild(view));
+    .forEach((view) => root.addChild(view.container));
   positionedCards
     .filter((view) => view.zIndex > 1)
-    .forEach((view) => root.addChild(view));
+    .forEach((view) => root.addChild(view.container));
+
+  const handleShake = (e: Event) => {
+    const customEvent = e as CustomEvent<{ cardId: string }>;
+    const cardId = customEvent.detail?.cardId;
+    if (cardId) {
+      const targetView = positionedCards.find(p => p.id === cardId);
+      if (targetView && (targetView.container as any).playShakeAnimation) {
+        (targetView.container as any).playShakeAnimation();
+      }
+    }
+  };
+
+  window.addEventListener("shakeCard", handleShake);
+  root.on("destroyed", () => {
+    window.removeEventListener("shakeCard", handleShake);
+  });
 
   return root;
 }

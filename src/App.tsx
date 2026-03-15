@@ -12,14 +12,24 @@ import { HomeScreen } from "./ui/screens/HomeScreen";
 import { ResultScreen } from "./ui/screens/ResultScreen";
 import "./App.css";
 
+const PLAYER_NAME_STORAGE_KEY = "sevens-duel-player-name";
+
 function buildSeed() {
   return Math.floor(Date.now() % 0x100000000);
+}
+
+function loadStoredPlayerName() {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return window.sessionStorage.getItem(PLAYER_NAME_STORAGE_KEY) ?? "";
 }
 
 function App() {
   const [screen, setScreen] = useState<ScreenId>("home");
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyId>("normal");
-  const [playerName, setPlayerName] = useState("");
+  const [playerName, setPlayerName] = useState(loadStoredPlayerName);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [match, setMatch] = useState<Match | null>(null);
@@ -35,6 +45,19 @@ function App() {
         : "机器人获胜"
       : "本局结束";
   const { playSound } = useSound(soundEnabled);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (playerName.length === 0) {
+      window.sessionStorage.removeItem(PLAYER_NAME_STORAGE_KEY);
+      return;
+    }
+
+    window.sessionStorage.setItem(PLAYER_NAME_STORAGE_KEY, playerName);
+  }, [playerName]);
 
   useEffect(() => {
     if (soundEnabled && uiSoundOnEnableRef.current) {
@@ -157,6 +180,7 @@ function App() {
 
       {screen === "game" && match ? (
         <GameScreen
+          key={match.snapshot.seed}
           difficultyLabel={difficultyLabel}
           matchSnapshot={match.snapshot}
           onBorrow={() => {

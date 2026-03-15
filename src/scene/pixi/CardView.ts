@@ -2,7 +2,7 @@ import { Container } from "pixi.js";
 
 import { createCardBackSprite } from "./cards/CardBackSprite";
 import type { CardFaceVariant } from "./cards/cardSvg";
-import { createPokerCardSprite } from "./cards/PokerCardSprite";
+import { createPokerCardSprite, playShakeAnimation } from "./cards/PokerCardSprite";
 import type { Actor } from "../../game/core/state";
 import type { Card } from "../../game/core/types";
 
@@ -60,6 +60,7 @@ export function createCardView({
         })
       : createCardBackSprite({ height, width }),
   );
+  (root as any).playShakeAnimation = () => playShakeAnimation(root);
 
   return root;
 }

@@ -97,3 +97,21 @@ it("keeps the player name across replay and when returning home", () => {
 
   expect(screen.getByText("当前玩家：李四")).toBeInTheDocument();
 });
+
+it("restores the player name after a page refresh but returns to the home screen", () => {
+  const firstRender = render(<App />);
+
+  fireEvent.change(screen.getByRole("textbox", { name: /玩家姓名/i }), {
+    target: { value: "张三" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: /开始游戏/i }));
+
+  expect(screen.getByText("当前玩家：张三")).toBeInTheDocument();
+
+  firstRender.unmount();
+
+  render(<App />);
+
+  expect(screen.queryByText("当前玩家：张三")).not.toBeInTheDocument();
+  expect(screen.getByRole("textbox", { name: /玩家姓名/i })).toHaveValue("张三");
+});
