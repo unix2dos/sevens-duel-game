@@ -1,6 +1,21 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, vi } from "vitest";
+
+const { mockPlaySound } = vi.hoisted(() => ({
+  mockPlaySound: vi.fn(),
+}));
+
+vi.mock("../../audio/useSound", () => ({
+  useSound: () => ({
+    playSound: mockPlaySound,
+  }),
+}));
 
 import App from "../../App";
+
+afterEach(() => {
+  mockPlaySound.mockClear();
+});
 
 it("starts a game after selecting a difficulty", () => {
   render(<App />);
@@ -19,4 +34,16 @@ it("renders the gameplay screen as a canvas-first table without the old console 
   expect(screen.getByTestId("table-stage")).toBeInTheDocument();
   expect(screen.queryByText(/当前可打/i)).not.toBeInTheDocument();
   expect(screen.queryByRole("region", { name: /玩家控制台/i })).not.toBeInTheDocument();
+});
+
+it("uses showcase sound mappings for start and toggle actions", () => {
+  render(<App />);
+
+  fireEvent.click(screen.getByRole("button", { name: /音效：开/i }));
+  expect(mockPlaySound).toHaveBeenCalledWith("ui");
+
+  mockPlaySound.mockClear();
+
+  fireEvent.click(screen.getByRole("button", { name: /开始游戏/i }));
+  expect(mockPlaySound).toHaveBeenCalledWith("deal");
 });

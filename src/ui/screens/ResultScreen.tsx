@@ -13,7 +13,7 @@ export function ResultScreen({ snapshot, title, onReplay }: ResultScreenProps) {
       <section className="overlay-card result-card result-card--luxury">
         <p className="eyebrow">TABLE CLOSED</p>
         <h2>{title}</h2>
-        <p className="result-copy">这局已经收桌。你可以立刻再开一局，或者回到首页重新选择难度。</p>
+        <p className="result-copy">这一局已经收桌。你可以立刻再开一局，或者回到首页重新挑选难度。</p>
         {snapshot ? <ResultStats snapshot={snapshot} /> : null}
         <div className="hero-actions">
           <button className="primary-action" onClick={onReplay} type="button">

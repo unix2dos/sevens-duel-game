@@ -6,9 +6,9 @@ export interface SoundDefinition {
 }
 
 export const soundDefinitions: Record<SoundName, SoundDefinition> = {
-  deal: { volume: 0.32 },
-  play: { volume: 0.42 },
-  borrow: { volume: 0.45 },
-  result: { volume: 0.5 },
-  ui: { volume: 0.28 },
+  deal: { src: ["/assets/audio/game-start.mp3"], volume: 0.34 },
+  play: { src: ["/assets/audio/card-play.mp3"], volume: 0.42 },
+  borrow: { src: ["/assets/audio/card-borrow.mp3"], volume: 0.46 },
+  result: { src: ["/assets/audio/round-end.mp3"], volume: 0.5 },
+  ui: { src: ["/assets/audio/ui-click.mp3"], volume: 0.24 },
 };
