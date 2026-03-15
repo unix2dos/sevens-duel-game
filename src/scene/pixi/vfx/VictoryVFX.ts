@@ -1,5 +1,5 @@
 import { Container, Graphics, Ticker } from "pixi.js";
-import { AdvancedBloomFilter, ShockwaveFilter, GodrayFilter } from "pixi-filters";
+import { ShockwaveFilter, GodrayFilter } from "pixi-filters";
 
 export async function playVictoryVFX(
   stage: Container,
@@ -28,32 +28,27 @@ function playExtravagantGold(
   height: number,
   onComplete: () => void
 ) {
-  // 1. Heavy Bloom Filter
-  const bloom = new AdvancedBloomFilter({
-    threshold: 0.2,
-    bloomScale: 0, // Starts at 0, animates up
-    brightness: 1,
-    blur: 8,
-  });
-  container.filters = [bloom];
+  const cx = width / 2;
+  const cy = height / 2;
 
-  // 2. Godrays
+  // 1. Localized Godrays (behind the modal)
   const godrays = new GodrayFilter({
     alpha: 0,
     angle: 30,
-    center: [width / 2, height],
+    center: [cx, cy],
     parallel: false,
     time: 0,
   });
-  // Add to stage to affect the whole board, not just particles
+  
   const bgRaysContainer = new Container();
-  const bgRect = new Graphics().rect(0, 0, width, height).fill({ color: 0xffd700, alpha: 0.3 });
+  // We only draw the ray source in the middle to prevent blurring the whole board
+  const bgRect = new Graphics().circle(cx, cy, 300).fill({ color: 0xffd700, alpha: 0.6 });
   bgRaysContainer.addChild(bgRect);
   bgRaysContainer.filters = [godrays];
   container.addChildAt(bgRaysContainer, 0);
 
-  // 3. Gold Coins/Particles
-  const NUM_COINS = 150;
+  // 2. High-Density Gold Coins/Particles concentrated around center
+  const NUM_COINS = 250; // Increased density for smaller area
   const coins: { s: Graphics; x: number; y: number; vx: number; vy: number; rotY: number; rotSpeed: number }[] = [];
 
   for (let i = 0; i < NUM_COINS; i++) {
@@ -61,67 +56,42 @@ function playExtravagantGold(
     coin.circle(0, 0, 8 + Math.random() * 8).fill({ color: 0xffd700 });
     coin.circle(0, 0, 6 + Math.random() * 6).fill({ color: 0xffe885 }); // Inner highlight
     
-    // Spawn from bottom center explosion
-    const angle = (Math.PI / 1.5) * (Math.random() - 0.5) - Math.PI / 2;
-    const speed = 15 + Math.random() * 25;
+    // Spawn from a tight explosion behind the modal
+    const angle = Math.random() * Math.PI * 2;
+    // Explode outward with high energy
+    const speed = 25 + Math.random() * 35; 
     
     container.addChild(coin);
     coins.push({
       s: coin,
-      x: width / 2 + (Math.random() - 0.5) * 100,
-      y: height + 50,
+      // Start near the center of the modal
+      x: cx + (Math.random() - 0.5) * 150,
+      y: cy + (Math.random() - 0.5) * 100,
       vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
+      vy: Math.sin(angle) * speed - 15, // Extra upward bias
       rotY: Math.random() * Math.PI,
-      rotSpeed: 0.1 + Math.random() * 0.3,
+      rotSpeed: 0.1 + Math.random() * 0.4,
     });
   }
 
-  // Flash bang overlay
-  const flash = new Graphics().rect(0, 0, width, height).fill({ color: 0xffffff, alpha: 0 });
-  container.addChild(flash);
-
   let time = 0;
-  const DURATION = 200; // frames (~3.3 seconds)
+  const DURATION = 240; // frames (~4s)
 
   const ticker = (t: Ticker) => {
     time += t.deltaTime;
-    godrays.time += t.deltaTime * 0.02;
+    godrays.time += t.deltaTime * 0.03;
 
-    // Flash intro
-    if (time < 10) {
-      flash.alpha = time / 10;
-    } else if (time < 30) {
-      flash.alpha = 1 - (time - 10) / 20;
-    } else {
-      flash.alpha = 0;
-    }
-
-    // Bloom animation
-    if (time < 20) {
-      bloom.bloomScale = (time / 20) * 2.5;
-    } else {
-      bloom.bloomScale = Math.max(0, 2.5 - ((time - 20) / 100));
-    }
-    
-    // Godrays fade in
-    if (time < 60) {
-      godrays.alpha = Math.min(0.8, time / 40);
-    }
-
-    // Screen Shake (apply to parent stage momentarily)
-    if (time < 40 && container.parent) {
-      const shakeAmt = (40 - time) * 0.5;
-      container.parent.x = (Math.random() - 0.5) * shakeAmt;
-      container.parent.y = (Math.random() - 0.5) * shakeAmt;
-    } else if (time > 40 && container.parent) {
-      container.parent.x = 0;
-      container.parent.y = 0;
+    // Glowing Rays fade in/out
+    if (time < 30) {
+      godrays.alpha = Math.min(1.0, time / 30);
+    } else if (time > DURATION - 40) {
+      godrays.alpha = Math.max(0, (DURATION - time) / 40);
     }
 
     // Physics
     for (const c of coins) {
-      c.vy += 0.4 * t.deltaTime; // Gravity
+      c.vy += 0.8 * t.deltaTime; // Stronger Gravity
+      c.vx *= 0.98; // Air resistance so they don't fly off too far horizontally
       c.x += c.vx * t.deltaTime;
       c.y += c.vy * t.deltaTime;
       
@@ -133,12 +103,7 @@ function playExtravagantGold(
 
     if (time > DURATION) {
       Ticker.shared.remove(ticker);
-      if (container.parent) {
-        container.parent.x = 0;
-        container.parent.y = 0;
-      }
-      // Resolve BEFORE fully destroying so the UI can fade in over the lingering VFX
-      onComplete();
+      onComplete(); // resolve the logical completion early
       
       // Fade out cleanup
       const cleanup = (t2: Ticker) => {

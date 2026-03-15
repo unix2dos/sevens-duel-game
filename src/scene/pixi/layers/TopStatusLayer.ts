@@ -10,6 +10,7 @@ interface TopStatusLayerOptions {
   layout: TableLayout;
   playerName: string;
   snapshot: MatchSnapshot;
+  playerTimeLeft?: number;
 }
 
 function makeLabel(text: string, size: number, color = 0xdab775) {
@@ -54,11 +55,13 @@ export function createTopStatusLayer({
   layout,
   playerName,
   snapshot,
+  playerTimeLeft,
 }: TopStatusLayerOptions) {
   const root = new Container();
   const shell = new Graphics();
   const { topBar } = layout;
-  const turnLabel =
+
+  let turnLabel =
     snapshot.status === "finished"
       ? snapshot.winner === "player"
         ? playerWinTitle(playerName)
@@ -66,6 +69,10 @@ export function createTopStatusLayer({
       : snapshot.turn === "player"
         ? playerTurnLabel(playerName)
         : "机器人回合";
+
+  if (snapshot.status === "playing" && snapshot.turn === "player" && typeof playerTimeLeft === "number") {
+    turnLabel += ` (${playerTimeLeft}s)`;
+  }
 
   shell
     .roundRect(topBar.x, topBar.y, topBar.width, topBar.height, 24)

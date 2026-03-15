@@ -122,11 +122,12 @@ export function createSuitBoardLayer({
         flipDelay: Math.abs(visualRankValue[card.rank] - 7) * CARD_FLIP_DELAY_STEP_MS,
         flipStartTime,
         width: cardWidth,
+        lastPlayedActor: snapshot.lastPlayedCard?.cardId === card.id ? snapshot.lastPlayedCard.actor : undefined,
       });
-      view.position.set(
-        lane.centerX - cardWidth / 2,
-        lane.centerY - cardHeight / 2 - (index + 1) * fixedStep,
-      );
+      const cx = lane.centerX - cardWidth / 2;
+      const cy = lane.centerY - cardHeight / 2 - (index + 1) * fixedStep;
+      
+      view.position.set(cx, cy);
       view.zIndex = visualRankValue[card.rank];
       root.addChild(view);
     });
@@ -144,11 +145,12 @@ export function createSuitBoardLayer({
         flipDelay: Math.abs(visualRankValue[card.rank] - 7) * CARD_FLIP_DELAY_STEP_MS,
         flipStartTime,
         width: cardWidth,
+        lastPlayedActor: snapshot.lastPlayedCard?.cardId === card.id ? snapshot.lastPlayedCard.actor : undefined,
       });
-      view.position.set(
-        lane.centerX - cardWidth / 2,
-        lane.centerY - cardHeight / 2 + (index + 1) * fixedStep,
-      );
+      const cx = lane.centerX - cardWidth / 2;
+      const cy = lane.centerY - cardHeight / 2 + (index + 1) * fixedStep;
+      
+      view.position.set(cx, cy);
       view.zIndex = visualRankValue[card.rank];
       root.addChild(view);
     });

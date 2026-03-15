@@ -49,6 +49,7 @@ interface PokerCardSpriteOptions {
   flipStartTime?: number; // Absolute timestamp when the celebration started
   faceVariant?: CardFaceVariant;
   width: number;
+  lastPlayedActor?: Actor;
 }
 
 export function createPokerCardSprite({
@@ -65,6 +66,7 @@ export function createPokerCardSprite({
   flipStartTime = 0,
   faceVariant = "standard",
   width,
+  lastPlayedActor,
 }: PokerCardSpriteOptions) {
   const root = new Container();
   const glow = new Graphics();
@@ -344,6 +346,35 @@ export function createPokerCardSprite({
   } else {
     // Reset to base legal/illegal states cleanly
     glow.tint = 0xffffff; // Remove tint
+  }
+
+  if (lastPlayedActor) {
+    // Persistent glowing outline for the last card played globally
+    const botHighlight = new Graphics();
+    const borderThickness = 4;
+    const highlightColor = lastPlayedActor === "player" ? 0xd4af37 : 0xef4444;
+    
+    botHighlight.roundRect(-borderThickness, -borderThickness, width + borderThickness * 2, height + borderThickness * 2, cardMetrics.radius + 4)
+      .fill({ color: highlightColor, alpha: 0.0 }) // Transparent fill
+      .stroke({ color: highlightColor, width: borderThickness, alignment: 1 });
+    
+    botHighlight.pivot.set(width / 2, height / 2);
+    botHighlight.position.set(width / 2, baseSurfaceY);
+    cardSurface.addChild(botHighlight);
+
+    let highlightTime = 0;
+    const animateHighlight = (ticker: Ticker) => {
+      highlightTime += ticker.deltaTime * 0.05;
+      // Pulse alpha between 0.4 and 0.9
+      botHighlight.alpha = 0.4 + (Math.sin(highlightTime) + 1) * 0.25;
+    };
+
+    Ticker.shared.add(animateHighlight);
+    const _destroyHighlight = root.destroy;
+    root.destroy = function(options) {
+      Ticker.shared.remove(animateHighlight);
+      if (_destroyHighlight) _destroyHighlight.call(this, options);
+    };
   }
 
   return root;

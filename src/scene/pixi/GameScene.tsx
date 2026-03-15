@@ -1,18 +1,22 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 
 import { createTableView } from "./TableView";
 import { preloadCardFaceTexture, preloadCardTextures } from "./cards/cardSvg";
-import { updateSuitCelebrations, SUIT_CELEBRATION_DURATION_MS } from "./suitCelebration";
+import { updateSuitCelebrations } from "./suitCelebration";
 import { usePixiHost } from "./usePixiHost";
 import type { MatchSnapshot } from "../../game/match/engine";
 import type { Card, Suit } from "../../game/core/types";
+
+export interface GameSceneRef {
+  playEndGameVFX: () => Promise<void>;
+  updateTimerText: (time: number | null) => void;
+}
 
 interface GameSceneProps {
   difficultyLabel: string;
   matchSnapshot: MatchSnapshot;
   onBorrow: () => void;
   onPlayCard: (cardId: string) => void;
-  onEndGameVFXComplete?: () => void;
   playerName: string;
   selectedGiveCardId: string | null;
   selectedPlayCardId: string | null;
@@ -20,23 +24,44 @@ interface GameSceneProps {
   isHintActive?: boolean;
 }
 
-export function GameScene({
+export const GameScene = forwardRef<GameSceneRef, GameSceneProps>(({
   difficultyLabel,
   matchSnapshot,
   onBorrow,
   onPlayCard,
-  onEndGameVFXComplete,
   playerName,
   selectedGiveCardId,
   selectedPlayCardId,
   showChildGuidance,
   isHintActive,
-}: GameSceneProps) {
+}, ref) => {
   const { appRef, hostRef, readyToken } = usePixiHost();
   const seenCardsRef = useRef(new Set<string>());
   const previousLayoutRef = useRef<Card[] | null>(null);
   const celebrationStartTimesRef = useRef(new Map<Suit, number>());
-  const hasTriggeredVFXRef = useRef(false);
+
+  useImperativeHandle(ref, () => ({
+    playEndGameVFX: async () => {
+      if (!appRef.current) return;
+      const { playVictoryVFX } = await import("./vfx/VictoryVFX");
+      const { playDefeatVFX } = await import("./vfx/DefeatVFX");
+      
+      if (matchSnapshot.winner === "player") {
+        await playVictoryVFX(appRef.current.stage, appRef.current.screen.width, appRef.current.screen.height);
+      } else {
+        await playDefeatVFX(appRef.current.stage, appRef.current.screen.width, appRef.current.screen.height);
+      }
+    },
+    updateTimerText: (time: number | null) => {
+      if (appRef.current) {
+        // We will attach an update method to the root container in createTableView
+        const root = appRef.current.stage.children[0] as any;
+        if (root && typeof root.updateTimerText === "function") {
+          root.updateTimerText(time);
+        }
+      }
+    }
+  }));
 
   useEffect(() => {
     const app = appRef.current;
@@ -63,39 +88,6 @@ export function GameScene({
     celebrationStartTimesRef.current = celebrationStartTimes;
     previousLayoutRef.current = matchSnapshot.layout;
 
-    // Check if we need to schedule VFX for the VERY FIRST time
-    let maxCelebrationTime = 0;
-    if (matchSnapshot.status === "finished" && !hasTriggeredVFXRef.current) {
-      hasTriggeredVFXRef.current = true;
-      celebrationStartTimes.forEach((startTime) => {
-        const timeRemaining = (startTime + SUIT_CELEBRATION_DURATION_MS) - Date.now();
-        if (timeRemaining > maxCelebrationTime) {
-          maxCelebrationTime = timeRemaining;
-        }
-      });
-      // Import VFX dynamically to avoid blocking basic render
-      setTimeout(async () => {
-        if (!active || !appRef.current) return;
-        const { playVictoryVFX } = await import("./vfx/VictoryVFX");
-        const { playDefeatVFX } = await import("./vfx/DefeatVFX");
-        
-        if (matchSnapshot.winner === "player") {
-          await playVictoryVFX(appRef.current.stage, appRef.current.screen.width, appRef.current.screen.height);
-        } else {
-          await playDefeatVFX(appRef.current.stage, appRef.current.screen.width, appRef.current.screen.height);
-        }
-        
-        if (active && onEndGameVFXComplete) {
-          onEndGameVFXComplete();
-        }
-      }, Math.max(0, maxCelebrationTime));
-    }
-
-    // Reset VFX trigger on a new game
-    if (matchSnapshot.status !== "finished") {
-      hasTriggeredVFXRef.current = false;
-    }
-
     void Promise.all([
       preloadCardTextures(visibleCards),
       ...laneSeeds.map((card) => preloadCardFaceTexture(card, "suit-emblem")),
@@ -105,23 +97,23 @@ export function GameScene({
       }
 
       app.stage.removeChildren().forEach((child) => child.destroy({ children: true }));
-      app.stage.addChild(
-        createTableView({
-          celebrationStartTimes,
-          difficultyLabel,
-          height: app.screen.height,
-          onBorrow,
-          onPlayCard,
-          playerName,
-          selectedGiveCardId,
-          selectedPlayCardId,
-          showChildGuidance,
-          snapshot: matchSnapshot,
-          seenCards: seenCardsRef.current,
-          width: app.screen.width,
-          isHintActive,
-        }),
-      );
+      const tableRoot = createTableView({
+        celebrationStartTimes,
+        difficultyLabel,
+        height: app.screen.height,
+        onBorrow,
+        onPlayCard,
+        playerName,
+        selectedGiveCardId,
+        selectedPlayCardId,
+        showChildGuidance,
+        snapshot: matchSnapshot,
+        seenCards: seenCardsRef.current,
+        width: app.screen.width,
+        isHintActive,
+      });
+
+      app.stage.addChild(tableRoot);
 
       visibleCards.forEach((card) => seenCardsRef.current.add(card.id));
     });
@@ -129,7 +121,7 @@ export function GameScene({
     return () => {
       active = false;
     };
-  }, [appRef, difficultyLabel, matchSnapshot, onBorrow, onPlayCard, onEndGameVFXComplete, playerName, readyToken, selectedGiveCardId, selectedPlayCardId, showChildGuidance]);
+  }, [appRef, difficultyLabel, matchSnapshot, onBorrow, onPlayCard, playerName, readyToken, selectedGiveCardId, selectedPlayCardId, showChildGuidance, isHintActive]);
 
   return <div className="table-stage table-canvas" data-testid="table-stage" ref={hostRef} />;
-}
+});

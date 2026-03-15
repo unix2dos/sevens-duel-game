@@ -21,6 +21,7 @@ interface CardViewOptions {
   faceVariant?: CardFaceVariant;
   width: number;
   height: number;
+  lastPlayedActor?: "player" | "opponent";
 }
 
 export function createCardView({
@@ -38,6 +39,7 @@ export function createCardView({
   faceVariant = "standard",
   width,
   height,
+  lastPlayedActor,
 }: CardViewOptions) {
   const root = new Container();
 
@@ -57,6 +59,7 @@ export function createCardView({
           flipStartTime,
           faceVariant,
           width,
+          lastPlayedActor,
         })
       : createCardBackSprite({ height, width }),
   );

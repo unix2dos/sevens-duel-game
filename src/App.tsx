@@ -98,10 +98,12 @@ function App() {
       return;
     }
 
+    // Artificial delay to simulate bot "thinking"
+    const thinkDelay = Math.floor(Math.random() * 1700) + 800; // 0.8s - 2.5s
     const timer = window.setTimeout(() => {
       playSound("play");
       setMatch((current) => (current ? dispatchAiTurn(current) : current));
-    }, 420);
+    }, thinkDelay);
 
     return () => window.clearTimeout(timer);
   }, [match, playSound, screen]);

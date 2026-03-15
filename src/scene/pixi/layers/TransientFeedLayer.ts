@@ -1,4 +1,4 @@
-import { Container, Text } from "pixi.js";
+import { Container, Text, Graphics } from "pixi.js";
 
 import { cardTheme } from "../cards/cardTheme";
 import type { TableLayout } from "../layout/tableLayout";
@@ -94,6 +94,45 @@ export function createTransientFeedLayer({
   primaryText.anchor.set(0.5, 1);
   primaryText.position.set(layout.toastAnchor.x, layout.toastAnchor.y - 2);
   root.addChild(primaryText);
+
+  // Capsule Timer UI
+  const timerContainer = new Container();
+  timerContainer.visible = false;
+  
+  const timerBg = new Graphics();
+  // We will re-draw this dynamically or just draw a fixed size that fits "15s"
+  timerBg.roundRect(0, 0, 42, 24, 12)
+    .fill({ color: 0xd4af37, alpha: 0.2 }) // Luxury gold tint
+    .stroke({ color: 0xd4af37, width: 1.5, alpha: 0.8 });
+  
+  const timerText = new Text({
+    style: {
+      fill: 0xffedd5, // Very light warm white
+      fontFamily: "Sora, IBM Plex Sans, sans-serif",
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    text: "15s",
+  });
+  timerText.anchor.set(0.5);
+  timerText.position.set(21, 12);
+  
+  timerContainer.addChild(timerBg, timerText);
+  // Anchor middle-left of the capsule
+  timerContainer.pivot.set(0, 12);
+  root.addChild(timerContainer);
+
+  (root as any).updateTimerText = (time: number | null) => {
+    if (time !== null && snapshot.status === "playing" && snapshot.turn === "player") {
+      primaryText.text = primary;
+      timerText.text = `${time}s`;
+      timerContainer.position.set(primaryText.x + primaryText.width / 2 + 10, primaryText.y - primaryText.height / 2);
+      timerContainer.visible = true;
+    } else {
+      primaryText.text = primary;
+      timerContainer.visible = false;
+    }
+  };
 
   if (secondary) {
     const secondaryText = new Text({

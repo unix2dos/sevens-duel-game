@@ -4,8 +4,8 @@
 
 ## 立即试玩
 
-- 主站：[`Seven`](https://sevens-duel-game.pages.dev/)
-- 备用站：[`Seven`](https://unix2dos.github.io/sevens-duel-game/)
+- 体验地址：[`Seven Duel`](https://sevens-duel-game.pages.dev/)
+- 备用地址：[`Seven Duel`](https://unix2dos.github.io/sevens-duel-game/)
 
 ## 亮点
 
@@ -28,11 +28,35 @@
 
 点击封面可查看仓库内的短演示视频，内容展示首页进入牌局、牌桌动效以及结果页闭环。
 
+## 正式规则
+
+本作不是传统接 7 的原样移植，而是以“借牌博弈”为核心的双人对战变体。
+
+1. 发牌与先手
+   - 使用一副 52 张标准扑克牌，无大小王，双方各持 26 张。
+   - 持有 `红桃 3` 的一方先行动。`红桃 3` 只决定先手，不要求率先打出。
+2. 开线与接牌
+   - 牌桌按花色分别接龙；任一花色尚未开线时，该花色只能先打出 `7`。
+   - 开线后，同花色向两端延伸：
+     - 高位链：`7 -> 8 -> 9 -> 10 -> J -> Q -> K`
+     - 低位链：`7 -> 6 -> 5 -> 4 -> 3 -> 2 -> A`
+   - `A` 不接在 `K` 后面，只能在同花色 `2` 已经落桌后打出。
+3. 回合行动
+   - 轮到自己时，若手中存在合法牌，必须从手牌中打出 1 张合法牌。
+   - 若手中没有任何合法牌，则必须向对手借 1 张牌。
+4. 借牌规则
+   - 借牌时，由出借方决定交出哪一张牌；这是本作最核心的策略点。
+   - 借到的牌先加入借牌方手牌。
+   - 若借牌后出现合法牌，借牌方继续保有当前行动权，并从手牌中选择 1 张合法牌打出。
+5. 胜负判定
+   - 任意时刻，只要一方手牌数量变为 `0`，该方立即获胜。
+   - 这包括两种情况：打出最后一张牌；或在对手借牌时交出自己的最后一张牌。
+
 ## 玩法概览
 
-- 围绕四个 `7` 开线，向上接 `6/5/4...`，向下接 `8/9/10...`
-- 双方轮流出牌；没有可出的牌时，需要从对手手里借一张
-- 谁先让自己的手牌变成 `0` 张，谁就获胜
+- 围绕四个 `7` 开线，同花色分别向 `K` 与 `A` 两端延伸
+- 借牌时由出借方决定给出哪一张，围绕手牌结构进行博弈
+- 先让自己手牌归零的一方立即获胜；被借空同样算赢
 
 ## 体验特性
 
@@ -82,14 +106,3 @@ npm run build
 ```bash
 npm run preview -- --host 127.0.0.1 --port 4173
 ```
-
-## 部署
-
-当前仓库采用双部署：`Cloudflare Pages` 作为主站，`GitHub Pages` 作为备用站。
-
-- 当前 Cloudflare Pages 地址：`https://sevens-duel-game.pages.dev/`
-- 当前 GitHub Pages 备用地址：`https://unix2dos.github.io/sevens-duel-game/`
-- 详细部署说明：[`docs/deployment.md`](docs/deployment.md)
-- Cloudflare Pages：通过 Cloudflare Git integration 跟踪 `main`，构建命令 `npm run build`，输出目录 `dist`
-- GitHub Pages：通过仓库内 GitHub Actions workflow 自动发布，构建时使用 `VITE_BASE_PATH=/sevens-duel-game/`
-- 仓库内另有校验 workflow，会持续验证 `/` 和 `/sevens-duel-game/` 两种静态构建都能通过

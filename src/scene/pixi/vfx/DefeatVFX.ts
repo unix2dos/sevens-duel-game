@@ -27,14 +27,17 @@ function playShatteredReality(
   height: number,
   onComplete: () => void
 ) {
-  // 1. Desaturate the entire board
+  const cx = width / 2;
+  const cy = height / 2;
+
+  // 1. Desaturate the entire board (keep this for mood)
   const desaturate = new ColorMatrixFilter();
   desaturate.desaturate();
 
-  // 2. Aggressive Glitch/CRT tear
+  // 2. Focused Glitch/CRT tear
   const glitch = new GlitchFilter({
-    slices: 15,
-    offset: 200,
+    slices: 5, // localized tear instead of broken screen
+    offset: 50,
     direction: 90,
     fillMode: 0,
     average: false,
@@ -48,25 +51,24 @@ function playShatteredReality(
       container.parent.filters = [...existingFilters, desaturate, glitch];
   }
 
-  // Red vignette warning
-  const vignette = new Graphics();
-  vignette.rect(0, 0, width, height).fill({ color: 0xff0000, alpha: 0.25 });
-  vignette.blendMode = "multiply";
-  vignette.alpha = 0;
-  container.addChild(vignette);
+  // Intense localized red glare behind modal
+  const glare = new Graphics().circle(cx, cy, 350).fill({ color: 0xff0000, alpha: 0.15 });
+  glare.blendMode = "add";
+  container.addChild(glare);
 
-  // Distressed particles (horizontal noise)
+  // Distressed particles (horizontal noise slicing across the modal area)
   const particles: { s: Graphics; x: number; y: number; vx: number }[] = [];
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 60; i++) {
       const g = new Graphics();
-      g.rect(0, 0, 10 + Math.random() * 50, 2 + Math.random() * 2).fill({ color: 0xffffff, alpha: 0.6 });
+      g.rect(0, 0, 10 + Math.random() * 80, 1 + Math.random() * 2).fill({ color: 0xff0044, alpha: 0.8 });
       g.blendMode = "add";
       container.addChild(g);
       particles.push({
           s: g,
-          x: Math.random() * width,
-          y: Math.random() * height,
-          vx: (Math.random() < 0.5 ? -1 : 1) * (15 + Math.random() * 30),
+          // Constrain mostly to the center Y belt where the modal is
+          x: cx + (Math.random() - 0.5) * 600,
+          y: cy + (Math.random() - 0.5) * 200,
+          vx: (Math.random() < 0.5 ? -1 : 1) * (25 + Math.random() * 40),
       });
   }
 
@@ -76,30 +78,21 @@ function playShatteredReality(
   const ticker = (t: Ticker) => {
       time += t.deltaTime;
 
-      // Jerky glitch animation
-      if (Math.random() < 0.2) {
-          glitch.offset = Math.random() * 40 * (time < 60 ? 1 : 0.2); // Calm down slowly
-          glitch.slices = 5 + Math.random() * 20;
+      // Jerky glitch animation focused around the modal
+      if (Math.random() < 0.25) {
+          glitch.offset = Math.random() * 20 * (time < 80 ? 1 : 0.1); 
+          glitch.slices = 3 + Math.random() * 10;
           glitch.seed = Math.random();
       }
 
-      // Slam down screen shake (heavy single jolt)
-      if (time < 5 && container.parent) {
-          container.parent.y = 80;
-      } else if (time >= 5 && time < 10 && container.parent) {
-          container.parent.y = -20;
-      } else if (container.parent) {
-          container.parent.y = 0;
-      }
-
-      // Red vignette blink
-      vignette.alpha = Math.abs(Math.sin(time * 0.2)) * 0.8;
+      // Glare pulse
+      glare.alpha = 0.1 + Math.abs(Math.sin(time * 0.3)) * 0.1;
 
       // Particle noise
       for (const p of particles) {
           p.x += p.vx * t.deltaTime;
-          if (p.x > width + 50) p.x = -50;
-          if (p.x < -50) p.x = width + 50;
+          if (p.x > cx + 400) p.x = cx - 400;
+          if (p.x < cx - 400) p.x = cx + 400;
           p.s.position.set(p.x, p.y);
           
           if (time > 100) p.s.alpha -= 0.05;
@@ -107,6 +100,8 @@ function playShatteredReality(
 
       if (time > DURATION) {
           Ticker.shared.remove(ticker);
+          onComplete(); // resolve the logical completion early
+          
           if (container.parent && container.parent.filters) {
               const remainingFilters = container.parent.filters.filter(
                 (filter) => filter !== desaturate && filter !== glitch,
@@ -117,7 +112,6 @@ function playShatteredReality(
                   container.parent.filters = remainingFilters;
               }
           }
-          onComplete();
           
           const cleanup = (t2: Ticker) => {
             container.alpha -= 0.05 * t2.deltaTime;
@@ -139,13 +133,16 @@ function playVoidConsumption(
   height: number,
   onComplete: () => void
 ) {
-  // Dark vignette
+  const cx = width / 2;
+  const cy = height / 2;
+
+  // Dark vignette focused more heavily on the center behind the modal
   const bg = new Graphics();
-  bg.rect(0, 0, width, height).fill({ color: 0x050505, alpha: 0.85 });
+  bg.circle(cx, cy, 400).fill({ color: 0x050505, alpha: 0.85 });
   bg.alpha = 0;
   container.addChild(bg);
 
-  // Blackhole distortion
+  // Blackhole distortion (localized)
   const bulge = new BulgePinchFilter({
       center: [0.5, 0.5],
       radius: 0,
@@ -159,8 +156,6 @@ function playVoidConsumption(
 
   // Suction particles
   const particles: { s: Graphics; x: number; y: number; angle: number; dist: number; speed: number }[] = [];
-  const cx = width / 2;
-  const cy = height / 2;
 
   for (let i = 0; i < 150; i++) {
       const p = new Graphics();
@@ -169,7 +164,8 @@ function playVoidConsumption(
       container.addChild(p);
 
       const angle = Math.random() * Math.PI * 2;
-      const dist = 300 + Math.random() * 800; // Start far away
+      // Start closer since the effect is localized
+      const dist = 100 + Math.random() * 400; 
       particles.push({
           s: p,
           x: 0, y: 0,
@@ -184,18 +180,18 @@ function playVoidConsumption(
   const ticker = (t: Ticker) => {
       time += t.deltaTime;
 
-      // Darken
+      // Darken localized area
       if (time < 60) {
-          bg.alpha = (time / 60) * 0.85;
+          bg.alpha = (time / 60) * 0.95;
       }
 
-      // Suck in distortion
+      // Suck in distortion (with smaller radius so it doesn't break the edges of the board)
       if (time < 120) {
-          bulge.radius = (time / 120) * 800;
-          bulge.strength = -((time / 120) * 1.0); // Extreme pinch
+          bulge.radius = (time / 120) * 400; // max 400px radius
+          bulge.strength = -((time / 120) * 0.8); // Less extreme pinch
       } else {
           // Release slightly into a lingering void
-          bulge.strength = -1.0 + ((time - 120) / 100) * 0.2;
+          bulge.strength = -0.8 + ((time - 120) / 100) * 0.2;
       }
 
       // Particle physics (spiral inward)
@@ -214,6 +210,7 @@ function playVoidConsumption(
 
       if (time > DURATION) {
           Ticker.shared.remove(ticker);
+          onComplete(); // resolve the logical completion early
           
           if (container.parent && container.parent.filters) {
               const remainingFilters = container.parent.filters.filter(
@@ -225,8 +222,6 @@ function playVoidConsumption(
                   container.parent.filters = remainingFilters;
               }
           }
-          
-          onComplete();
           
           const cleanup = (t2: Ticker) => {
             container.alpha -= 0.03 * t2.deltaTime;

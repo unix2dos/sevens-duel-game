@@ -59,13 +59,21 @@ export function createTableView({
     .stroke({ color: 0x2e7547, alpha: 0.15, width: 2 });
 
   root.addChild(backdrop, felt);
+  const feedLayer = createTransientFeedLayer({ layout, playerName, showChildGuidance, snapshot });
+  
   root.addChild(
     createTopStatusLayer({ difficultyLabel, layout, playerName, snapshot }),
     createOpponentLayer({ layout, snapshot }),
     createSuitBoardLayer({ celebrationStartTimes, layout, snapshot, seenCards }),
-    createTransientFeedLayer({ layout, playerName, showChildGuidance, snapshot }),
+    feedLayer,
     createPlayerHandLayer({ layout, onBorrow, onPlayCard, playerName, snapshot, seenCards, selectedGiveCardId, selectedPlayCardId, isHintActive }),
   );
+
+  (root as any).updateTimerText = (time: number | null) => {
+    if (typeof (feedLayer as any).updateTimerText === "function") {
+      (feedLayer as any).updateTimerText(time);
+    }
+  };
 
   return root;
 }
