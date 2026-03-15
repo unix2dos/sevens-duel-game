@@ -4,8 +4,8 @@
 
 ## 立即试玩
 
-- 主站：[`Cloudflare Pages`](https://79ae24dd.sevens-duel-game.pages.dev/)
-- 备用站：[`GitHub Pages`](https://unix2dos.github.io/sevens-duel-game/)
+- 主站：[`Seven`](https://sevens-duel-game.pages.dev/)
+- 备用站：[`Seven`](https://unix2dos.github.io/sevens-duel-game/)
 
 ## 亮点
 
