@@ -35,6 +35,14 @@ it("requires a non-empty player name before starting a game", () => {
   expect(screen.queryByTestId("table-stage")).not.toBeInTheDocument();
 });
 
+it("shows clear descriptions for each difficulty on the home screen", () => {
+  render(<App />);
+
+  expect(screen.getByText((_, node) => node?.textContent === "儿童：保留更直白的落牌引导，适合先熟悉借牌与接龙节奏。")).toBeInTheDocument();
+  expect(screen.getByText((_, node) => node?.textContent === "标准：常规对局节奏，机器人会兼顾当前落点与后续可走牌路。")).toBeInTheDocument();
+  expect(screen.getByText((_, node) => node?.textContent === "挑战：机器人更重视后续牌路与节奏控制，随机性更低，强度最高。")).toBeInTheDocument();
+});
+
 it("starts a game after selecting a difficulty and entering a player name", () => {
   render(<App />);
 

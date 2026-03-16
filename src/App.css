@@ -157,6 +157,47 @@
     0 0 0 1px rgba(212, 178, 104, 0.12);
 }
 
+.mode-guide {
+  margin-top: 1.15rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(170, 176, 185, 0.12);
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(180deg, rgba(14, 20, 29, 0.9), rgba(9, 13, 19, 0.95));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 10px 26px -18px rgba(0, 0, 0, 0.75);
+}
+
+.mode-guide-title {
+  margin: 0;
+  color: rgba(212, 195, 163, 0.9);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.mode-guide-list {
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.mode-guide-item {
+  color: rgba(236, 240, 244, 0.82);
+  font-size: 0.96rem;
+  line-height: 1.55;
+}
+
+.mode-guide-name {
+  color: #f4d27a;
+  font-family: "Bodoni Moda", "PingFang SC", serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -576,6 +617,10 @@
 
   .difficulty-options {
     grid-template-columns: 1fr;
+  }
+
+  .mode-guide {
+    padding: 0.95rem 1rem;
   }
 
   .home-tableau {

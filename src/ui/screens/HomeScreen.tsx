@@ -22,6 +22,24 @@ export function HomeScreen({
   onOpenRules,
   onToggleSound,
 }: HomeScreenProps) {
+  const modeDescriptions = [
+    {
+      id: "child",
+      title: "儿童：",
+      copy: "保留更直白的落牌引导，适合先熟悉借牌与接龙节奏。",
+    },
+    {
+      id: "normal",
+      title: "标准：",
+      copy: "常规对局节奏，机器人会兼顾当前落点与后续可走牌路。",
+    },
+    {
+      id: "challenge",
+      title: "挑战：",
+      copy: "机器人更重视后续牌路与节奏控制，随机性更低，强度最高。",
+    },
+  ] as const;
+
   return (
     <main className="app-shell app-shell--home">
       <section className="hero-panel">
@@ -51,6 +69,18 @@ export function HomeScreen({
           onSelectDifficulty={onSelectDifficulty}
           selectedDifficulty={selectedDifficulty}
         />
+
+        <section aria-label="模式说明" className="mode-guide">
+          <p className="mode-guide-title">模式说明</p>
+          <ul className="mode-guide-list">
+            {modeDescriptions.map((mode) => (
+              <li className="mode-guide-item" key={mode.id}>
+                <span className="mode-guide-name">{mode.title}</span>
+                <span>{mode.copy}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
 
         <div className="hero-actions">
           <button
