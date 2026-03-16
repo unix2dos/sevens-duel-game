@@ -7,11 +7,11 @@ import type { Card } from "../../../game/core/types";
 const ART_WIDTH = 300;
 const ART_HEIGHT = 420;
 const cornerMetrics = {
-  insetX: 36,
-  insetY: 48,
-  rankFontSize: 42,
-  suitFontSize: 34,
-  suitOffsetY: 34,
+  insetX: 42,
+  insetY: 52,
+  rankFontSize: 36,
+  suitFontSize: 28,
+  suitOffsetY: 30,
 } as const;
 export type CardFaceVariant = "standard" | "suit-emblem";
 const faceTextureCache = new Map<string, Texture>();
@@ -51,20 +51,14 @@ function aceMarkup(card: Card) {
 
 function faceMarkup(card: Card) {
   const color = inkColor(card);
-  const label = card.rank === "J" ? "JACK" : card.rank === "Q" ? "QUEEN" : "KING";
   const emblem = suitSymbol(card.suit);
 
   return `
     <g transform="translate(${ART_WIDTH / 2} ${ART_HEIGHT / 2})">
-      <rect x="-70" y="-104" width="140" height="208" rx="64" fill="#fbf7ef" stroke="#d7c4a8" stroke-width="2.4"/>
-      <rect x="-58" y="-92" width="116" height="184" rx="52" fill="url(#medallion)"/>
-      <path d="M0 -84 L16 -52 L0 -58 L-16 -52 Z" fill="#D4AF37" opacity="0.9"/>
-      <path d="M0 84 L16 52 L0 58 L-16 52 Z" fill="#D4AF37" opacity="0.9"/>
-      <text x="0" y="-28" text-anchor="middle" font-family="'Bodoni Moda', serif" font-size="78" font-weight="700" fill="${color}">${rankText(card.rank)}</text>
-      <text x="0" y="24" text-anchor="middle" font-family="'Bodoni Moda', serif" font-size="72" fill="${color}">${emblem}</text>
-      <text x="0" y="68" text-anchor="middle" font-family="'Jost', sans-serif" font-size="16" letter-spacing="4" fill="#D4AF37">${label}</text>
-      <text x="0" y="-118" text-anchor="middle" font-family="'Bodoni Moda', serif" font-size="28" fill="${color}">${emblem}</text>
-      <text x="0" y="136" text-anchor="middle" font-family="'Bodoni Moda', serif" font-size="28" fill="${color}" transform="rotate(180 0 136)">${emblem}</text>
+      <!-- Minimalist geometric representation for face cards instead of huge watermarks/badges -->
+      <rect x="-60" y="-80" width="120" height="160" rx="16" fill="none" stroke="${color}" stroke-opacity="0.1" stroke-width="2"/>
+      <text x="0" y="-20" text-anchor="middle" font-family="'Bodoni Moda', serif" font-size="64" font-weight="700" fill="${color}">${rankText(card.rank)}</text>
+      <text x="0" y="32" text-anchor="middle" font-family="'Bodoni Moda', serif" font-size="48" fill="${color}">${emblem}</text>
     </g>
   `;
 }
@@ -120,29 +114,11 @@ export function buildCardFaceSvg(card: Card, { faceVariant = "standard" }: Build
       <defs>
         <linearGradient id="paper" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="#ffffff"/>
-          <stop offset="60%" stop-color="#fdfcfb"/>
-          <stop offset="100%" stop-color="#eae6df"/>
+          <stop offset="100%" stop-color="#fdfcfb"/>
         </linearGradient>
-        <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
-          <stop offset="45%" stop-color="#ffffff" stop-opacity="0.25"/>
-          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-        </linearGradient>
-        <linearGradient id="medallion" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#ffffff"/>
-          <stop offset="100%" stop-color="#f5f3ee"/>
-        </linearGradient>
-        <pattern id="paperNoise" width="24" height="24" patternUnits="userSpaceOnUse">
-          <circle cx="5" cy="6" r="1" fill="#d4af37" opacity="0.15"/>
-          <circle cx="18" cy="11" r="1" fill="#d4af37" opacity="0.12"/>
-          <circle cx="12" cy="19" r="1" fill="#d4af37" opacity="0.15"/>
-        </pattern>
       </defs>
-      <rect x="6" y="10" width="${ART_WIDTH - 12}" height="${ART_HEIGHT - 12}" rx="28" fill="#051a0d" fill-opacity="0.15"/>
-      <rect x="0" y="0" width="${ART_WIDTH}" height="${ART_HEIGHT}" rx="26" fill="url(#paper)" stroke="#d4af37" stroke-width="2.4"/>
-      <rect x="8" y="8" width="${ART_WIDTH - 16}" height="${ART_HEIGHT - 16}" rx="20" fill="none" stroke="#d4af37" stroke-width="1.2" opacity="0.6"/>
-      <rect x="0" y="0" width="${ART_WIDTH}" height="${ART_HEIGHT}" rx="26" fill="url(#paperNoise)"/>
-      <path d="M18 18 C88 8 150 18 282 10" stroke="url(#shine)" stroke-opacity="0.68" stroke-width="10" stroke-linecap="round" fill="none"/>
+      <!-- Pure clean base without inner dark shadows -->
+      <rect x="0" y="0" width="${ART_WIDTH}" height="${ART_HEIGHT}" rx="26" fill="url(#paper)" stroke="#e4e4e4" stroke-width="1.5"/>
       ${faceVariant === "standard" ? `${cornerMarkup(card)}${cornerMarkup(card, true)}` : ""}
       ${centerMarkup(card, faceVariant)}
     </svg>

@@ -54,14 +54,12 @@ export function createTableView({
   // Create absolute luxury vignette and velvet depth
   backdrop
     .roundRect(0, 0, width, height, 34)
-    .fill({ color: 0x071b0e, alpha: 1 }) // Deep base green-black
-    .stroke({ color: 0x1a3d24, alpha: 0.8, width: 1 });
+    .fill({ color: 0x071b0e, alpha: 1 }); // Deep base green-black
     
   felt
     .roundRect(6, 6, width - 12, height - 12, 30)
     // Rich gradient for center highlight 
-    .fill({ color: 0x1f5c36, alpha: 0.45 })
-    .stroke({ color: 0x2e7547, alpha: 0.15, width: 2 });
+    .fill({ color: 0x1f5c36, alpha: 0.45 });
 
   root.addChild(backdrop, felt);
   const feedLayer = createTransientFeedLayer({ layout, playerName, showChildGuidance, snapshot }) as TransientFeedLayerContainer;

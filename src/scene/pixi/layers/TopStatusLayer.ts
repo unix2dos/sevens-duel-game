@@ -1,9 +1,7 @@
 import { Container, Graphics, Text } from "pixi.js";
 
-import { cardTheme } from "../cards/cardTheme";
 import type { TableLayout } from "../layout/tableLayout";
 import type { MatchSnapshot } from "../../../game/match/engine";
-import { playerHandLabel, playerTurnLabel, playerWinTitle } from "../../../ui/playerText";
 
 interface TopStatusLayerOptions {
   difficultyLabel: string;
@@ -51,85 +49,73 @@ function createIndicatorBadge(color: number) {
 }
 
 export function createTopStatusLayer({
-  difficultyLabel,
   layout,
   playerName,
   snapshot,
-  playerTimeLeft,
 }: TopStatusLayerOptions) {
   const root = new Container();
-  const shell = new Graphics();
   const { topBar } = layout;
 
-  let turnLabel =
-    snapshot.status === "finished"
-      ? snapshot.winner === "player"
-        ? playerWinTitle(playerName)
-        : "机器人获胜"
-      : snapshot.turn === "player"
-        ? playerTurnLabel(playerName)
-        : "机器人回合";
+  const isCramped = topBar.width < 800;
+  const paddingX = isCramped ? 16 : 32;
+  // Significantly bump up font sizes
+  const fontSizePrimary = layout.compact ? 16 : 20;
+  const fontSizeSecondary = layout.compact ? 14 : 16;
+  
+  // Use a very soft, faint glow behind text instead of a hard black box, or just no box at all.
+  // We'll use a very faint gradient or simple drop shadow on text. Since text has excellent drop shadow,
+  // we can completely remove the black capsule bg to integrate seamlessly into the table.
 
-  if (snapshot.status === "playing" && snapshot.turn === "player" && typeof playerTimeLeft === "number") {
-    turnLabel += ` (${playerTimeLeft}s)`;
+  // --- Left Side (Player Info) ---
+  const leftContainer = new Container();
+  
+  const pBadge = createIndicatorBadge(0x3b82f6);
+  const displayName = isCramped && playerName.length > 6 ? playerName.substring(0, 6) + "…" : playerName;
+  const pText = makeValue(displayName, fontSizePrimary);
+  const pCards = makeLabel(`${snapshot.hands.player.length} 张`, fontSizeSecondary, 0xbbbaa6);
+  
+  pBadge.scale.set(layout.compact ? 1 : 1.2);
+  pBadge.position.set(0, pText.height / 2);
+  pText.position.set(20, 0); // space for badge
+  pCards.position.set(pText.x + pText.width + 16, pText.height - pCards.height - 2);
+  
+  leftContainer.addChild(pBadge, pText, pCards);
+  leftContainer.position.set(topBar.x + paddingX, topBar.y + (layout.compact ? 16 : 24));
+  
+  // Optional active turn indicator: a soft underline or glow
+  if (snapshot.status === "playing" && snapshot.turn === "player") {
+    const activeLine = new Graphics();
+    activeLine.roundRect(0, pText.height + 6, leftContainer.width, 3, 2)
+      .fill({ color: 0xd4af37, alpha: 0.8 });
+    leftContainer.addChild(activeLine);
+  }
+  
+  root.addChild(leftContainer);
+
+  // --- Right Side (Opponent Info) ---
+  const rightContainer = new Container();
+  
+  const aText = makeValue("机器人", fontSizePrimary);
+  const aCards = makeLabel(`${snapshot.hands.opponent.length} 张`, fontSizeSecondary, 0xbbbaa6);
+  const aBadge = createIndicatorBadge(0xef4444);
+  aBadge.scale.set(layout.compact ? 1 : 1.2);
+
+  aText.position.set(0, 0);
+  aCards.position.set(aText.width + 16, aText.height - aCards.height - 2);
+  aBadge.position.set(aCards.x + aCards.width + 20, aText.height / 2);
+  
+  rightContainer.addChild(aText, aCards, aBadge);
+  const rightWidth = aBadge.x + 8;
+  rightContainer.position.set(topBar.x + topBar.width - rightWidth - paddingX, topBar.y + (layout.compact ? 16 : 24));
+  
+  if (snapshot.status === "playing" && snapshot.turn !== "player") {
+    const activeLine = new Graphics();
+    activeLine.roundRect(0, aText.height + 6, rightWidth, 3, 2)
+      .fill({ color: 0xd4af37, alpha: 0.8 });
+    rightContainer.addChild(activeLine);
   }
 
-  shell
-    .roundRect(topBar.x, topBar.y, topBar.width, topBar.height, 24)
-    .fill({ color: cardTheme.velvetGlow, alpha: 0.54 })
-    .stroke({ color: cardTheme.lineSoft, alpha: 0.85, width: 1 });
-  root.addChild(shell);
-
-  const club = makeLabel(`${difficultyLabel}局`, layout.compact ? 11 : 13);
-  club.position.set(topBar.x + 20, topBar.y + 16);
-  root.addChild(club);
-
-  const turn = makeValue(turnLabel, layout.compact ? 22 : 24);
-  turn.position.set(topBar.x + 20, topBar.y + 36);
-  root.addChild(turn);
-
-  const countsContainer = new Container();
-
-  if (layout.compact) {
-    let currentX = 0;
-
-    const playerText = makeValue(`${playerName} ${snapshot.hands.player.length}`, 13);
-    const playerBadge = createIndicatorBadge(0x3b82f6);
-    playerBadge.position.set(currentX + 4.5, playerText.height / 2);
-    playerText.position.set(currentX + 14, 0);
-
-    currentX += 14 + playerText.width + 6;
-
-    const aiText = makeValue(`机器人 ${snapshot.hands.opponent.length}`, 13);
-    const aiBadge = createIndicatorBadge(0xef4444);
-    aiBadge.position.set(currentX + 4.5, aiText.height / 2);
-    aiText.position.set(currentX + 14, 0);
-
-    countsContainer.addChild(playerBadge, playerText, aiBadge, aiText);
-  } else {
-    let currentX = 0;
-    
-    const playerText = makeValue(` ${playerHandLabel(playerName)} ${snapshot.hands.player.length} · `, 15);
-    const playerBadge = createIndicatorBadge(0x3b82f6);
-    playerBadge.position.set(currentX + 5.5, playerText.height / 2);
-    playerText.position.set(currentX + 16, 0);
-    
-    currentX += 16 + playerText.width + 4;
-    
-    const aiText = makeValue(` 机器人手牌 ${snapshot.hands.opponent.length}`, 15);
-    const aiBadge = createIndicatorBadge(0xef4444);
-    aiBadge.position.set(currentX + 5.5, aiText.height / 2);
-    aiText.position.set(currentX + 16, 0);
-    
-    countsContainer.addChild(playerBadge, playerText, aiBadge, aiText);
-  }
-
-  countsContainer.pivot.set(countsContainer.width, layout.compact ? 0 : countsContainer.height / 2);
-  countsContainer.position.set(
-    topBar.x + topBar.width - 18,
-    layout.compact ? topBar.y + 36 : topBar.y + topBar.height / 2,
-  );
-  root.addChild(countsContainer);
+  root.addChild(rightContainer);
 
   return root;
 }

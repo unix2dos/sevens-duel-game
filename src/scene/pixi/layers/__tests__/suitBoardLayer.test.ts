@@ -157,7 +157,7 @@ describe("createSuitBoardLayer", () => {
     expect(aceNode.position.y).toBeLessThan(twoNode.position.y);
   });
 
-  it("renders a suit-emblem placeholder before the real seven is played", () => {
+  it("renders a standard placeholder before the real seven is played", () => {
     const layout = createTableLayout(1280, 860);
     const snapshot: MatchSnapshot = {
       cardOwners: {},
@@ -179,7 +179,7 @@ describe("createSuitBoardLayer", () => {
       .map(([options]) => options as { card: { id: string }; faceVariant?: string })
       .find((options) => options.card.id === "seed-spades-7");
 
-    expect(placeholderCall?.faceVariant).toBe("suit-emblem");
+    expect(placeholderCall?.faceVariant).toBe("standard"); // Used to be suit-emblem
   });
 
   it("renders the real seven in the center once it is on the board", () => {
@@ -213,7 +213,7 @@ describe("createSuitBoardLayer", () => {
       .map(([options]) => options as { card: { id: string }; faceVariant?: string })
       .find((options) => options.card.id === "seed-spades-7");
 
-    expect(centerCall?.faceVariant).toBeUndefined();
+    expect(centerCall?.faceVariant).toBe("standard");
     expect(regularCall?.faceVariant).toBeUndefined();
     expect(placeholderCall).toBeUndefined();
   });

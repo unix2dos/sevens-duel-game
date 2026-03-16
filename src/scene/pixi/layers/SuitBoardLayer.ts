@@ -84,7 +84,7 @@ export function createSuitBoardLayer({
       isFaceUp,
       isLegal: false,
       animateEntrance: !replayFlip && !seenCards.has(centerCardData.id),
-      faceVariant: centerIsPlaceholder ? "suit-emblem" : undefined,
+      faceVariant: "standard", // Always use standard to show the 7
       owner: centerIsPlaceholder ? undefined : snapshot.cardOwners[centerCardData.id],
       replayFlip,
       flipDelay: 0,
@@ -98,16 +98,35 @@ export function createSuitBoardLayer({
     axis
       .roundRect(lane.centerX - 1.5, lane.rect.y + 54, 3, lane.rect.height - 92, 999)
       .fill({ color: cardTheme.lineStrong, alpha: 0.32 });
-    slotGlow
-      .ellipse(lane.centerX, lane.centerY + 2, cardWidth * 0.72, cardHeight * 0.28)
-      .fill({ color: cardTheme.glowLegal, alpha: cards.length === 0 ? 0.11 : 0.08 });
+      
+    // Remove the old slotGlow (ellipse)
     title.anchor.set(0.5, 0);
     title.position.set(lane.centerX, lane.rect.y + 18);
     centerCard.position.set(lane.centerX - cardWidth / 2, lane.centerY - cardHeight / 2);
-    centerCard.alpha = cards.length === 0 ? 0.4 : 1;
+    
+    // Style placeholder as a depression/watermark
+    if (centerIsPlaceholder) {
+      centerCard.alpha = 0.15; // Very faint 7
+      centerCard.tint = 0xcccccc; 
+      
+      // Clean, elegant dashed placeholder ring instead of a heavy box
+      slotGlow
+        .roundRect(lane.centerX - cardWidth / 2, lane.centerY - cardHeight / 2, cardWidth, cardHeight, 16)
+        .stroke({ color: cardTheme.lineSoft, alpha: 0.3, width: 2, alignment: 1 });
+        
+      // Optional: Add dashed effect if Pixi version supports, else solid faint is fine
+    } else {
+      centerCard.alpha = 1;
+      centerCard.tint = 0xffffff;
+    }
+    
     centerCard.zIndex = 7;
 
-    root.addChild(laneShell, axis, slotGlow, title, centerCard);
+    if (centerIsPlaceholder) {
+       root.addChild(laneShell, axis, slotGlow, title, centerCard);
+    } else {
+       root.addChild(laneShell, axis, title, centerCard);
+    }
 
     lowCards.forEach((card, index) => {
       const view = createCardView({

@@ -76,9 +76,11 @@ export function createPokerCardSprite({
   const backSprite = new Sprite(getCardBackTexture());
   const baseSurfaceY = height / 2;
 
+  const isOpeningHint = isLegal && card.rank === 7;
+
   glow.roundRect(0, 0, width, height, cardMetrics.radius + 6).fill({
-    alpha: isLegal ? 0.35 : 0.12,
-    color: suitInk(card) === "warm" ? cardTheme.glowWarm : cardTheme.glowLegal,
+    alpha: isOpeningHint ? 0.6 : (isLegal ? 0.35 : 0.12),
+    color: isOpeningHint ? 0xffd700 : (suitInk(card) === "warm" ? cardTheme.glowWarm : cardTheme.glowLegal),
   });
   shadow.roundRect(0, 0, width, height, cardMetrics.radius).fill({
     alpha: cardMetrics.shadowAlpha,
@@ -111,6 +113,17 @@ export function createPokerCardSprite({
 
   cardSurface.addChild(backSprite, faceSprite);
   root.addChild(glow, shadow, cardSurface);
+
+  // Last played highlight border
+  if (lastPlayedActor) {
+    // 0x3b82f6 is blue (player), 0xef4444 is red (opponent)
+    const highlightColor = lastPlayedActor === "player" ? 0x3b82f6 : 0xef4444;
+    const highlightBorder = new Graphics();
+    highlightBorder
+      .roundRect(0, 0, width, height, cardMetrics.radius)
+      .stroke({ color: highlightColor, alpha: 0.5, width: 1.5, alignment: 1 });
+    root.addChild(highlightBorder);
+  }
 
   if (owner) {
     const badge = new Graphics();
