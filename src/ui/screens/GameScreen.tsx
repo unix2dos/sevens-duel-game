@@ -45,7 +45,7 @@ export function GameScreen({
     if (isHintActive) {
       // Clear the timer text
       gameSceneRef.current?.updateTimerText(null);
-      
+
       const timer = setTimeout(() => {
         setIsHintActive(false);
       }, 2500); // Wait 2.5s and then remove the hint glow
@@ -180,7 +180,7 @@ export function GameScreen({
           }}
           title="返回"
         >
-          ↩️
+          🏠️
         </button>
         <button
           className="chip-action"
@@ -190,16 +190,16 @@ export function GameScreen({
             width: "3rem",
             height: "3rem",
             borderRadius: "50%",
-            background: isHintActive 
-              ? "radial-gradient(circle at 30% 30%, #fff7cc, #ffe066)" 
+            background: isHintActive
+              ? "radial-gradient(circle at 30% 30%, #fff7cc, #ffe066)"
               : "radial-gradient(circle at 30% 30%, #fdfdfd, #e6e6e6)",
             color: isHintActive ? "#b38600" : "#3d4b40",
-            border: isHintActive 
-              ? "1px solid rgba(255, 204, 0, 0.6)" 
+            border: isHintActive
+              ? "1px solid rgba(255, 204, 0, 0.6)"
               : "1px solid rgba(0, 0, 0, 0.15)",
             boxShadow: isHintActive
-               ? "0 6px 16px rgba(255, 204, 0, 0.4), inset 0 2px 6px rgba(255, 255, 255, 0.8), inset 0 -4px 6px rgba(0, 0, 0, 0.1)"
-               : "0 6px 12px rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 1), inset 0 -4px 6px rgba(0, 0, 0, 0.12)",
+              ? "0 6px 16px rgba(255, 204, 0, 0.4), inset 0 2px 6px rgba(255, 255, 255, 0.8), inset 0 -4px 6px rgba(0, 0, 0, 0.1)"
+              : "0 6px 12px rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 1), inset 0 -4px 6px rgba(0, 0, 0, 0.12)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -237,30 +237,6 @@ export function GameScreen({
           showChildGuidance={showChildGuidance}
           isHintActive={isHintActive}
         />
-        {matchSnapshot.layout.length === 0 && matchSnapshot.status === "playing" && (
-          <div
-            className="opening-guide-overlay"
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              zIndex: 10,
-              pointerEvents: "none",
-              color: "rgba(255, 255, 255, 0.12)",
-              fontFamily: '"Bodoni Moda", "PingFang SC", serif',
-              fontSize: "3.5rem",
-              fontWeight: 800,
-              letterSpacing: "0.15em",
-              textAlign: "center",
-              mixBlendMode: "overlay",
-              width: "100%",
-              userSelect: "none"
-            }}
-          >
-            请先出任意花色的 7，随后接龙
-          </div>
-        )}
         {matchSnapshot.phase === "borrowing" && (
           <div className="give-card-overlay">
             {selectedGiveCardId ? (

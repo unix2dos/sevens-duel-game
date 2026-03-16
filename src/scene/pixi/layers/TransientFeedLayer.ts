@@ -30,12 +30,12 @@ function latestMessage(snapshot: MatchSnapshot, playerName: string) {
   const event = snapshot.eventLog.at(-1);
 
   if (!event) {
-    return "牌局开始";
+    return "请先出任意花色的 7，随后接龙";
   }
 
   switch (event.type) {
     case "GAME_STARTED":
-      return "红桃 3 持有者负责尝试开线";
+      return "请先出任意花色的 7，随后接龙";
     case "CARD_PLAYED":
       return `${actorName(event.actor, playerName)}打出 ${formatCardId(event.cardId)}`;
     case "CARD_BORROWED":
@@ -66,7 +66,7 @@ function helperMessage(snapshot: MatchSnapshot, showChildGuidance: boolean, play
     return "发亮的底部手牌可以直接点击，没有可出牌时请手动借牌。";
   }
 
-  return "从底部手牌区直接出牌。";
+  return "";
 }
 
 export function createTransientFeedLayer({
