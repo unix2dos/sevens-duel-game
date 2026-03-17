@@ -7,6 +7,13 @@ export function usePixiHost() {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
   const [readyToken, setReadyToken] = useState(0);
+  const [resizeToken, setResizeToken] = useState(0);
+
+  useEffect(() => {
+    const handleResize = () => setResizeToken(t => t + 1);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (import.meta.env.MODE === "test") {
@@ -42,5 +49,5 @@ export function usePixiHost() {
     };
   }, []);
 
-  return { appRef, hostRef, readyToken };
+  return { appRef, hostRef, readyToken, resizeToken };
 }

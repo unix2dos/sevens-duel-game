@@ -606,7 +606,6 @@
   .app-shell--home {
     height: auto;
     min-height: 100dvh;
-    overflow-y: auto;
     padding-top: 1.2rem;
     padding-bottom: 1.2rem;
   }

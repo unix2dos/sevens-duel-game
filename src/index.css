@@ -40,10 +40,18 @@ body {
 }
 
 @media (max-width: 899px) {
-  #root {
+  html,
+  body {
     height: auto;
     min-height: 100dvh;
     overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  #root {
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: visible;
     touch-action: pan-y;
   }
 }

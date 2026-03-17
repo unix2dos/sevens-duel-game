@@ -36,7 +36,7 @@ export const GameScene = forwardRef<GameSceneRef, GameSceneProps>(({
   showChildGuidance,
   isHintActive,
 }, ref) => {
-  const { appRef, hostRef, readyToken } = usePixiHost();
+  const { appRef, hostRef, readyToken, resizeToken } = usePixiHost();
   const seenCardsRef = useRef(new Set<string>());
   const previousLayoutRef = useRef<Card[] | null>(null);
   const celebrationStartTimesRef = useRef(new Map<Suit, number>());
@@ -134,7 +134,7 @@ export const GameScene = forwardRef<GameSceneRef, GameSceneProps>(({
     return () => {
       active = false;
     };
-  }, [appRef, difficultyLabel, matchSnapshot, onBorrow, onPlayCard, playerName, readyToken, selectedGiveCardId, selectedPlayCardId, showChildGuidance, isHintActive]);
+  }, [appRef, difficultyLabel, matchSnapshot, onBorrow, onPlayCard, playerName, readyToken, resizeToken, selectedGiveCardId, selectedPlayCardId, showChildGuidance, isHintActive]);
 
   return <div className="table-stage table-canvas" data-testid="table-stage" ref={hostRef} />;
 });

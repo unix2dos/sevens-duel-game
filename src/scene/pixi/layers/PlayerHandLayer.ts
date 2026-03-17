@@ -153,11 +153,11 @@ export function createPlayerHandLayer({
   // Dynamic scaling for large hand sizes to prevent extreme squeezing
   const totalCards = sortedHand.length;
   const isCrowded = totalCards > 13;
-  // Relax the scale down floor from 0.75 to 0.85 so cards stay relatively large
-  const scaleFactor = isCrowded ? Math.max(0.85, 1 - (totalCards - 13) * 0.015) : 1;
+  // On mobile allow scaling down further to prevent overlaps
+  const scaleFactor = isCrowded ? Math.max(layout.compact ? 0.70 : 0.85, 1 - (totalCards - 13) * (layout.compact ? 0.025 : 0.015)) : 1;
   const computedCardHeight = Math.min(availableHeight, availableWidth * 1.4) * scaleFactor;
   
-  const cardHeight = Math.max(layout.compact ? 78 : 96, computedCardHeight);
+  const cardHeight = Math.max(layout.compact ? 68 : 96, computedCardHeight);
   const cardWidth = cardHeight * 0.714; // Slightly wider than 0.7 for poker cards
   const groupGap = layout.compact ? 6 : (10 * scaleFactor);
   const suitGapTotal = sortedHand.reduce((sum, card, index) => {
@@ -169,7 +169,7 @@ export function createPlayerHandLayer({
   }, 0);
   
   // Calculate step, ensuring minimum visibility of card edges
-  const minStep = layout.compact ? 16 : 22; 
+  const minStep = layout.compact ? 12 : 22; 
   const availableStepSpace = availableWidth - cardWidth - suitGapTotal;
   const rawStep = totalCards > 1 ? availableStepSpace / (totalCards - 1) : cardWidth;
   

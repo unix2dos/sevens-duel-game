@@ -42,7 +42,8 @@ function clamp(value: number, min: number, max: number) {
 export function createTableLayout(width: number, height: number): TableLayout {
   const compact = width < 960;
   const padding = clamp(width * 0.028, compact ? 16 : 20, 34);
-  const actionInset = compact ? 92 : 144;
+// On mobile, the right action buttons are absolute. We reserve a bit more space.
+  const actionInset = compact ? 104 : 144;
   const topHeight = clamp(height * 0.115, compact ? 74 : 80, compact ? 92 : 102);
   const topWidth = width - padding * 2 - actionInset;
   // Increase the hand rail height to make the cards more visible
@@ -81,8 +82,8 @@ export function createTableLayout(width: number, height: number): TableLayout {
       height: handHeight,
     },
     toastAnchor: {
-      x: padding + topWidth / 2,
-      y: padding + topHeight / 2,
+      x: width / 2,
+      y: boardTop - (compact ? 10 : 18),
     },
     opponentAnchor: {
       x: padding + topWidth - (compact ? 124 : 152),
