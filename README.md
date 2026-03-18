@@ -4,6 +4,8 @@
 
 单机 机器人 对战的改良版接 7 Web 游戏。当前版本围绕“借牌博弈”重构了规则节奏与牌桌反馈：玩家输入姓名后进入牌局，在四条花色线上围绕 `7` 开线，通过出牌、卡位、借牌与反制，尽快让自己的手牌归零。
 
+![项目总览](docs/assets/showcase/hero.png)
+
 ## 立即试玩
 
 - 体验地址：[`Seven Duel`](https://sevens-duel-game.pages.dev/)
@@ -24,13 +26,9 @@
 
 ![对局中](docs/assets/showcase/gameplay.png)
 
+![操作反馈特写](docs/assets/showcase/interaction.png)
+
 ![结果页](docs/assets/showcase/result.png)
-
-## 演示视频
-
-[![演示视频封面](docs/assets/showcase/demo-cover.png)](docs/assets/showcase/sevens-duel-demo.mp4)
-
-点击封面可查看仓库内的短演示视频，内容展示首页进入牌局、牌桌动效以及结果页闭环。
 
 ## 正式规则
 
