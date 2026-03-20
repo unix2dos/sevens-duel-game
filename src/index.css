@@ -23,41 +23,32 @@
 
 html,
 body {
-  height: 100dvh;
+  min-height: 100dvh;
   width: 100vw;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #root {
-  height: 100dvh;
+  min-height: 100dvh;
   width: 100vw;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
   touch-action: manipulation;
-}
-
-@media (max-width: 899px) {
-  html,
-  body {
-    height: auto;
-    min-height: 100dvh;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-
-  #root {
-    height: auto;
-    min-height: 100dvh;
-    overflow-y: visible;
-    touch-action: pan-y;
-  }
 }
 
 body {
   min-width: 320px;
+}
+
+@media (max-width: 899px) {
+  #root {
+    touch-action: pan-y;
+  }
 }
 
 button,

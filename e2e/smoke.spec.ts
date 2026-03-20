@@ -66,6 +66,29 @@ test("home CTA stays visible in the initial viewport across supported breakpoint
   }
 });
 
+test("home page can scroll when content exceeds the tablet viewport", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Scroll behavior is asserted in a single project.");
+
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto("/");
+
+  const scrollMetrics = await page.evaluate(() => ({
+    clientHeight: document.scrollingElement?.clientHeight ?? 0,
+    scrollHeight: document.scrollingElement?.scrollHeight ?? 0,
+  }));
+
+  expect(scrollMetrics.scrollHeight).toBeGreaterThan(scrollMetrics.clientHeight);
+
+  await page.evaluate(() => window.scrollTo({ top: 400, behavior: "instant" }));
+
+  await expect
+    .poll(() => page.evaluate(() => window.scrollY), {
+      intervals: [100, 200, 400],
+      timeout: 2_000,
+    })
+    .toBeGreaterThan(0);
+});
+
 test("user can start a game and take a valid action on desktop", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("textbox", { name: /玩家姓名/i }).fill("测试玩家");
