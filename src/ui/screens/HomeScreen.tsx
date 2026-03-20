@@ -70,18 +70,6 @@ export function HomeScreen({
           selectedDifficulty={selectedDifficulty}
         />
 
-        <section aria-label="模式说明" className="mode-guide">
-          <p className="mode-guide-title">模式说明</p>
-          <ul className="mode-guide-list">
-            {modeDescriptions.map((mode) => (
-              <li className="mode-guide-item" key={mode.id}>
-                <span className="mode-guide-name">{mode.title}</span>
-                <span>{mode.copy}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
         <div className="hero-actions">
           <button
             className="primary-action"
@@ -98,6 +86,18 @@ export function HomeScreen({
             音效：{soundEnabled ? "开" : "关"}
           </button>
         </div>
+
+        <section aria-label="模式说明" className="mode-guide">
+          <p className="mode-guide-title">模式说明</p>
+          <ul className="mode-guide-list">
+            {modeDescriptions.map((mode) => (
+              <li className="mode-guide-item" key={mode.id}>
+                <span className="mode-guide-name">{mode.title}</span>
+                <span>{mode.copy}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
       </section>
 
       <section aria-hidden="true" className="home-tableau">

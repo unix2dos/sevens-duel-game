@@ -43,6 +43,18 @@ it("shows clear descriptions for each difficulty on the home screen", () => {
   expect(screen.getByText((_, node) => node?.textContent === "挑战：机器人更重视后续牌路与节奏控制，随机性更低，强度最高。")).toBeInTheDocument();
 });
 
+it("renders the start action before the mode guide on the home screen", () => {
+  render(<App />);
+
+  const difficultyPicker = screen.getByRole("group", { name: /难度选择/i });
+  const startButton = screen.getByRole("button", { name: /开始游戏/i });
+  const modeGuide = screen.getByText("模式说明").closest(".mode-guide");
+
+  expect(modeGuide).not.toBeNull();
+  expect(difficultyPicker.compareDocumentPosition(startButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(startButton.compareDocumentPosition(modeGuide as HTMLElement) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
 it("starts a game after selecting a difficulty and entering a player name", () => {
   render(<App />);
 

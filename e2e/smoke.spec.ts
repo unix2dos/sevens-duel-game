@@ -45,6 +45,27 @@ async function hasRenderedTable(page: Page) {
   }, screenshot.toString("base64"));
 }
 
+test("home CTA stays visible in the initial viewport across supported breakpoints", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Viewport coverage is asserted in a single project.");
+
+  const viewports = [
+    { height: 844, label: "phone", width: 390 },
+    { height: 1024, label: "tablet-portrait", width: 768 },
+    { height: 768, label: "tablet-landscape", width: 1024 },
+    { height: 900, label: "desktop", width: 1440 },
+  ];
+
+  for (const viewport of viewports) {
+    await page.setViewportSize({ height: viewport.height, width: viewport.width });
+    await page.goto("/");
+
+    const startButton = page.getByRole("button", { name: "开始游戏" });
+
+    await expect(startButton, `${viewport.label} should render the start CTA without scrolling`).toBeVisible();
+    await expect(startButton, `${viewport.label} should keep the start CTA inside the first viewport`).toBeInViewport();
+  }
+});
+
 test("user can start a game and take a valid action on desktop", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("textbox", { name: /玩家姓名/i }).fill("测试玩家");
